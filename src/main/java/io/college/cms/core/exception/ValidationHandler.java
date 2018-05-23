@@ -4,12 +4,12 @@ public class ValidationHandler {
 	public static final String EMPTY_STRING = "";
 
 	public static void throwExceptionIfNull(Object val, String msg,
-			ExceptionType type) throws NoSuchRecord, ValidationException {
+			ExceptionType type) throws NoSuchRecordException, ValidationException {
 		if (val != null || type == null || ExceptionType.SILENT == type) {
 			return;
 		}
 		if (ExceptionType.NO_RECORD_AVAILABLE == type) {
-			throw new NoSuchRecord(sourceIfNotNull(msg,
+			throw new NoSuchRecordException(sourceIfNotNull(msg,
 					"No such record available."));
 		} else if (ExceptionType.VALIDATION_EXCEPTION == type) {
 			throw new ValidationException(sourceIfNotNull(msg,

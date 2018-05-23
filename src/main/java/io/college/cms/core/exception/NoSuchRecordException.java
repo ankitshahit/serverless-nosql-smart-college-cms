@@ -1,20 +1,20 @@
 package io.college.cms.core.exception;
 
-public class NoSuchRecord extends Exception {
+public class NoSuchRecordException extends Exception {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -314195164596475207L;
 
-	public NoSuchRecord() {
+	public NoSuchRecordException() {
 		super();
 	}
 
-	public NoSuchRecord(String msg) {
+	public NoSuchRecordException(String msg) {
 		super(msg);
 	}
 
-	public NoSuchRecord(Exception ex) {
+	public NoSuchRecordException(Exception ex) {
 		super(ex.getMessage());
 	}
 

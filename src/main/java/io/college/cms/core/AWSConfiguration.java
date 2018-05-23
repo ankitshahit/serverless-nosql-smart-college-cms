@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Configuration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
@@ -19,7 +21,7 @@ public class AWSConfiguration {
 	private String awsSecretKey;
 	@Value("${aws.access.key}")
 	private String awsAccessKey;
-	
+
 	@Bean
 	public AWSCredentials awsBasicCredentials() {
 		return new BasicAWSCredentials(awsAccessKey, awsSecretKey);
@@ -27,11 +29,9 @@ public class AWSConfiguration {
 
 	@Bean
 	public AmazonDynamoDB amazonDynamoDB() {
-		return AmazonDynamoDBClientBuilder
-				.standard()
-				.withRegion(Regions.AP_SOUTH_1)
-				.withCredentials(
-						new AWSStaticCredentialsProvider(awsBasicCredentials()))
+		return AmazonDynamoDBClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(awsBasicCredentials())).withEndpointConfiguration(
+						new EndpointConfiguration("http://localhost:8000", Regions.AP_SOUTH_1.getName()))
 				.build();
 	}
 

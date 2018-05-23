@@ -2,7 +2,10 @@ package io.college.cms.core;
 
 import org.springframework.stereotype.Service;
 
+import lombok.Builder;
+
 @Service
+@Builder
 public class FactoryResponse {
 	private SummaryMessageEnum summaryMessage;
 	private Object response;
@@ -22,7 +25,5 @@ public class FactoryResponse {
 	public void setResponse(Object response) {
 		this.response = response;
 	}
-
-
 
 }

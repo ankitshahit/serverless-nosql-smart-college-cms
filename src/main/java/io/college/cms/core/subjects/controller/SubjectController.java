@@ -1,7 +1,6 @@
 package io.college.cms.core.subjects.controller;
 
-import io.college.cms.core.FactoryResponse;
-import io.college.cms.core.subjects.factory.SubjectResponseFactory;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +12,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.college.cms.core.FactoryResponse;
+import io.college.cms.core.subjects.db.SubjectEntity;
+import io.college.cms.core.subjects.factory.SubjectResponseFactory;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController()
 @RequestMapping(path = "/1.0/subjects", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SubjectController {
@@ -25,13 +30,28 @@ public class SubjectController {
 	}
 
 	@RequestMapping(method = { RequestMethod.GET })
-	public FactoryResponse findBySubjectName(HttpServletRequest request,
-			HttpServletResponse response,
-			@RequestParam(SUBJECT_NAME) String subjectName) {
-		FactoryResponse fr = subjectResponseFactory.findBySubjectName(request,
-				subjectName);
+	public FactoryResponse findBySubjectName(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = SUBJECT_NAME, required = false) String subjectName) {
+		LOGGER.debug("Request");
+		FactoryResponse fr = subjectResponseFactory.findBySubjectName(request, subjectName);
 		response.setStatus(fr.getSummaryMessage().code().value());
+		return fr;
+	}
 
+	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST }, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public FactoryResponse findBySubjectName(HttpServletRequest request, HttpServletResponse response,
+			SubjectEntity entity) {
+		FactoryResponse fr = subjectResponseFactory.createUpdateSubjects(request, entity);
+		response.setStatus(fr.getSummaryMessage().code().value());
+		return fr;
+	}
+
+	@RequestMapping(method = { RequestMethod.DELETE })
+	public FactoryResponse findBySubjectName(HttpServletRequest request, HttpServletResponse response,
+			Map<String, String> json) {
+		FactoryResponse fr = subjectResponseFactory.createUpdateSubjects(request,
+				new SubjectEntity(json.get(SUBJECT_NAME)));
+		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;
 	}
 }
