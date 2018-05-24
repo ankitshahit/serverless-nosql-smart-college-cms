@@ -1,28 +1,115 @@
 package io.college.cms.core.identity.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClient;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
-import com.amazonaws.services.cognitoidp.model.AdminGetUserRequest;
-import com.amazonaws.services.cognitoidp.model.AdminGetUserResult;
+import java.util.Date;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
-//test class for now need to change this.
-public class UserService {
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Service;
 
-	public static void main(String[] args) {
-		String accessKey = "";
-		String secretKey = "";
-		AWSCognitoIdentityProviderClient.builder();
-		AWSCognitoIdentityProvider identityUserPoolProviderClient = AWSCognitoIdentityProviderClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-				.withRegion(Regions.AP_SOUTH_1).build();
-		AdminGetUserRequest getUserRequest = new AdminGetUserRequest();
-		getUserRequest.setUserPoolId("ap-south-1:8a10d71d-8bf3-4103-ad7a-2127f25518e9");
-		getUserRequest.setUsername("ankitshahit");
-		AdminGetUserResult result = identityUserPoolProviderClient.adminGetUser(getUserRequest);
-		System.out.println(result.getUserAttributes());
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+
+import io.college.cms.core.exception.ApplicationException;
+import io.college.cms.core.exception.ExceptionType;
+import io.college.cms.core.exception.ResourceDeniedException;
+import io.college.cms.core.exception.ValidationException;
+import io.college.cms.core.exception.ValidationHandler;
+import io.college.cms.core.user.model.UserModel;
+import io.college.cms.core.user.service.IUserService;
+import lombok.NonNull;
+import lombok.experimental.var;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Deals with user management.
+ * 
+ * @author Ankit
+ *
+ */
+@Slf4j
+@Service
+public class UserService implements IUserService {
+
+	private DynamoDBMapper dbMapper;
+
+	public UserService(DynamoDBMapper mapper) {
+		this.dbMapper = mapper;
 	}
+
+	@Override
+	public List<UserModel> findAllUsers()
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {		
+		
+		var users = new ArrayList<UserModel>();
+		try {
+			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(users), "No users found.",
+					ExceptionType.VALIDATION_EXCEPTION);
+
+		} catch (ValidationException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ex);
+		}
+		return users;
+	}
+
+	@Override
+	public void createUpdateUser(@NonNull UserModel user)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		try {
+			ValidationHandler.throwExceptionIfNull(user.getUserType(), "user type is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+
+			dbMapper.save(user);
+		} catch (ValidationException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ex);
+		}
+	}
+
+	@Override
+	public void deleteUser(@NonNull UserModel user)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		try {
+			ValidationHandler.throwExceptionIfNull(user.getUsername(), "user name is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			var dbVersionUser = findByUsername(user.getUsername());
+			dbVersionUser.setDeletedOn(Date.from(Instant.now()));
+			dbMapper.save(user);
+		} catch (ValidationException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ex);
+		}
+	}
+
+	@Override
+	public UserModel findByUsername(@NonNull String username)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		var user = UserModel.builder().build();
+		try {
+			user = dbMapper.load(UserModel.class, username);
+
+			ValidationHandler.throwExceptionIfNull(user, "No such user exists.", ExceptionType.VALIDATION_EXCEPTION);
+		} catch (ValidationException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ex);
+		}
+		return user;
+	}
+
+	@Override
+	public void deleteUser(String username)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		deleteUser(UserModel.builder().username(username).build());
+
+	}
+
 }

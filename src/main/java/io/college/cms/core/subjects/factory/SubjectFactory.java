@@ -5,7 +5,7 @@ import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.subjects.db.ISubjectRepo;
-import io.college.cms.core.subjects.db.SubjectEntity;
+import io.college.cms.core.subjects.db.SubjectModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,18 +24,18 @@ public class SubjectFactory {
 		this.subjectRepo = subjectRepo;
 	}
 
-	public SubjectEntity getSubjectEntity(String key) throws NoSuchRecordException, ValidationException {
-		SubjectEntity val = subjectRepo.findOne(key);
+	public SubjectModel getSubjectEntity(String key) throws NoSuchRecordException, ValidationException {
+		SubjectModel val = subjectRepo.findOne(key);
 		ValidationHandler.throwExceptionIfNull(val, ValidationHandler.EMPTY_STRING, ExceptionType.NO_RECORD_AVAILABLE);
 		return val;
 	}
 
-	public SubjectEntity createSubject(SubjectEntity entity) throws NoSuchRecordException, ValidationException {
+	public SubjectModel createSubject(SubjectModel entity) throws NoSuchRecordException, ValidationException {
 		subjectRepo.save(entity);
 		return entity;
 	}
 
-	public void deleteSubject(SubjectEntity key) throws ValidationException {
+	public void deleteSubject(SubjectModel key) throws ValidationException {
 		subjectRepo.delete(key);
 	}
 }

@@ -8,8 +8,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import io.college.cms.core.TableNames;
-import io.college.cms.core.subjects.db.SubjectEntity;
+import io.college.cms.core.dynamodbloader.constants.TableNames;
+import io.college.cms.core.subjects.db.SubjectModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,20 +21,18 @@ import lombok.Singular;
 @DynamoDBTable(tableName = TableNames.COURSES_TABLE)
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseEntity {
+public class CourseModel {
 
 	/**
 	 * @param courseName
 	 */
-	public CourseEntity(String courseName) {
+	public CourseModel(String courseName) {
 		super();
 		this.courseName = courseName;
 	}
 
 	@DynamoDBHashKey(attributeName = "course_name")
 	private String courseName;
-	@DynamoDBAttribute(attributeName = "subjects")
-	private List<String> subjects;
 	@DynamoDBAttribute(attributeName = "enrolled_students")
 	@Builder.Default
 	private Long enrolledStudents = (long) 0.0;
@@ -49,6 +47,30 @@ public class CourseEntity {
 	@DynamoDBIgnore
 	@JsonIgnore
 	@Singular("subjectResolvedMap")
-	private List<SubjectEntity> subjectsResolved;
+	private List<SubjectModel> subjectsResolved;
+	@DynamoDBAttribute(attributeName = "subject_groups")
+	private CourseSubjectGroupsModel courseSubjectGroups;
 
+	@Builder
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Data
+	public static class CourseSubjectGroupsModel {
+		@DynamoDBAttribute(attributeName = "subject_name")
+		private String subjectName;
+		@DynamoDBAttribute(attributeName = "is_optional")
+		private boolean isOptional;
+
+		@DynamoDBAttribute(attributeName = "max_allocated_seats")
+		@Builder.Default
+		private long maxAllowedStudents = (long) 0.0;
+		@DynamoDBAttribute(attributeName = "enrolled_students_count")
+		@Builder.Default
+		private long enrolledStudents = (long) 0.0;
+		@DynamoDBAttribute(attributeName = "student_usernames")
+		@Singular
+		private List<String> studentUsernames;
+		@DynamoDBIgnore
+		private String courseName;
+	}
 }

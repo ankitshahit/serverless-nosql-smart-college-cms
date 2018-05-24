@@ -5,11 +5,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.college.cms.core.FactoryResponse;
-import io.college.cms.core.SummaryMessageEnum;
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
-import io.college.cms.core.subjects.db.SubjectEntity;
+import io.college.cms.core.subjects.db.SubjectModel;
 
 @Service
 public class SubjectResponseFactory {
@@ -36,7 +36,7 @@ public class SubjectResponseFactory {
 		return response;
 	}
 
-	public FactoryResponse createUpdateSubjects(HttpServletRequest request, SubjectEntity entity) {
+	public FactoryResponse createUpdateSubjects(HttpServletRequest request, SubjectModel entity) {
 		FactoryResponse response = FactoryResponse.builder().build();
 
 		try {
@@ -59,7 +59,7 @@ public class SubjectResponseFactory {
 		FactoryResponse response = FactoryResponse.builder().build();
 
 		try {
-			SubjectEntity entity = subjectFactory.getSubjectEntity(subjectName);
+			SubjectModel entity = subjectFactory.getSubjectEntity(subjectName);
 			subjectFactory.deleteSubject(entity);
 			response.setResponse(new StringBuilder().append(subjectName).append(" is deleted."));
 			response.setSummaryMessage(SummaryMessageEnum.SUCCESS);

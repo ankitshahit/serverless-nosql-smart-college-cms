@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
-import io.college.cms.core.Paginate;
-import io.college.cms.core.courses.db.CourseEntity;
+import io.college.cms.core.courses.db.CourseModel;
+import io.college.cms.core.dynamodbloader.model.Paginate;
 import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
 import lombok.NonNull;
@@ -25,20 +25,20 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	public CourseEntity findByCourseName(@NonNull() String courseName)
+	public CourseModel findByCourseName(@NonNull() String courseName)
 			throws NoSuchRecordException, NullPointerException {
-		CourseEntity course = null;
+		CourseModel course = null;
 		try {
-			course = dbMapper.load(CourseEntity.class, courseName);
+			course = dbMapper.load(CourseModel.class, courseName);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new NoSuchRecordException(e);
 		}
-		return (CourseEntity) course;
+		return (CourseModel) course;
 	}
 
 	@Override
-	public void saveCourse(@NonNull CourseEntity course) throws ValidationException {
+	public void saveCourse(@NonNull CourseModel course) throws ValidationException {
 		try {
 			dbMapper.save(course);
 		} catch (Exception e) {
@@ -49,7 +49,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	public void deleteCourse(@NonNull CourseEntity course) throws ValidationException, NoSuchRecordException {
+	public void deleteCourse(@NonNull CourseModel course) throws ValidationException, NoSuchRecordException {
 
 		try {
 			dbMapper.delete(course);
@@ -62,7 +62,7 @@ public class CourseDynamoService implements ICourseDbService {
 	@Override
 	public void deleteCourse(@NonNull String courseName) throws ValidationException, NoSuchRecordException {
 		try {
-			deleteCourse(new CourseEntity(courseName));
+			deleteCourse(new CourseModel(courseName));
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ValidationException(e);
@@ -72,7 +72,7 @@ public class CourseDynamoService implements ICourseDbService {
 
 	// TODO: limit and pagination of courses is pending.
 	@Override
-	public List<CourseEntity> limitAndPaginateCourses(Paginate paginate) {
+	public List<CourseModel> limitAndPaginateCourses(Paginate paginate) {
 		try {
 
 		} catch (Exception e) {

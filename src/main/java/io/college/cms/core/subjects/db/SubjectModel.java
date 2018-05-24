@@ -3,8 +3,9 @@ package io.college.cms.core.subjects.db;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.college.cms.core.TableNames;
+import io.college.cms.core.dynamodbloader.constants.TableNames;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,16 +19,17 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamoDBTable(tableName = TableNames.SUBJECT_TABLE)
-public class SubjectEntity {
+public class SubjectModel {
 
 	/**
 	 * @param subjectName
 	 */
-	public SubjectEntity(@NonNull String subjectName) {
+	public SubjectModel(@NonNull String subjectName) {
 		super();
 		this.subjectName = subjectName;
 	}
 
+	@JsonProperty(value = "subject_name")
 	@DynamoDBHashKey(attributeName = "subject_name")
 	private String subjectName;
 

@@ -7,13 +7,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.college.cms.core.FactoryResponse;
-import io.college.cms.core.subjects.db.SubjectEntity;
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.subjects.db.SubjectModel;
 import io.college.cms.core.subjects.factory.SubjectResponseFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +41,8 @@ public class SubjectController {
 
 	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST }, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public FactoryResponse findBySubjectName(HttpServletRequest request, HttpServletResponse response,
-			SubjectEntity entity) {
+			@RequestBody SubjectModel entity) {
+		LOGGER.debug("{} Subject is passed", entity);
 		FactoryResponse fr = subjectResponseFactory.createUpdateSubjects(request, entity);
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;
@@ -50,7 +52,7 @@ public class SubjectController {
 	public FactoryResponse findBySubjectName(HttpServletRequest request, HttpServletResponse response,
 			Map<String, String> json) {
 		FactoryResponse fr = subjectResponseFactory.createUpdateSubjects(request,
-				new SubjectEntity(json.get(SUBJECT_NAME)));
+				new SubjectModel(json.get(SUBJECT_NAME)));
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;
 	}

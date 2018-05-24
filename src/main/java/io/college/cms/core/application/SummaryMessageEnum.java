@@ -1,11 +1,10 @@
-package io.college.cms.core;
+package io.college.cms.core.application;
 
 import org.springframework.http.HttpStatus;
 
 public enum SummaryMessageEnum {
-	SUCCESS(HttpStatus.ACCEPTED), FAILURE(HttpStatus.BAD_REQUEST), ACCESS_DENIED(
-			HttpStatus.FORBIDDEN), UNAUTHORIZED(HttpStatus.UNAUTHORIZED), VALIDATION_ERROR(
-			HttpStatus.UNAUTHORIZED);
+	SUCCESS(HttpStatus.OK), FAILURE(HttpStatus.BAD_REQUEST), ACCESS_DENIED(HttpStatus.FORBIDDEN), UNAUTHORIZED(
+			HttpStatus.UNAUTHORIZED), VALIDATION_ERROR(HttpStatus.BAD_REQUEST);
 	private HttpStatus code;
 
 	SummaryMessageEnum(HttpStatus status) {
