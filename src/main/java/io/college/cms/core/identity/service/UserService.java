@@ -109,7 +109,6 @@ public class UserService implements IUserService {
 	public void deleteUser(String username)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		deleteUser(UserModel.builder().username(username).build());
-
 	}
 
 }

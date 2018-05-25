@@ -7,6 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.college.cms.core.courses.db.CourseModel.CourseSubjectGroupsModel;
 import io.college.cms.core.courses.service.ICourseDbService;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionType;
@@ -44,15 +45,23 @@ public class CourseGroupsService implements ICourseGroupsService {
 					String.valueOf(new StringBuilder().append("Subject group is empty for course").append(courseName)),
 					ExceptionType.VALIDATION_EXCEPTION);
 
-			var usernames = new ArrayList<String>();
+			for (CourseSubjectGroupsModel groupSubject : subjectGroupModel) {
+				if (!subjectName.equalsIgnoreCase(groupSubject.getSubjectName())) {
+					continue;
+				}
+				var usernames = new ArrayList<String>();
 
-			if (!CollectionUtils.isEmpty(subjectGroupModel.getStudentUsernames())) {
-				usernames.addAll(subjectGroupModel.getStudentUsernames());
+				if (!CollectionUtils.isEmpty(groupSubject.getStudentUsernames())) {
+					usernames.addAll(groupSubject.getStudentUsernames());
+				}
+				usernames.addAll(username);
+				groupSubject.setStudentUsernames(usernames);
+
+				groupSubject.setStudentUsernames(usernames);
+				groupSubject.setEnrolledStudents(CollectionUtils.size(usernames));
+				courseModel.setCourseSubjectGroups(subjectGroupModel);
 			}
-			usernames.addAll(username);
-			subjectGroupModel.setStudentUsernames(usernames);
-			subjectGroupModel.setEnrolledStudents(CollectionUtils.size(usernames));
-			courseModel.setCourseSubjectGroups(subjectGroupModel);
+
 			courseDbService.saveCourse(courseModel);
 		} catch (ValidationException | IllegalArgumentException ex) {
 			throw ex;
@@ -81,13 +90,19 @@ public class CourseGroupsService implements ICourseGroupsService {
 					String.valueOf(new StringBuilder().append("Subject group is empty for course").append(courseName)),
 					ExceptionType.VALIDATION_EXCEPTION);
 
-			if (!CollectionUtils.isEmpty(subjectGroupModel.getStudentUsernames())) {
-				subjectGroupModel.getStudentUsernames().removeAll(username);
+			for (CourseSubjectGroupsModel groupSubject : subjectGroupModel) {
+				if (!subjectName.equalsIgnoreCase(groupSubject.getSubjectName())) {
+					continue;
+				}
+				if (CollectionUtils.isEmpty(groupSubject.getStudentUsernames())) {
+					break;
+				}
+				groupSubject.getStudentUsernames().removeAll(username);
+				groupSubject.setEnrolledStudents(CollectionUtils.size(groupSubject.getStudentUsernames()));
+				courseModel.setCourseSubjectGroups(subjectGroupModel);
+				courseDbService.saveCourse(courseModel);
 			}
 
-			subjectGroupModel.setEnrolledStudents(CollectionUtils.size(subjectGroupModel.getStudentUsernames()));
-			courseModel.setCourseSubjectGroups(subjectGroupModel);
-			courseDbService.saveCourse(courseModel);
 		} catch (ValidationException | IllegalArgumentException ex) {
 			throw ex;
 		} catch (Exception ex) {
@@ -113,9 +128,13 @@ public class CourseGroupsService implements ICourseGroupsService {
 			ValidationHandler.throwExceptionIfNull(subjectGroupModel,
 					String.valueOf(new StringBuilder().append("Subject group is empty for course").append(courseName)),
 					ExceptionType.VALIDATION_EXCEPTION);
-
-			subjectGroupModel.setEnrolledStudents(CollectionUtils.size(totalCount));
-			courseDbService.saveCourse(courseModel);
+			for (var subjectGroup : subjectGroupModel) {
+				if (!subjectName.equalsIgnoreCase(subjectName)) {
+					continue;
+				}
+				subjectGroup.setEnrolledStudents(CollectionUtils.size(totalCount));
+				courseDbService.saveCourse(courseModel);
+			}
 
 		} catch (ValidationException | IllegalArgumentException ex) {
 			throw ex;
@@ -124,5 +143,4 @@ public class CourseGroupsService implements ICourseGroupsService {
 			throw new ApplicationException(ex);
 		}
 	}
-
 }

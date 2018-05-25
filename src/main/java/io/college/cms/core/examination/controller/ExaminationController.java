@@ -1,10 +1,18 @@
 package io.college.cms.core.examination.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,21 +21,54 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.beust.jcommander.internal.Lists;
+
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.courses.controller.CourseController;
+import io.college.cms.core.examination.service.ExamQrService;
 import io.college.cms.core.subjects.controller.SubjectController;
+import io.college.cms.core.user.controller.UserController;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping(path = "/1.0/exams", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.IMAGE_JPEG_VALUE })
+@RequestMapping(path = "/1.0/exams", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.IMAGE_JPEG_VALUE,
+		MediaType.APPLICATION_PDF_VALUE })
 @Slf4j
 public class ExaminationController {
 
 	public static final String EXAM_NAME = "exam_name";
+	public static final String FILE_NAME = "file_name";
+	private ExamQrService qrService;
+
+	public ExaminationController(ExamQrService qr) {
+		this.qrService = qr;
+	}
+
+	@RequestMapping(path = "/qr/print/download", method = { RequestMethod.GET }, produces = {
+			MediaType.APPLICATION_PDF_VALUE })
+	public void download(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = EXAM_NAME, required = true) String examName,
+			@RequestParam(value = SubjectController.SUBJECT_NAME, required = true) String subjectName,
+			@RequestParam(value = UserController.USER_NAME, required = false) String username,
+			@RequestParam(FILE_NAME) String fileName) throws IOException {
+		List<String> usernames = Lists.newArrayList();
+		usernames.add(username);
+		File fileToDownload = qrService.printForSubject(examName, subjectName, usernames);
+		@Cleanup
+		InputStream inputStream = new FileInputStream(fileToDownload);
+		response.setContentType("application/force-download");
+		response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".pdf");
+		IOUtils.copy(inputStream, response.getOutputStream());
+		response.flushBuffer();
+		inputStream.close();
+
+	}
 
 	@RequestMapping(method = { RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public FactoryResponse getExams(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = CourseController.COURSE_NAME, required = false) String courseName) {
+		LOGGER.debug("request received.");
 		FactoryResponse fr = null;
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;
@@ -41,7 +82,7 @@ public class ExaminationController {
 	 * @param body
 	 * @return
 	 */
-	@RequestMapping(path = "schedule", method = { RequestMethod.PUT, RequestMethod.POST }, produces = {
+	@RequestMapping(path = "/schedule", method = { RequestMethod.PUT, RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, consumes = { MediaType.APPLICATION_JSON_VALUE })
 
 	public FactoryResponse scheduleExams(HttpServletRequest request, HttpServletResponse response,

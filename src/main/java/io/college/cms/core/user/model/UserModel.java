@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -22,7 +23,7 @@ import lombok.Singular;
 @AllArgsConstructor
 @DynamoDBTable(tableName = TableNames.PROFILE_TABLE)
 public class UserModel {
-	@DynamoDBAttribute(attributeName = "username")
+	@DynamoDBHashKey(attributeName = "username")
 	private String username;
 	@DynamoDBAttribute(attributeName = "is_active")
 	private boolean isActive;
@@ -39,7 +40,7 @@ public class UserModel {
 	@Singular(value = "data")
 	private List<AttributeType> userData;
 	@DynamoDBAttribute(attributeName = "user_type")
-	private String userType;
+	private String userType;	
 
 	@Builder
 	@Data

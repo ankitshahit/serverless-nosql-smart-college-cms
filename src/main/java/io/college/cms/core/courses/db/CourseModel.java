@@ -6,7 +6,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.college.cms.core.dynamodbloader.constants.TableNames;
 import io.college.cms.core.subjects.db.SubjectModel;
@@ -44,12 +43,12 @@ public class CourseModel {
 	private Double totalDuration = 0.0;
 	@DynamoDBAttribute(attributeName = "is_archive")
 	private boolean isArchive;
-	@DynamoDBIgnore
-	@JsonIgnore
-	@Singular("subjectResolvedMap")
-	private List<SubjectModel> subjectsResolved;
+	@DynamoDBAttribute(attributeName = "subjects")
+	@Singular("subject")
+	private List<SubjectModel> subjects;
 	@DynamoDBAttribute(attributeName = "subject_groups")
-	private CourseSubjectGroupsModel courseSubjectGroups;
+	@Singular("group")
+	private List<CourseSubjectGroupsModel> courseSubjectGroups;
 
 	@Builder
 	@AllArgsConstructor
