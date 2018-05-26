@@ -71,12 +71,12 @@ public class ExaminationController {
 		return fr;
 	}
 
-	@RequestMapping(method = { RequestMethod.POST, RequestMethod.PUT }, produces = {
-			MediaType.APPLICATION_JSON_VALUE }, consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@RequestMapping(method = { RequestMethod.DELETE }, produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
+			MediaType.APPLICATION_JSON_VALUE })
 	public FactoryResponse deleteExamExam(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody ExaminationModel model) {
 		LOGGER.debug("request received.");
-		
+
 		FactoryResponse fr = examService.createUpdateExam(request, model);
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;

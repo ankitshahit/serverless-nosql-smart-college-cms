@@ -59,7 +59,7 @@ public class UserService implements IUserService {
 	public void createUpdateUser(@NonNull UserModel user)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		try {
-			ValidationHandler.throwExceptionIfNull(user.getUserType(), "user type is empty",
+			ValidationHandler.throwExceptionIfNull(user.getUsername(), "user type is empty",
 					ExceptionType.VALIDATION_EXCEPTION);
 
 			dbMapper.save(user);
