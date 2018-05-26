@@ -59,7 +59,8 @@ public class ExamDynamoService implements IExamDbService {
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 
 		try {
-			// we won't be checking exam subjects for now TO-DO: have to verify
+			// we won't be checking exam subjects for now 
+			//TODO: have to verify
 			// each subject whether they working or not
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(model.getExamSubjects()),
 					"No exam subjects provided.", ExceptionType.VALIDATION_EXCEPTION);

@@ -1,7 +1,6 @@
 package io.college.cms.core.examination.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;

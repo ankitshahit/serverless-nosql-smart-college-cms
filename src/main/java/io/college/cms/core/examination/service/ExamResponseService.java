@@ -138,6 +138,7 @@ public class ExamResponseService {
 			String examName, String subjectName, String type, String fileName) {
 
 		try {
+
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(subjectName), "Subject name is not provided.",
 					ExceptionType.VALIDATION_EXCEPTION);
 
@@ -190,6 +191,17 @@ public class ExamResponseService {
 	public FactoryResponse createUpdateExam(HttpServletRequest request, ExaminationModel examination) {
 		FactoryResponse fr = null;
 		try {
+			ValidationHandler.throwExceptionIfNull(examination, "No request json is available ",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examination.getCourseName()),
+					"Course name is not provided ", ExceptionType.VALIDATION_EXCEPTION);
+
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examination.getExamName()),
+					"Exam name not provided ", ExceptionType.VALIDATION_EXCEPTION);
+
+			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(examination.getExamSubjects()),
+					"No subjects provided", ExceptionType.VALIDATION_EXCEPTION);
+
 			examDbService.saveUpdateExam(examination);
 			fr = FactoryResponse.builder().response("Successfully saved/updated")
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
@@ -220,6 +232,9 @@ public class ExamResponseService {
 	public FactoryResponse deleteExamByExamName(HttpServletRequest request, String examName) {
 		FactoryResponse fr = null;
 		try {
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examName), "Exam name not provided ",
+					ExceptionType.VALIDATION_EXCEPTION);
+			examDbService.findByExamName(examName);
 			examDbService.deleteExam(examName);
 			fr = FactoryResponse.builder().response("Successfully deleted.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();

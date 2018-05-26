@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.college.cms.core.courses.controller.CourseController;
 import io.college.cms.core.dynamodbloader.constants.TableNames;
@@ -22,6 +23,7 @@ import lombok.Singular;
 @Builder
 @Data
 @DynamoDBTable(tableName = TableNames.EXAMINATION_TABLE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExaminationModel {
 	@DynamoDBHashKey(attributeName = ExaminationController.EXAM_NAME)
 	private String examName;
@@ -34,12 +36,17 @@ public class ExaminationModel {
 	private Date examStartDate;
 	@DynamoDBAttribute(attributeName = "exam_end_date_time")
 	private Date examEndDate;
+	@DynamoDBAttribute(attributeName = "is_published")
+	private boolean published;
+	@DynamoDBAttribute(attributeName = "un_published")
+	private boolean unPublished;
 
 	@Data
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@DynamoDBDocument
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class ExamSubject {
 		@DynamoDBAttribute(attributeName = CourseController.SUBJECT_NAME)
 		private String subjectName;
