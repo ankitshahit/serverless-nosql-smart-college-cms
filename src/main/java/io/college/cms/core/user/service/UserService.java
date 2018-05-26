@@ -1,8 +1,8 @@
-package io.college.cms.core.identity.service;
+package io.college.cms.core.user.service;
 
-import java.util.Date;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -16,7 +16,6 @@ import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.user.model.UserModel;
-import io.college.cms.core.user.service.IUserService;
 import lombok.NonNull;
 import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +38,8 @@ public class UserService implements IUserService {
 
 	@Override
 	public List<UserModel> findAllUsers()
-			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {		
-		
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+
 		var users = new ArrayList<UserModel>();
 		try {
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(users), "No users found.",

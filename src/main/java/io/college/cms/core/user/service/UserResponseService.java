@@ -1,7 +1,12 @@
 package io.college.cms.core.user.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import io.college.cms.core.application.FactoryResponse;
@@ -10,6 +15,7 @@ import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionHandler;
 import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
+import io.college.cms.core.user.constants.UserAttributes;
 import io.college.cms.core.user.model.UserModel;
 import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +26,25 @@ public class UserResponseService {
 
 	private IUserService userService;
 
+	@Autowired()
 	public UserResponseService(IUserService userService) {
 		this.userService = userService;
+	}
+
+	/**
+	 * Returns all of user attributes made available through cms, caching is
+	 * used because we do not expect for them to change
+	 * 
+	 * @return
+	 */
+	@Cacheable
+	public FactoryResponse getAllUserAttributes() {
+		var constants = new ArrayList<String>();
+		Arrays.asList(UserAttributes.values()).forEach(attribute -> {
+			constants.add(attribute.toString());
+		});
+
+		return FactoryResponse.builder().response(constants).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 	}
 
 	public FactoryResponse getUserByUser(HttpServletRequest request, String username) {
@@ -142,4 +165,5 @@ public class UserResponseService {
 		}
 		return fr;
 	}
+
 }

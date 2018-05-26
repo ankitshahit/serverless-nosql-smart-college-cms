@@ -39,6 +39,8 @@ public class UserModel {
 	@DynamoDBAttribute(attributeName = "user_metadata")
 	@Singular(value = "withAttribute")
 	private List<AttributeType> attributes;
+	private Integer limit;
+	private String paginationToken;
 
 	@Builder
 	@Data

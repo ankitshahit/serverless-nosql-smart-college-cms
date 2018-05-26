@@ -6,9 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import com.amazonaws.services.cognitoidp.model.AdminAddUserToGroupRequest;
 import com.amazonaws.services.cognitoidp.model.AdminCreateUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminDeleteUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminGetUserRequest;
+import com.amazonaws.services.cognitoidp.model.AdminListGroupsForUserRequest;
+import com.amazonaws.services.cognitoidp.model.AdminRemoveUserFromGroupRequest;
+import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
+import com.amazonaws.services.cognitoidp.model.ListUsersInGroupRequest;
 
 @Configuration
 public class CognitoConfiguration {
@@ -41,5 +46,45 @@ public class CognitoConfiguration {
 		AdminDeleteUserRequest deleteUserRequest = new AdminDeleteUserRequest();
 		deleteUserRequest.setUserPoolId(appParams.getCognitoUserPoolId());
 		return deleteUserRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public AdminUpdateUserAttributesRequest adminUpdateAttributeUser() {
+		AdminUpdateUserAttributesRequest request = new AdminUpdateUserAttributesRequest();
+		request.setUserPoolId(appParams.getCognitoUserPoolId());
+		return request;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public AdminAddUserToGroupRequest adminAddGroup() {
+		AdminAddUserToGroupRequest userRequest = new AdminAddUserToGroupRequest();
+		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		return userRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public AdminRemoveUserFromGroupRequest adminRemoveGroup() {
+		AdminRemoveUserFromGroupRequest userRequest = new AdminRemoveUserFromGroupRequest();
+		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		return userRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public AdminListGroupsForUserRequest adminListUserGroup() {
+		AdminListGroupsForUserRequest userRequest = new AdminListGroupsForUserRequest();
+		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		return userRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public ListUsersInGroupRequest adminListGroup() {
+		ListUsersInGroupRequest userRequest = new ListUsersInGroupRequest();
+		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		return userRequest;
 	}
 }
