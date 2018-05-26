@@ -3,6 +3,7 @@ package io.college.cms.core.courses.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -25,6 +26,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
+	@Cacheable
 	public CourseModel findByCourseName(@NonNull() String courseName)
 			throws NoSuchRecordException, NullPointerException {
 		CourseModel course = null;

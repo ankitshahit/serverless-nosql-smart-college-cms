@@ -16,6 +16,8 @@ public class AppParams {
 	private boolean useLocalDynamoDb;
 	@Value("${cognito-user-pool-id}")
 	private String cognitoUserPoolId;
-	@Value("${dynamodb-endpoint:http://localhost:8000}")
+	@Value("${dynamodb-endpoint:http://localhost:3000}")
 	private String dynamoDbEndPoint;
+	@Value("${host:http://localhost:8080}")
+	private String host;
 }

@@ -11,6 +11,15 @@ import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.subjects.db.SubjectModel;
 
+/**
+ * Subject no longer lives as a seperate functionality, it has been merged into
+ * {@link com.college.cms.core.courses.service.CourseResponseService}}
+ * 
+ * @author Ankit
+ *
+ */
+
+@Deprecated
 @Service
 public class SubjectResponseFactory {
 	private SubjectFactory subjectFactory;
@@ -20,13 +29,14 @@ public class SubjectResponseFactory {
 		this.subjectFactory = factory;
 	}
 
+	@Deprecated
 	public FactoryResponse findBySubjectName(HttpServletRequest request, String subjectName) {
 		FactoryResponse response = FactoryResponse.builder().build();
 
 		try {
 			response.setResponse(subjectFactory.getSubjectEntity(subjectName));
 			response.setSummaryMessage(SummaryMessageEnum.SUCCESS);
-		} catch (NoSuchRecordException | ValidationException ex) {
+		} catch (ValidationException ex) {
 			response.setSummaryMessage(SummaryMessageEnum.VALIDATION_ERROR);
 			response.setResponse(new String("No such subject found."));
 		} catch (Exception e) {
@@ -36,6 +46,7 @@ public class SubjectResponseFactory {
 		return response;
 	}
 
+	@Deprecated
 	public FactoryResponse createUpdateSubjects(HttpServletRequest request, SubjectModel entity) {
 		FactoryResponse response = FactoryResponse.builder().build();
 
@@ -45,7 +56,7 @@ public class SubjectResponseFactory {
 			}
 			response.setResponse(subjectFactory.createSubject(entity));
 			response.setSummaryMessage(SummaryMessageEnum.SUCCESS);
-		} catch (NoSuchRecordException | ValidationException ex) {
+		} catch (ValidationException ex) {
 			response.setSummaryMessage(SummaryMessageEnum.VALIDATION_ERROR);
 			response.setResponse(new String("Unable to create/save record"));
 		} catch (Exception e) {
@@ -55,6 +66,7 @@ public class SubjectResponseFactory {
 		return response;
 	}
 
+	@Deprecated
 	public FactoryResponse deleteSubject(HttpServletRequest request, String subjectName) {
 		FactoryResponse response = FactoryResponse.builder().build();
 
@@ -63,7 +75,7 @@ public class SubjectResponseFactory {
 			subjectFactory.deleteSubject(entity);
 			response.setResponse(new StringBuilder().append(subjectName).append(" is deleted."));
 			response.setSummaryMessage(SummaryMessageEnum.SUCCESS);
-		} catch (NoSuchRecordException | ValidationException ex) {
+		} catch (ValidationException ex) {
 			response.setSummaryMessage(SummaryMessageEnum.VALIDATION_ERROR);
 			response.setResponse(new String("No such subject exists."));
 		} catch (Exception e) {

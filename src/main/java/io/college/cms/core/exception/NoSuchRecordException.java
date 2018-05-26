@@ -1,6 +1,6 @@
 package io.college.cms.core.exception;
 
-public class NoSuchRecordException extends Exception {
+public class NoSuchRecordException extends ValidationException {
 	/**
 	 * 
 	 */

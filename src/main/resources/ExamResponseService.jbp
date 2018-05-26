@@ -1,0 +1,10 @@
+F:\\workspace\\college.io\\src\\main\\java\\io\\college\\cms\\core\\examination\\service\\ExamResponseService.java
+io.college.cms.core.examination.service
+ExamResponseService
+4
+getExamByExamId(HttpServletRequest request, String examName)
+getQrByExamNameAndSubjectNameAndType(HttpServletRequest request, HttpServletResponse response, String examName, String subjectName, String type)
+createUpdateExam(HttpServletRequest request, ExaminationModel examination)
+deleteExamByExamName(HttpServletRequest request, String examName)
+1
+import javax.servlet.http.HttpServletRequest;import org.springframework.stereotype.Service;import io.college.cms.core.application.FactoryResponse;import io.college.cms.core.application.SummaryMessageEnum;import io.college.cms.core.exception.ApplicationException;import io.college.cms.core.exception.ExceptionHandler;import io.college.cms.core.exception.ResourceDeniedException;import io.college.cms.core.exception.ValidationException;import io.college.cms.core.user.model.UserModel;import lombok.extern.slf4j.Slf4j;

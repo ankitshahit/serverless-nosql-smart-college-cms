@@ -1,18 +1,24 @@
 package io.college.cms.core.examination.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import lombok.Cleanup;
+import io.college.cms.core.application.pdf.factory.IPdfEngine;
+import io.college.cms.core.application.pdf.factory.PDFEngine;
+import io.college.cms.core.application.pdf.factory.PdfFactory;
+import io.college.cms.core.configuration.AppParams;
+import io.college.cms.core.courses.controller.CourseController;
+import io.college.cms.core.courses.controller.constants.SubjectType;
+import io.college.cms.core.examination.controller.ExaminationController;
+import io.college.cms.core.exception.ApplicationException;
+import io.college.cms.core.exception.ExceptionHandler;
+import io.college.cms.core.user.controller.UserController;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.glxn.qrgen.QRCode;
@@ -20,67 +26,119 @@ import net.glxn.qrgen.QRCode;
 @Service
 @Slf4j
 public class ExamQrService {
-	@Value("${host:http://localhost:8080}")
-	private String host;
+	private AppParams app;
 
-	public File printForSubject(@NonNull String examName, @NonNull String subjectName, @NonNull List<String> usernames)
-			throws IllegalArgumentException {
-		File outputFile = new File("testpdf.pdf");
+	public ExamQrService(AppParams app) {
+		this.app = app;
+	}
+
+	public File printForSubject(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType subjectType,
+			@NonNull List<String> usernames) throws IllegalArgumentException, ApplicationException {
+		File outputFile = new File(new StringBuilder().append(examName).append("_").append(subjectName).append("_")
+				.append(subjectType.toString()).append("_").append(CollectionUtils.size(usernames)).toString());
+		PdfFactory pdfFactory = new PdfFactory();
 		try {
-			@Cleanup
-			PDDocument document = new PDDocument();
-			PDPage page = new PDPage();
-			PDPageContentStream contentStream = new PDPageContentStream(document, page,
-					PDPageContentStream.AppendMode.APPEND, true);
-			PDImageXObject image = null;
-			float width = 10;
-			float height = page.getCropBox().getHeight() - 50.0f;
+			IPdfEngine engine = null;
 
-			for (int index = 0; index < usernames.size(); index++) {
-				if (width > page.getCropBox().getWidth()) {
-					contentStream.close();
-					document.addPage(page);
-					page = new PDPage();
-					width = 10;
-					height = page.getCropBox().getHeight() - 50.0f;
-					contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND,
-							true);
+			pdfFactory.createPDFDocument();
+			pdfFactory.createPage();
+			engine = new PDFEngine(pdfFactory.createContentStream(AppendMode.APPEND, false));
+
+			// spacing between two rows.
+			float subtractHeight = 125.0f;
+			// spacing between values.
+			float addWidth = 115.0f;
+			// initial weight to start from in case of a new page is created.
+			float initialWidth = 10.f;
+			// initial height to start from in case of a new page is created.
+			float initialHeight = pdfFactory.getPage().getCropBox().getHeight() - subtractHeight;
+			// loading seed values to width
+			float width = initialWidth;
+			// loading seed values to height
+			float height = initialHeight;
+			// providing spacing after image, this is to achieve text below qr
+			// image.
+			float textSubtractHeight = 25;
+			// font size of text placed right below qr code.
+			float fontSize = 10;
+			// qr image height
+			int qrHeight = 110;
+			// qr image width
+			int qrWidth = 110;
+			// how many images should be placed; changing this would require to
+			// re-adjust above variables to fit (qr + text) in tabular format.
+			// maybe I should have chosen to search for tabular in pdf :/
+			// TO-DO: look for tabular structure in apache pdf.
+			float maxQrInRow = 5;
+
+			// we need to start from 1 rather than 0 because 0 % anything is 0.
+			// This results in addition of an extra column in case there's a
+			// check for index = 0 value.
+			// this adds an extra cell(value) making it have say 7 in row place
+			// of 6
+			for (float index = 1; index <= usernames.size(); index++) {
+				// as we are just increasing the width to place values in a
+				// single row, width greater than the max_width means we have
+				// ran out of page.
+				// time to get a new pdf page.
+				// and probably reset the variables to initial adjustment
+				// values.
+				if (width > pdfFactory.getPage().getCropBox().getWidth()) {
+
+					pdfFactory.closeContentStream(engine.getContentStream());
+					pdfFactory.addPage();
+					pdfFactory.createPage();
+					width = initialWidth;
+					height = initialHeight;
+					engine = new PDFEngine(pdfFactory.createContentStream(AppendMode.APPEND, false));
 				}
 
-				image = PDImageXObject.createFromByteArray(document,
-						QRCode.from(createQrAPILink(examName, subjectName, usernames.get(index))).withSize(10, 10)
-								.stream().toByteArray(),
-						"");
+				String websiteLink = createQrAPILink(examName, subjectName, subjectType,
+						usernames.get((int) index - 1));
+				byte[] qr = QRCode.from(websiteLink).withSize(qrWidth, qrHeight).stream().toByteArray();
+				engine.insertImage(pdfFactory.createImage(qr, ""), width, height);
+				// seed value to place text just below the qr image
+				engine.insertText(PDType1Font.HELVETICA,
+						new StringBuilder().append(" [").append(usernames.get((int) index - 1)).append("] ").toString(),
+						width, height + textSubtractHeight - textSubtractHeight, fontSize);
 
-				contentStream.drawImage(image, width, height);
-				PDFont font = PDType1Font.HELVETICA;
-				contentStream.setFont(font, 8);
+				width += addWidth;
 
-				contentStream.beginText();
-				contentStream.newLineAtOffset(width, height - 5);
-				contentStream.showText(usernames.get(index));
-				contentStream.endText();
+				// we ran out of row, time to adjust variables for insertion at
+				// new row.
+				if (index != 0 && index % maxQrInRow == 0 && (height > 0 && (height - subtractHeight > 0))) {
 
-				width += 50;
-				// going to new row.
-				if (index % 12 == 0 && (height > 0 && (height - 50 > 0)) && width < page.getCropBox().getWidth()) {
-					height -= 50.0f;
-					width = 10;
+					height -= subtractHeight;
+					width = initialWidth;
 				}
 			}
-			contentStream.close();
-			document.addPage(page);
-			document.save(outputFile);
-			document.close();
+			// we have to process this for the last pdf page.
+			pdfFactory.closeContentStream(engine.getContentStream());
+			pdfFactory.addPage();
+			// saving the whole pdf document and closing it's stream
+			// gracefully. Side note - it seems to be working!so yaay?.
+
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ex);
+		} finally {
+			try {
+				pdfFactory.build().save(outputFile);
+				pdfFactory.build().close();
+			} catch (Exception e) {
+				LOGGER.error(ExceptionHandler.beautifyStackTrace(e));
+			}
+
 		}
 		return outputFile;
 	}
 
-	public String createQrAPILink(@NonNull String examName, String subjectName, @NonNull String username) {
-		return new StringBuilder().append(host).append("/exams/qr/feed?").append("exam_name=").append(examName)
-				.append("&").append("subject_name=").append(subjectName).append("&").append("username=")
-				.append(username).toString();
+	public String createQrAPILink(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType type,
+			@NonNull String username) throws IllegalArgumentException {
+		return new StringBuilder().append(app.getHost()).append("/exams/qr/feed?")
+				.append(ExaminationController.EXAM_NAME).append("=").append(examName).append("&")
+				.append(CourseController.SUBJECT_NAME).append("=").append(subjectName).append("&")
+				.append(ExaminationController.SUBJECT_TYPE).append("=").append(type.toString()).append("&")
+				.append(UserController.USER_NAME).append("=").append(username).toString();
 	}
 }

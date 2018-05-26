@@ -16,13 +16,13 @@ import lombok.Cleanup;
 
 public class GenerateService {
 	private static final String BODY_BLUEPRINT_LOCATION = "F:\\workspace\\college.io\\src\\main\\resources\\exceptionhandling.jbp";
-	private static final String FILE_CREATION_LOCATION = "F:\\workspace\\college.io\\src\\main\\resources\\UserService.jbp";
+	private static final String FILE_BLUEPRINT_LOCATION = "F:\\workspace\\college.io\\src\\main\\resources\\ExamResponseService.jbp";
 
 	public static void main(String[] args) throws FileNotFoundException, ApplicationException {
 		FactoryResponseParamsBuilder builder = FactoryResponseParams.builder();
 		StringBuilder writeFileTo = new StringBuilder();
 		@Cleanup
-		Scanner sc = new Scanner(new File(FILE_CREATION_LOCATION));
+		Scanner sc = new Scanner(new File(FILE_BLUEPRINT_LOCATION));
 		System.out.println("provide location ");
 		writeFileTo.append(sc.nextLine());
 		System.out.println("Provide packagename");

@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(path = "/1.0/courses", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CourseController {
 	public static final String COURSE_NAME = "course_name";
+	public static final String SUBJECT_NAME = "subject_name";
 	private static final String START_NUMBER = "start_number";
 	private static final String MAX_RECORDS = "max_records";
 
@@ -40,8 +41,8 @@ public class CourseController {
 
 	@RequestMapping(method = { RequestMethod.GET })
 	public FactoryResponse findByCourseName(@RequestParam(value = COURSE_NAME, required = false) String courseName,
-			@RequestParam(value = START_NUMBER, required = false) long startNumber,
-			@RequestParam(value = MAX_RECORDS, required = false) long maxRecords, HttpServletRequest request,
+			@RequestParam(value = START_NUMBER, required = false) Long startNumber,
+			@RequestParam(value = MAX_RECORDS, required = false) Long maxRecords, HttpServletRequest request,
 			HttpServletResponse response) {
 		LOGGER.debug("Course name {0}");
 		FactoryResponse factoryResponse = null;
@@ -58,7 +59,7 @@ public class CourseController {
 	}
 
 	@RequestMapping(method = { RequestMethod.POST, RequestMethod.PUT }, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public FactoryResponse createUpdateCourse(CourseModel courseEntity, HttpServletRequest request,
+	public FactoryResponse createUpdateCourse(@RequestBody CourseModel courseEntity, HttpServletRequest request,
 			HttpServletResponse response) {
 		LOGGER.debug("Course name {0}");
 		FactoryResponse factoryResponse = courseResService.createUpdateCourse(request, courseEntity);
@@ -67,21 +68,13 @@ public class CourseController {
 	}
 
 	@RequestMapping(method = { RequestMethod.DELETE }, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public FactoryResponse deleteCourse(CourseModel courseEntity, HttpServletRequest request,
+	public FactoryResponse deleteCourse(@RequestBody CourseModel courseEntity, HttpServletRequest request,
 			HttpServletResponse response) {
 		LOGGER.debug("Course name {0}");
 		FactoryResponse factoryResponse = courseResService.deleteCourse(request, courseEntity);
 		response.setStatus(factoryResponse.getSummaryMessage().code().value());
 		return factoryResponse;
 	}
-
-	@RequestMapping(method = { RequestMethod.PUT,
-			RequestMethod.POST }, path = "/groups", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public FactoryResponse saveUpdateGroup(HttpServletRequest request, HttpServletResponse response,
-			@RequestBody CourseModel.CourseSubjectGroupsModel courseSubjectGroupModel) {
-		FactoryResponse factoryResponse = courseResService.createUpdateGroups(request, courseSubjectGroupModel);
-		response.setStatus(factoryResponse.getSummaryMessage().code().value());
-		return factoryResponse;
-	}
+	
 
 }
