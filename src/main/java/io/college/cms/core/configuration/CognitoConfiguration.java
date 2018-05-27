@@ -14,6 +14,7 @@ import com.amazonaws.services.cognitoidp.model.AdminListGroupsForUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminRemoveUserFromGroupRequest;
 import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersInGroupRequest;
+import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
 
 @Configuration
 public class CognitoConfiguration {
@@ -84,6 +85,14 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public ListUsersInGroupRequest adminListGroup() {
 		ListUsersInGroupRequest userRequest = new ListUsersInGroupRequest();
+		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		return userRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public ListUsersRequest listUsersGroup() {
+		ListUsersRequest userRequest = new ListUsersRequest();
 		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
 		return userRequest;
 	}

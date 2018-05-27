@@ -52,14 +52,16 @@ public class UserController {
 
 	@RequestMapping(method = { RequestMethod.GET })
 	public FactoryResponse findByUsername(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(value = USER_NAME, required = false) String username) {
+			@RequestParam(value = USER_NAME, required = false) String username,
+			@RequestParam(value = LIMIT, required = false) Integer limit,
+			@RequestParam(value = NEXT_TOKEN, required = false) String token) {
 		LOGGER.debug("Request received");
 
 		FactoryResponse fr = null;
 		if (StringUtils.isNotEmpty(username)) {
 			fr = userService.getUserByUser(request, username);
 		} else {
-			fr = userService.getUsers(request);
+			fr = userService.getUsers(request, UserModel.builder().limit(limit).paginationToken(token).build());
 		}
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;
@@ -122,5 +124,5 @@ public class UserController {
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;
 	}
-	
+
 }

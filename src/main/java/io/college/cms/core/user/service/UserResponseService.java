@@ -76,10 +76,10 @@ public class UserResponseService {
 		return fr;
 	}
 
-	public FactoryResponse getUsers(HttpServletRequest request) {
+	public FactoryResponse getUsers(HttpServletRequest request, UserModel userModel) {
 		FactoryResponse fr = null;
 		try {
-			fr = FactoryResponse.builder().response(userService.findAllUsers())
+			fr = FactoryResponse.builder().response(userService.findAllUsers(userModel))
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (IllegalArgumentException ex) {
 			LOGGER.error("One of required fields is empty.");
