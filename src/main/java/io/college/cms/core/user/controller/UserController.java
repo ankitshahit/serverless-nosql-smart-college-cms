@@ -55,7 +55,7 @@ public class UserController {
 			@RequestParam(value = USER_NAME, required = false) String username,
 			@RequestParam(value = LIMIT, required = false) Integer limit,
 			@RequestParam(value = NEXT_TOKEN, required = false) String token) {
-		LOGGER.debug("Request received");
+		LOGGER.debug(new StringBuilder().append("Request").append(" {0}").toString(), username);
 
 		FactoryResponse fr = null;
 		if (StringUtils.isNotEmpty(username)) {

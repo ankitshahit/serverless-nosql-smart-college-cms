@@ -116,7 +116,7 @@ public class UserCognitoService implements IUserService {
 
 			}
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
+			LOGGER.error("{} " + e.getMessage(), username);
 			throw new ApplicationException(e);
 		}
 		return userBuilder.build();
@@ -130,7 +130,8 @@ public class UserCognitoService implements IUserService {
 			ListUsersRequest request = app.getBean(ListUsersRequest.class);
 
 			int limit = 10;
-			if (!(model.getLimit() == null && model.getLimit() <= 0)) {
+			LOGGER.debug("limit : {}", limit);
+			if ((model.getLimit() != null && model.getLimit() <= 0)) {
 				limit = model.getLimit();
 			}
 			request.setLimit(limit);
@@ -148,7 +149,7 @@ public class UserCognitoService implements IUserService {
 					ExceptionType.VALIDATION_EXCEPTION);
 		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
-			throw new ApplicationException(e);
+			throw new ValidationException(e);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ApplicationException(e);
@@ -188,7 +189,7 @@ public class UserCognitoService implements IUserService {
 
 		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
-			throw new ApplicationException(e);
+			throw new ValidationException(e);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ApplicationException(e);
@@ -228,7 +229,7 @@ public class UserCognitoService implements IUserService {
 			identityProvider.adminDeleteUser(request);
 		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
-			throw new ApplicationException(e);
+			throw new ValidationException(e);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ApplicationException(e);
