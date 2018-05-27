@@ -1,16 +1,17 @@
 app.controller("usercontroller", function($http, $scope, $timeout) {
+	var usersAPI = "/1.0/users";
 	$scope.username = null;
 
 	$scope.findusername = function(value) {
+		console.log("findusername -> " + value);
 		if (value != null) {
-			$http.get("/1.0/users?username=" + value).then(function(response) {
+			$http.get(usersAPI + "?username=" + value).then(function(response) {
 				$scope.data = response.data.response;
 			}, function(response) {
 				$scope.errorData = response.data.response;
-				$timeout(function() {
-					$scope.errorData = "";
-				}, 2000);
 			})
 		}
 	};
+
+	$scope.table_headers = [ "username", "email", "created on" ];
 });

@@ -4,6 +4,15 @@
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
 
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Latest compiled JavaScript -->
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
+	
+</script>
 <!-- jQuery library -->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -12,23 +21,22 @@
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 
-<!-- Latest compiled JavaScript -->
-<script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
-	
-</script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="/js/app.js"></script>
-<script src="/js/user-controller.js"></script>
 </head>
-<body ng-app="cmsApp">
-	<div ng-include="'/html/navbar.html'"></div>
-	<form ng-controller="usercontroller">
-		<input type="text" ng-model="username"
-			ng-change="findusername(username)" ng-model-options="{debounce:1000}" />
-		{{data}}<br /> <font color=red>{{errorData}}</font>
-	</form>
+<body data-ng-app="cmsApp" data-ng-controller="usercontroller">
+	<!-- <div data-ng-include="'/html/navbar.html'"></div> -->
+	<div>
+		<input type="text" data-ng-model="user" />
+		<button data-ng-click="findusername(user)">Search</button>
+	</div>
+	{{data}}
+	<br />
+	<p>loading data step by step</p>
+	<div data-ng-repeat="x in data">{{x.username}}</div>
+
+
+
+	<script src="/js/app.js"></script>
+	<script src="/js/user-controller.js"></script>
+
 </body>
 </html>
