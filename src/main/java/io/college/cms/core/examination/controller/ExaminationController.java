@@ -1,5 +1,7 @@
 package io.college.cms.core.examination.controller;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.courses.controller.CourseController;
 import io.college.cms.core.examination.db.ExaminationModel;
+import io.college.cms.core.examination.db.ExaminationModel.ExamSubjectTimeTable;
+import io.college.cms.core.examination.db.ExaminationModel.StudentResult;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.user.controller.UserController;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +32,29 @@ public class ExaminationController {
 	public static final String EXAM_NAME = "exam_name";
 	public static final String FILE_NAME = "file_name";
 	public static final String SUBJECT_TYPE = "subject_type";
+
 	private ExamResponseService examService;
 
 	@Autowired
 	public void setExamService(ExamResponseService examService) {
 		this.examService = examService;
+	}
+
+	@RequestMapping(path = "/qr/feed", method = { RequestMethod.GET })
+	public FactoryResponse qrCodeUpdate(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(required = false, value = ExaminationController.EXAM_NAME) String examName,
+			@RequestParam(required = false, value = CourseController.SUBJECT_NAME) String subjectName,
+			@RequestParam(required = false, value = SUBJECT_TYPE) String subjectType,
+			@RequestParam(required = false, value = UserController.USER_NAME) String studentUsername,
+			@RequestParam(required = false, value = "marks") String marks,
+			@RequestParam(required = false, value = "action_by") String actionByUsername) {
+		ExaminationModel.builder()
+				.withSubject(ExaminationModel.ExamSubject.builder().subjectName(subjectName)
+						.withResult(StudentResult.builder().actionBy(actionByUsername).disableQrLink(true)
+								.username(studentUsername).updatedOn(new Date()).build())
+						.withTimeTable(ExamSubjectTimeTable.builder().key(subjectType).build()).build());
+
+		return null;
 	}
 
 	@RequestMapping(path = "/qr/download", method = { RequestMethod.GET }, produces = {
@@ -76,7 +98,6 @@ public class ExaminationController {
 	public FactoryResponse deleteExamExam(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody ExaminationModel model) {
 		LOGGER.debug("request received.");
-
 		FactoryResponse fr = examService.createUpdateExam(request, model);
 		response.setStatus(fr.getSummaryMessage().code().value());
 		return fr;

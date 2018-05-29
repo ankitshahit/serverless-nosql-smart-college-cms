@@ -132,6 +132,17 @@ public class ExamQrService {
 		return outputFile;
 	}
 
+	/**
+	 * sample url =
+	 * \/exams/qr/feed?exam_name={exam_name}&subject_name={subject_name}&subject_type={subject_type}&username={username}
+	 * 
+	 * @param examName
+	 * @param subjectName
+	 * @param type
+	 * @param username
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
 	public String createQrAPILink(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType type,
 			@NonNull String username) throws IllegalArgumentException {
 		return new StringBuilder().append(app.getHost()).append("/exams/qr/feed?")

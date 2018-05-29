@@ -51,6 +51,9 @@ public class CourseModel {
 	@DynamoDBAttribute(attributeName = "subjects")
 	@Singular("withSubject")
 	private List<SubjectModel> subjects;
+	@DynamoDBAttribute(attributeName = "course_students")
+	@Singular("withUsername")
+	private List<String> users;
 
 	@Data
 	@Builder
