@@ -1,0 +1,11 @@
+<html>
+<body data-ng-app="cmsApp" data-ng-controller="usercontroller">
+
+	<div class="alert alert-danger" data-ng-if="showErrorDiv">{{errorData}}</div>
+	<table class="table table-striped">
+		<tr data-ng-repeat="user in getusers">
+			<th>{{user}}</th>
+		</tr>
+	</table>
+</body>
+</html>

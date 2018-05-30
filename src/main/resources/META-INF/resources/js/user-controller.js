@@ -1,5 +1,6 @@
 app.controller("usercontroller", function($http, $scope, $timeout) {
 	var usersAPI = "/1.0/users";
+	$scope.showErrorDiv = false;
 	$scope.username = null;
 
 	$scope.findusername = function(value) {
@@ -13,5 +14,15 @@ app.controller("usercontroller", function($http, $scope, $timeout) {
 		}
 	};
 
-	$scope.table_headers = [ "username", "email", "created on" ];
+	$http.get(usersAPI + "?limit=10").then(function(resp) {
+		console.log("success -> ");
+		$scope.getusers = resp.data.response;
+	}, function(resp) {
+		console.log("failure -> ");
+		$scope.showErrorDiv = true;
+		$scope.errorData = resp.data.summary_message;
+	});
+
+	$scope.table_headers = [ "username", "email", "created on",
+			"View Attributes" ];
 });

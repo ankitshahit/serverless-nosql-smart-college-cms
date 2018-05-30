@@ -23,17 +23,8 @@
 
 </head>
 <body data-ng-app="cmsApp" data-ng-controller="usercontroller">
-	<!-- <div data-ng-include="'/html/navbar.html'"></div> -->
-	<div>
-		<input type="text" data-ng-model="user" />
-		<button data-ng-click="findusername(user)">Search</button>
-	</div>
-	{{data}}
-	<br />
-	<p>loading data step by step</p>
-	<div data-ng-repeat="x in data">{{x.username}}</div>
-
-
+	<div data-ng-include="'/html/navbar.html'"></div>
+	<div data-ng-include="'/html/user.html'"></div>
 
 	<script src="/js/app.js"></script>
 	<script src="/js/user-controller.js"></script>
