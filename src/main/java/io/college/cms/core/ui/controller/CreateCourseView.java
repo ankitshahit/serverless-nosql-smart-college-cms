@@ -54,14 +54,14 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 
 			Accordion accordin = new Accordion();
 			accordin.setTabsVisible(true);
-			
+
 			VerticalLayout verticalLayout = new VerticalLayout();
 			verticalLayout.addComponent(new Label("Hello World"));
 			// we are tab 1 that is coursecreatestep1 in a different method to
 			// increase readbility
 			courseStepOne(accordin, verticalLayout);
 
-			accordin.addTab(verticalLayout, "Create course (2/3)");			
+			accordin.addTab(verticalLayout, "Create course (2/3)");
 			accordin.setHeight("80%");
 			accordin.setWidth("80%");
 			addComponent(accordin);
@@ -98,9 +98,12 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 			} else {
 				accordin.setSelectedTab(step2);
 
-				Notification notifi = Notification.show("Data saved, moving to step 2", Type.TRAY_NOTIFICATION);
+				Notification notifi = Notification.show("Course created", Type.HUMANIZED_MESSAGE);
 				notifi.setIcon(VaadinIcons.CHECK);
 				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				notifi.setHtmlContentAllowed(true);
+				notifi.setDescription(
+						"A course has been created with metadata of coursename, description, max seats available and archive?\n Click here to dismiss and move to <b>step2</b>");
 			}
 
 		});
