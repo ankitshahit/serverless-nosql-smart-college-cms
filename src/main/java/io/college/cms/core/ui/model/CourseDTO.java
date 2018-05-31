@@ -1,5 +1,9 @@
 package io.college.cms.core.ui.model;
 
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
@@ -18,5 +22,9 @@ public class CourseDTO {
 	private TextField enrolledStudents;
 	private TwinColSelect<String> students;
 	private TextField subjectName;
-	
+	private CheckBox isArchive;
+	private Button saveCourse;
+	private Button reset;
+	private RichTextArea courseDescription;
+	private Label attributesSeperator;
 }

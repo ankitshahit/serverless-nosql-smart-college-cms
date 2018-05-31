@@ -52,6 +52,8 @@ public class CourseModel {
 	@DynamoDBAttribute(attributeName = "course_students")
 	@Singular("withUsername")
 	private List<String> users;
+	@DynamoDBAttribute(attributeName = "description")
+	private String description;
 
 	@Data
 	@Builder
@@ -112,7 +114,7 @@ public class CourseModel {
 		@Builder.Default
 		private long maxAllowedStudents = (long) 0.0;
 		@DynamoDBAttribute(attributeName = "enrolled_students_count")
-		
+
 		@Builder.Default
 		private long enrolledStudents = (long) 0.0;
 		@DynamoDBAttribute(attributeName = "student_usernames")

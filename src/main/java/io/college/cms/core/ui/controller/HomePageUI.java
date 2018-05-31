@@ -19,6 +19,7 @@ public class HomePageUI extends UI {
 	private static final long serialVersionUID = 1L;
 	private ViewAllCoursesUI viewCourses;
 	private Navigator navigator;
+	private CreateCourseView createCourse;
 
 	public HomePageUI() {
 		this.navigator = new Navigator(this, this);
@@ -29,9 +30,15 @@ public class HomePageUI extends UI {
 		this.viewCourses = viewCourses;
 	}
 
+	@Autowired
+	public void setCreateCourse(CreateCourseView createCourse) {
+		this.createCourse = createCourse;
+	}
+
 	@Override
 	protected void init(VaadinRequest request) {
-		this.navigator.addView(ViewConstants.COURSES_CREATE, CreateCourseUI.class);
+		this.navigator.addView("", createCourse);
+		this.navigator.addView(ViewConstants.COURSES_CREATE, createCourse);
 
 		UIHelper uiHelper = new UIHelper();
 		VerticalLayout rootLayout = new VerticalLayout();

@@ -2,6 +2,7 @@ package io.college.cms.core.courses.service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +19,35 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class CourseResponseService {
-	private ICourseDbService dbService;	
+	private ICourseDbService dbService;
 
 	@Autowired
 	public void setDbService(ICourseDbService dbService) {
 		this.dbService = dbService;
 	}
 
-	
+	public FactoryResponse saveUpdateCourseMetaData(CourseModel course) {
+		FactoryResponse fr = null;
+		try {
+			ValidationHandler.throwExceptionIfNull(course, "No request body provided",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(course.getCourseName()),
+					"No course name provided", ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(course.getDescription()),
+					"Course description is required", ExceptionType.VALIDATION_EXCEPTION);
+			dbService.saveCourse(course);
+			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (ValidationException | IllegalArgumentException e) {
+			LOGGER.error(e.getMessage());
+			fr = FactoryResponse.builder().response(e.getMessage()).summaryMessage(SummaryMessageEnum.VALIDATION_ERROR)
+					.build();
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			fr = FactoryResponse.builder().response("Application don't feel so good!")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
 
 	public FactoryResponse findByCourseName(HttpServletRequest request, String courseName) {
 		FactoryResponse fr = null;
@@ -102,6 +124,5 @@ public class CourseResponseService {
 		}
 		return fr;
 	}
-
 
 }
