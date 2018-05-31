@@ -26,7 +26,7 @@ public class CourseResponseService {
 		this.dbService = dbService;
 	}
 
-	public FactoryResponse saveUpdateCourseMetaData(CourseModel course) {
+	public FactoryResponse saveCourseMetadata(CourseModel course) {
 		FactoryResponse fr = null;
 		try {
 			ValidationHandler.throwExceptionIfNull(course, "No request body provided",
@@ -35,6 +35,9 @@ public class CourseResponseService {
 					"No course name provided", ExceptionType.VALIDATION_EXCEPTION);
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(course.getDescription()),
 					"Course description is required", ExceptionType.VALIDATION_EXCEPTION);
+			var data = dbService.findByCourseName(course.getCourseName());
+			ValidationHandler.throwExceptionIfTrue(data != null, "Course already exists. Use update option.",
+					ExceptionType.VALIDATION_EXCEPTION);
 			dbService.saveCourse(course);
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (ValidationException | IllegalArgumentException e) {

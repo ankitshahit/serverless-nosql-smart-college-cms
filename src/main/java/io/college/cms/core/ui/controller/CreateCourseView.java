@@ -3,17 +3,17 @@ package io.college.cms.core.ui.controller;
 import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.vaadin.navigator.Navigator;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
@@ -33,12 +33,9 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 
 	private static final long serialVersionUID = 1L;
 
-	private Navigator navigator;
-	private CourseDTO courseDTO;
 	private CourseResponseService courseResp;
 
 	private CourseVaadinService courseUIService;
-	private ApplicationContext app;
 
 	@Autowired
 	public void setCourseUIService(CourseVaadinService courseUIService) {
@@ -50,49 +47,21 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 		this.courseResp = courseResp;
 	}
 
-	@Autowired
-	public void setApp(ApplicationContext app) {
-		this.app = app;
-	}
-
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			this.navigator = event.getNavigator();
 
 			Accordion accordin = new Accordion();
 			accordin.setTabsVisible(true);
-			CourseDTO courseDTO = courseUIService.courseName();
+			
+			VerticalLayout verticalLayout = new VerticalLayout();
+			verticalLayout.addComponent(new Label("Hello World"));
+			// we are tab 1 that is coursecreatestep1 in a different method to
+			// increase readbility
+			courseStepOne(accordin, verticalLayout);
 
-			courseDTO.getSaveCourse().addClickListener(click -> {
-				if (click.getSource() != courseDTO.getSaveCourse()) {
-					return;
-				}
-				if (!courseDTO.getMaxStudents().getOptionalValue().isPresent()
-						|| !StringUtils.isNumber(courseDTO.getMaxStudents().getOptionalValue().get())) {
-					Notification.show("Max seats available is not provided or is not a number", Type.ERROR_MESSAGE);
-				}
-				FactoryResponse data = courseResp.saveUpdateCourseMetaData(CourseModel.builder()
-						.courseName(courseDTO.getCourseName().getOptionalValue().get())
-						.description(courseDTO.getCourseDescription().getOptionalValue().get())
-						.isArchive(courseDTO.getIsArchive().getValue())
-						.maxStudentsAllowed(Long.valueOf(courseDTO.getMaxStudents().getOptionalValue().get())).build());
-
-				if (io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
-						&& data.getResponse() instanceof String) {
-					Notification.show("Validation error: " + data.getResponse(), Type.ERROR_MESSAGE);
-				} else {
-					Notification notifi = Notification.show("Succesfully saved moving to step 2");
-					notifi.setDelayMsec(Notification.DELAY_FOREVER);
-					notifi.addCloseListener(close -> {
-						accordin.setSelectedTab(2);
-					});
-				}
-
-			});
-
-			accordin.addTab(courseUIService.buildCoursePageOne(courseDTO), "Create course			(1/3)");
+			accordin.addTab(verticalLayout, "Create course (2/3)");			
 			accordin.setHeight("80%");
 			accordin.setWidth("80%");
 			addComponent(accordin);
@@ -103,12 +72,42 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 		}
 	}
 
+	private void courseStepOne(Accordion accordin, Component step2) {
+		CourseDTO courseDTO = courseUIService.courseMetaDataStep1();
+		accordin.addTab(courseUIService.buildCoursePageOne(courseDTO), "Create course			(1/3)");
+		courseDTO.getSaveCourse().setEnabled(false);
+		courseUIService.attachEmptyValueListenerCourseStep1(courseDTO);
+
+		courseDTO.getSaveCourse().addClickListener(click -> {
+			if (click.getSource() != courseDTO.getSaveCourse()) {
+				return;
+			}
+			if (!courseDTO.getMaxStudents().getOptionalValue().isPresent()
+					|| !StringUtils.isNumber(courseDTO.getMaxStudents().getOptionalValue().get())) {
+				Notification.show("Max seats available is not provided or is not a number", Type.ERROR_MESSAGE);
+			}
+			FactoryResponse data = courseResp.saveCourseMetadata(CourseModel.builder()
+					.courseName(courseDTO.getCourseName().getOptionalValue().get())
+					.description(courseDTO.getCourseDescription().getOptionalValue().get())
+					.isArchive(courseDTO.getIsArchive().getValue())
+					.maxStudentsAllowed(Long.valueOf(courseDTO.getMaxStudents().getOptionalValue().get())).build());
+
+			if (io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
+					&& data.getResponse() instanceof String) {
+				Notification.show("Validation error: " + data.getResponse(), Type.ERROR_MESSAGE);
+			} else {
+				accordin.setSelectedTab(step2);
+
+				Notification notifi = Notification.show("Data saved, moving to step 2", Type.TRAY_NOTIFICATION);
+				notifi.setIcon(VaadinIcons.CHECK);
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			}
+
+		});
+	}
+
 	@Override
 	public void beforeLeave(ViewBeforeLeaveEvent event) {
 		View.super.beforeLeave(event);
-	}
-
-	private static class DrawUI {
-
 	}
 }

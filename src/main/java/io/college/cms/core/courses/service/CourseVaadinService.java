@@ -15,12 +15,13 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.ui.builder.ButtonWrapper;
 import io.college.cms.core.ui.builder.TextFieldWrapper;
+import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.model.CourseDTO;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CourseVaadinService {
-	public CourseDTO courseName() {
+	public CourseDTO courseMetaDataStep1() {
 		CourseDTO courseDTO = CourseDTO.builder()
 				.courseName(TextFieldWrapper.builder().caption("Course")
 						.description("Provide unique coursename that represents to actual available streams")
@@ -56,20 +57,32 @@ public class CourseVaadinService {
 		return courseDTO;
 	}
 
-	public HorizontalLayout buildHorizontalLayoutSaveAndNextBtn(CourseDTO dto) {
-		HorizontalLayout hLayout = new HorizontalLayout();
-		hLayout.addComponent(dto.getReset());
-		hLayout.addComponent(dto.getSaveCourse());
-		return hLayout;
-	}
-
 	public VerticalLayout buildCoursePageOne(CourseDTO courseDTO) {
-		HorizontalLayout hLayout = buildHorizontalLayoutSaveAndNextBtn(courseDTO);
+		HorizontalLayout hLayout = new HorizontalLayout();
+		hLayout.addComponent(courseDTO.getReset());
+		hLayout.addComponent(courseDTO.getSaveCourse());
 		VerticalLayout courseLayout = new VerticalLayout();
 		courseLayout.addComponents(courseDTO.getCourseName(), courseDTO.getCourseDescription(),
 				courseDTO.getAttributesSeperator(), courseDTO.getMaxStudents(), courseDTO.getIsArchive(), hLayout);
 		courseLayout.setComponentAlignment(hLayout, Alignment.BOTTOM_RIGHT);
 		courseLayout.setComponentAlignment(courseDTO.getAttributesSeperator(), Alignment.MIDDLE_CENTER);
 		return courseLayout;
+	}
+
+	public void attachEmptyValueListenerCourseStep1(CourseDTO dto) {
+		EmptyFieldListener<String> courseNameListener = new EmptyFieldListener<>(dto.getCourseName());
+		courseNameListener.setMandatoryFields(dto.getCourseName(), dto.getCourseDescription(), dto.getMaxStudents());
+		courseNameListener.setTargetBtn(dto.getSaveCourse());
+		dto.getCourseName().addValueChangeListener(courseNameListener);
+
+		EmptyFieldListener<String> courseDescription = new EmptyFieldListener<>(dto.getCourseDescription());
+		courseDescription.setMandatoryFields(dto.getCourseName(), dto.getCourseDescription(), dto.getMaxStudents());
+		courseDescription.setTargetBtn(dto.getSaveCourse());
+		dto.getCourseDescription().addValueChangeListener(courseDescription);
+
+		EmptyFieldListener<String> maxStudents = new EmptyFieldListener<>(dto.getMaxStudents());
+		maxStudents.setMandatoryFields(dto.getCourseName(), dto.getCourseDescription(), dto.getMaxStudents());
+		maxStudents.setTargetBtn(dto.getSaveCourse());
+		dto.getMaxStudents().addValueChangeListener(maxStudents);
 	}
 }

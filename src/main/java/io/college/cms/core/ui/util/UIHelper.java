@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.server.ErrorMessage;
+import com.vaadin.shared.ui.ErrorLevel;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 
@@ -30,4 +32,24 @@ public class UIHelper {
 
 		return menu;
 	}
+
+	public static ErrorMessage getErrorMessage(ErrorLevel errorLevel, String msg) {
+		return new ErrorMessage() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public ErrorLevel getErrorLevel() {
+				return errorLevel;
+			}
+
+			@Override
+			public String getFormattedHtmlMessage() {
+				return msg;
+			}
+		};
+	}
+
 }
