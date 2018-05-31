@@ -16,7 +16,8 @@ app.controller("usercontroller", function($http, $scope, $timeout) {
 
 	$http.get(usersAPI + "?limit=10").then(function(resp) {
 		console.log("success -> ");
-		$scope.getusers = resp.data.response;
+		// $scope.getusers = resp.data.response;
+		$scope.getusers = "{}";
 	}, function(resp) {
 		console.log("failure -> ");
 		$scope.showErrorDiv = true;

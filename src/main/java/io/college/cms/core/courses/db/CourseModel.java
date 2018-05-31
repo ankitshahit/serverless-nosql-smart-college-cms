@@ -43,9 +43,7 @@ public class CourseModel {
 	@DynamoDBAttribute(attributeName = "max_students_allowed")
 	@Builder.Default
 	private Long maxStudentsAllowed = (long) 0.0;
-	@DynamoDBAttribute(attributeName = "total_duration")
-	@Builder.Default
-	private Double totalDuration = 0.0;
+
 	@DynamoDBAttribute(attributeName = "is_archive")
 	private boolean isArchive;
 	@DynamoDBAttribute(attributeName = "subjects")
@@ -114,6 +112,7 @@ public class CourseModel {
 		@Builder.Default
 		private long maxAllowedStudents = (long) 0.0;
 		@DynamoDBAttribute(attributeName = "enrolled_students_count")
+		
 		@Builder.Default
 		private long enrolledStudents = (long) 0.0;
 		@DynamoDBAttribute(attributeName = "student_usernames")
