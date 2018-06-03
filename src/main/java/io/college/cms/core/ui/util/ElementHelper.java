@@ -25,9 +25,9 @@ public class ElementHelper {
 	}
 
 	public static boolean hasValue(AbstractField<?>... fields) {
-		boolean hasValue = !(fields == null);
-		if (fields == null) {
-			return hasValue;
+		boolean hasValue = true;
+		if (fields == null || !(fields.length > 0) || fields[0] == null) {
+			return !hasValue;
 		}
 		for (AbstractField<?> field : fields) {
 			if (StringUtils.isEmpty(String.valueOf(field.getValue()))) {
@@ -39,10 +39,11 @@ public class ElementHelper {
 	}
 
 	public static boolean hasValue(AbstractSingleSelect<?>... fields) {
-		boolean hasValue = !(fields == null);
-		if (fields == null) {
-			return hasValue;
+		boolean hasValue = true;
+		if (fields == null || !(fields.length > 0) || fields[0] == null) {
+			return !hasValue;
 		}
+
 		for (AbstractSingleSelect<?> field : fields) {
 			if (!field.getSelectedItem().isPresent()) {
 				hasValue = false;

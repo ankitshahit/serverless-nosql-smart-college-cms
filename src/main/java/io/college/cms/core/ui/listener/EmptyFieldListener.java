@@ -19,7 +19,7 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 	private AbstractField<T> sourceField;
 	private AbstractSingleSelect<T> sourceListField;
 	private AbstractDateField sourceDateField;
-	private Button targetBtn;
+	private Button[] targetBtn;
 	private AbstractField<?>[] mandatoryFields;
 	private AbstractSingleSelect<?>[] mandatoryListFields;
 	private AbstractDateField[] mandatoryDateFields;
@@ -45,7 +45,7 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 		this.sourceDateField = sourceDateField;
 	}
 
-	public void setTargetBtn(Button targetBtn) {
+	public void setTargetBtn(Button... targetBtn) {
 		this.targetBtn = targetBtn;
 	}
 
@@ -104,17 +104,26 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 			if (mandatoryFields != null && mandatoryListFields != null && mandatoryDateFields != null) {
 				result = ElementHelper.hasValue(mandatoryFields) && ElementHelper.hasValue(mandatoryListFields)
 						&& ElementHelper.hasValue(mandatoryDateFields);
-				targetBtn.setEnabled(result);
+				for (Button btn : targetBtn) {
+					btn.setEnabled(result);
+				}
 			} else if (mandatoryFields != null) {
 				result = ElementHelper.hasValue(mandatoryFields);
-				targetBtn.setEnabled(result);
+				for (Button btn : targetBtn) {
+					btn.setEnabled(result);
+				}
 			} else if (mandatoryListFields != null) {
 				result = ElementHelper.hasValue(mandatoryListFields);
-				targetBtn.setEnabled(result);
+				for (Button btn : targetBtn) {
+					btn.setEnabled(result);
+				}
 			} else if (mandatoryDateFields != null) {
 				result = ElementHelper.hasValue(mandatoryDateFields);
-				targetBtn.setEnabled(result);
+				for (Button btn : targetBtn) {
+					btn.setEnabled(result);
+				}
 			}
+
 			LOGGER.debug("-->> result is: {}", result);
 		}
 	}

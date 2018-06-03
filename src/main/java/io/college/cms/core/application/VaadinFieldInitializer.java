@@ -157,17 +157,17 @@ public class VaadinFieldInitializer {
 		StringBuilder sb = new StringBuilder();
 		ListenerType listenerType = ListenerType.findByType(listener.getType());
 		FieldType type = FieldType.findByType(field.getType());
-		if (ListenerType.EL == listenerType) {
-			if (type == FieldType.DF) {
-				sb.append(String.format(ListenerType.EL.className(), "LocalDate")).append(" ").append(field.getName())
-						.append("Listener").append(" = ").append(String.format(listenerType.constructor(), "LocalDate"))
-						.append(";");
-			} else {
-				sb.append(String.format(ListenerType.EL.className(), "String")).append(" ").append(field.getName())
-						.append("Listener").append(" = ").append(String.format(listenerType.constructor(), "String"))
-						.append(";");
-			}
 
+		if (type == FieldType.DF) {
+			sb.append(String.format(listenerType.className(), "LocalDate")).append(" ").append(field.getName())
+					.append("Listener").append(" = ").append(String.format(listenerType.constructor(), "LocalDate"))
+					.append(";");
+		} else {
+			sb.append(String.format(listenerType.className(), "String")).append(" ").append(field.getName())
+					.append("Listener").append(" = ").append(String.format(listenerType.constructor(), "String"))
+					.append(";");
+		}
+		if (listenerType != ListenerType.CV) {
 			if (type == FieldType.CB) {
 				sb.append(field.getName()).append("Listener").append(".setSourceListField(").append(field.getName())
 						.append(");");
@@ -180,21 +180,25 @@ public class VaadinFieldInitializer {
 						.append(");");
 
 			}
-			sb.append(field.getName()).append("Listener").append(".setTargetBtn(").append(listener.getTargetbtn())
+		}
+		sb.append(field.getName()).append("Listener").append(".setTargetBtn(").append(listener.getTargetbtn())
+				.append(");");
+		if (type == FieldType.DF) {
+			sb.append(field.getName()).append("Listener").append(".setMandatoryDateFields(").append(field.getName())
 					.append(");");
-			if (type == FieldType.DF) {
-				sb.append(field.getName()).append("Listener").append(".setMandatoryDateFields(").append(field.getName())
-						.append(");");
-			}
-			if (!mandatoryFields.isEmpty()) {
-				sb.append(field.getName()).append("Listener").append(".setMandatoryFields(")
-						.append(mandatoryFields.substring(0, mandatoryFields.length() - 1)).append(");");
-			}
-			if (!mandatoryListFields.isEmpty()) {
-				sb.append(field.getName()).append("Listener").append(".setMandatoryListFields(")
-						.append(mandatoryListFields.substring(0, mandatoryListFields.length() - 1)).append(");");
-			}
-
+		}
+		if (!mandatoryFields.isEmpty()) {
+			sb.append(field.getName()).append("Listener").append(".setMandatoryFields(")
+					.append(mandatoryFields.substring(0, mandatoryFields.length() - 1)).append(");");
+		}
+		if (!mandatoryListFields.isEmpty()) {
+			sb.append(field.getName()).append("Listener").append(".setMandatoryListFields(")
+					.append(mandatoryListFields.substring(0, mandatoryListFields.length() - 1)).append(");");
+		}
+		if (listenerType == ListenerType.CV) {
+			sb.append(field.getName()).append(".addClickListener(").append(field.getName()).append("Listener")
+					.append(");");
+		} else {
 			sb.append(field.getName()).append(".addValueChangeListener(").append(field.getName()).append("Listener")
 					.append(");");
 		}
@@ -203,7 +207,8 @@ public class VaadinFieldInitializer {
 	}
 
 	public enum ListenerType {
-		EL("EmptyFieldListener<%s>", "new EmptyFieldListener<%s>()"), CL("", "");
+		EL("EmptyFieldListener<%s>", "new EmptyFieldListener<%s>()"), CL("", ""), SH("ShowHideListener<%s>",
+				"new ShowHideListener<%s>()"), CV("ClearValueListener<%s>", "new ClearValueListener<%s>()");
 		private String className;
 		private String constructor;
 
