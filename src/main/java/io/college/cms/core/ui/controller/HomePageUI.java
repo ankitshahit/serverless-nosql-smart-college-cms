@@ -9,6 +9,7 @@ import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.util.UIHelper;
 
@@ -20,6 +21,7 @@ public class HomePageUI extends UI {
 	private ViewAllCoursesUI viewCourses;
 	private Navigator navigator;
 	private CreateCourseView createCourse;
+	private PublishAnnouncementView publishAnnouncement;
 
 	public HomePageUI() {
 		this.navigator = new Navigator(this, this);
@@ -35,11 +37,16 @@ public class HomePageUI extends UI {
 		this.createCourse = createCourse;
 	}
 
+	@Autowired
+	public void setPublishAnnouncement(PublishAnnouncementView publishAnnouncement) {
+		this.publishAnnouncement = publishAnnouncement;
+	}
+
 	@Override
 	protected void init(VaadinRequest request) {
-		this.navigator.addView("", createCourse);
+		this.navigator.addView("", publishAnnouncement);
 		this.navigator.addView(ViewConstants.COURSES_CREATE, createCourse);
-
+		this.navigator.addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
 		UIHelper uiHelper = new UIHelper();
 		VerticalLayout rootLayout = new VerticalLayout();
 		rootLayout.setSpacing(true);

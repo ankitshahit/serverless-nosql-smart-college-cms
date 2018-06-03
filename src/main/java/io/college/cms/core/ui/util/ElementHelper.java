@@ -3,6 +3,7 @@ package io.college.cms.core.ui.util;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.shared.ui.ErrorLevel;
+import com.vaadin.ui.AbstractDateField;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractSingleSelect;
 
@@ -24,6 +25,20 @@ public class ElementHelper {
 	}
 
 	public static boolean hasValue(AbstractField<?>... fields) {
+		boolean hasValue = !(fields == null);
+		if (fields == null) {
+			return hasValue;
+		}
+		for (AbstractField<?> field : fields) {
+			if (StringUtils.isEmpty(String.valueOf(field.getValue()))) {
+				hasValue = false;
+				break;
+			}
+		}
+		return hasValue;
+	}
+
+	public static boolean hasValue(AbstractDateField... fields) {
 		boolean hasValue = !(fields == null);
 		if (fields == null) {
 			return hasValue;

@@ -1,6 +1,7 @@
 package io.college.cms.core.ui.listener;
 
 import com.vaadin.data.HasValue;
+import com.vaadin.ui.AbstractDateField;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractSingleSelect;
 import com.vaadin.ui.Button;
@@ -17,9 +18,11 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 	private static final long serialVersionUID = 1L;
 	private AbstractField<T> sourceField;
 	private AbstractSingleSelect<T> sourceListField;
+	private AbstractDateField sourceDateField;
 	private Button targetBtn;
 	private AbstractField<?>[] mandatoryFields;
 	private AbstractSingleSelect<?>[] mandatoryListFields;
+	private AbstractDateField[] mandatoryDateFields;
 
 	public EmptyFieldListener() {
 		super();
@@ -36,6 +39,10 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 
 	public EmptyFieldListener(AbstractSingleSelect<T> field) {
 		this.sourceListField = field;
+	}
+
+	public void setSourceDateField(AbstractDateField sourceDateField) {
+		this.sourceDateField = sourceDateField;
 	}
 
 	public void setTargetBtn(Button targetBtn) {
@@ -58,10 +65,14 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 		this.sourceListField = sourceListField;
 	}
 
+	public void setMandatoryDateFields(AbstractDateField... mandatoryDateFields) {
+		this.mandatoryDateFields = mandatoryDateFields;
+	}
+
 	@Override
 	public void valueChange(@SuppressWarnings("rawtypes") HasValue.ValueChangeEvent valueChangeEvent) {
 
-		if (sourceField == null && sourceListField == null) {
+		if (sourceField == null && sourceListField == null && sourceDateField == null) {
 			return;
 		}
 		if (sourceField != null && (ListenerUtility.isValidSourceEvent(valueChangeEvent.getComponent(), sourceField))) {
@@ -76,6 +87,12 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 					targetBtn == null);
 			ListenerUtility.emptyValueListener(sourceListField);
 			validation();
+		} else if (sourceDateField != null
+				&& (ListenerUtility.isValidSourceEvent(valueChangeEvent.getComponent(), sourceDateField))) {
+			LOGGER.info("->>> " + sourceDateField.getConnectorId() + "change event triggered \n targetBtn is null = {}",
+					targetBtn == null);
+			ListenerUtility.emptyValueListener(sourceDateField);
+			validation();
 		}
 	}
 
@@ -84,14 +101,18 @@ public class EmptyFieldListener<T> implements HasValue.ValueChangeListener<T> {
 
 		LOGGER.debug("is targetBtn null = {}", targetBtn == null);
 		if (targetBtn != null) {
-			if (mandatoryFields != null && mandatoryListFields != null) {
-				result = ElementHelper.hasValue(mandatoryFields) && ElementHelper.hasValue(mandatoryListFields);
+			if (mandatoryFields != null && mandatoryListFields != null && mandatoryDateFields != null) {
+				result = ElementHelper.hasValue(mandatoryFields) && ElementHelper.hasValue(mandatoryListFields)
+						&& ElementHelper.hasValue(mandatoryDateFields);
 				targetBtn.setEnabled(result);
 			} else if (mandatoryFields != null) {
 				result = ElementHelper.hasValue(mandatoryFields);
 				targetBtn.setEnabled(result);
 			} else if (mandatoryListFields != null) {
 				result = ElementHelper.hasValue(mandatoryListFields);
+				targetBtn.setEnabled(result);
+			} else if (mandatoryDateFields != null) {
+				result = ElementHelper.hasValue(mandatoryDateFields);
 				targetBtn.setEnabled(result);
 			}
 			LOGGER.debug("-->> result is: {}", result);

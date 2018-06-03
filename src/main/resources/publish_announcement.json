@@ -1,0 +1,136 @@
+{
+	"fields": [
+		{
+			"type": "pl",
+			"name": "panel",
+			"caption": "Announcement",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "",
+			"add_to_component_method": "addComponent"
+		},
+		{
+			"type": "vl",
+			"name": "rootLayout",
+			"caption": "Announcement",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "panel",
+			"add_to_component_method": "setContent",
+			"alignment": "ALignment.MIDDLE_CENTER"
+		},
+		{
+			"type": "ck",
+			"name": "announceToAll",
+			"caption": "Send announcement to all?",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": false,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		},
+		{
+			"type": "cb",
+			"name": "selectCourse",
+			"caption": "Select course to send announcement to:",
+			"placeholder": "Type starting letter of course name",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "publish"
+				}
+			]
+		},
+		{
+			"type": "hl",
+			"name": "horizontalSubAndDate",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": false,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent"
+		},
+		{
+			"type": "tf",
+			"name": "subject",
+			"caption": "Heading for announcement, keep it simple!",
+			"placeholder": "Write 100 characters at max",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"max_length": 100,
+			"add_to_component": "horizontalSubAndDate",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "publish"
+				}
+			]
+		},
+		{
+			"type": "df",
+			"name": "scheduledDate",
+			"caption": "Schedule date for announcement!",
+			"placeholder": "Select as today's date to publish immediately",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"add_to_component": "horizontalSubAndDate",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "publish"
+				}
+			]
+		},
+		{
+			"type": "rta",
+			"name": "announcementDescription",
+			"caption": "Description for announcement, keep it simple!",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"max_length": 0,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "publish"
+				}
+			]
+		},
+		{
+			"type": "btn",
+			"name": "publish",
+			"caption": "Publish",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": false,
+			"required": false,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "cl"
+				}
+			]
+		}
+	]
+}
