@@ -3,7 +3,7 @@
 		{
 			"type": "pl",
 			"name": "panel",
-			"caption": "Announcement",
+			"caption": "Results",
 			"placeholder": "",
 			"icon": "",
 			"required": false,
@@ -25,22 +25,26 @@
 			"alignment": "ALignment.MIDDLE_CENTER"
 		},
 		{
-			"type": "ck",
-			"name": "announceToAll",
-			"caption": "Send announcement to all?",
-			"placeholder": "",
+			"type": "tf",
+			"name": "findStudent",
+			"caption": "Provide with student information",
+			"placeholder": "Student email id",
 			"icon": "",
 			"visible": true,
 			"enabled": true,
-			"required": false,
 			"add_to_component": "rootLayout",
 			"add_to_component_method": "addComponent",
-			"listeners": []
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "publish"
+				}
+			]
 		},
 		{
 			"type": "cb",
 			"name": "selectCourse",
-			"caption": "Select course to send announcement to:",
+			"caption": "Select course to view results for: ",
 			"placeholder": "Type starting letter of course name",
 			"icon": "",
 			"visible": true,
@@ -55,68 +59,30 @@
 			]
 		},
 		{
-			"type": "hl",
-			"name": "horizontalSubAndDate",
-			"caption": "",
-			"placeholder": "",
+			"type": "cb",
+			"name": "selectSubject",
+			"caption": "Select Subject: ",
+			"placeholder": "Select by entering subject name",
 			"icon": "",
 			"visible": true,
 			"enabled": true,
 			"required": false,
 			"add_to_component": "rootLayout",
-			"add_to_component_method": "addComponent"
-		},
-		{
-			"type": "tf",
-			"name": "subject",
-			"caption": "Heading for announcement, keep it simple!",
-			"placeholder": "Write 100 characters at max",
-			"icon": "",
-			"visible": true,
-			"enabled": true,
-			"max_length": 100,
-			"add_to_component": "horizontalSubAndDate",
 			"add_to_component_method": "addComponent",
-			"listeners": [
-				{
-					"type": "el",
-					"target_btn": "publish"
-				}
-			]
+			"listeners": []
 		},
 		{
-			"type": "df",
-			"name": "scheduledDate",
-			"caption": "Schedule date for announcement!",
-			"placeholder": "Select as today's date to publish immediately",
+			"type": "cb",
+			"name": "selectSem",
+			"caption": "Select Semester: ",
+			"placeholder": "Select by entering semester",
 			"icon": "",
 			"visible": true,
 			"enabled": true,
-			"add_to_component": "horizontalSubAndDate",
-			"add_to_component_method": "addComponent",
-			"listeners": [
-				{
-					"type": "el",
-					"target_btn": "publish"
-				}
-			]
-		},
-		{
-			"type": "rta",
-			"name": "announcementDescription",
-			"caption": "Description for announcement, keep it simple!",
-			"icon": "",
-			"visible": true,
-			"enabled": true,
-			"max_length": 0,
+			"required": false,
 			"add_to_component": "rootLayout",
 			"add_to_component_method": "addComponent",
-			"listeners": [
-				{
-					"type": "el",
-					"target_btn": "publish"
-				}
-			]
+			"listeners": []
 		},
 		{
 			"type": "btn",
@@ -131,7 +97,7 @@
 			"add_to_component_method": "addComponent",
 			"alignment": "Alignment.BOTTOM_RIGHT",
 			"alignment_component_name": "rootLayout",
-			"alignment_method_name": "addComponentAlignment",
+			"alignment_method_name": "setComponentAlignment",
 			"listeners": [
 				{
 					"type": "cl"

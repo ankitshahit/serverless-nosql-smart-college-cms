@@ -1,0 +1,41 @@
+{
+	"fields": [
+		{
+			"type": "pl",
+			"name": "panel",
+			"caption": "Announcement",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "",
+			"add_to_component_method": "addComponent",
+			"alignment": "Alignment.MIDDLE_CENTER",
+			"alignment_component_name": "",
+			"alignment_method_name": "setComponentAlignment"
+		},
+		{
+			"type": "vl",
+			"name": "rootLayout",
+			"caption": "Announcement",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "panel",
+			"add_to_component_method": "setContent",
+			"alignment": "ALignment.MIDDLE_CENTER"
+		},
+		{
+			"type": "gd",
+			"name": "viewRecords",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": false,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		}
+	]
+}

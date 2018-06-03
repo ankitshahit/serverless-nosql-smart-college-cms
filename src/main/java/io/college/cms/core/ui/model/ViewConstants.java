@@ -24,4 +24,6 @@ public class ViewConstants {
 	public static final String USER_UPDATE = "updateUser";
 	public static final String USER_CREATE = "createUser";
 	public static final String PUBLISH_ANNOUNCEMENT = "publishAnnouncement";
+	public static final String SEE_ANNOUNCEMENT = "seeAnnouncement";
+	public static final String SEE_RESULTS = "seeResults";
 }

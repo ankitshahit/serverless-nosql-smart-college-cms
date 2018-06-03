@@ -38,20 +38,6 @@ public class ElementHelper {
 		return hasValue;
 	}
 
-	public static boolean hasValue(AbstractDateField... fields) {
-		boolean hasValue = !(fields == null);
-		if (fields == null) {
-			return hasValue;
-		}
-		for (AbstractField<?> field : fields) {
-			if (StringUtils.isEmpty(String.valueOf(field.getValue()))) {
-				hasValue = false;
-				break;
-			}
-		}
-		return hasValue;
-	}
-
 	public static boolean hasValue(AbstractSingleSelect<?>... fields) {
 		boolean hasValue = !(fields == null);
 		if (fields == null) {

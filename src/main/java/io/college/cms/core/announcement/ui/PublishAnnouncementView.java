@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -36,7 +37,6 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 
 	@PostConstruct
 	public void paint() {
-
 		Panel panel = new Panel();
 		VerticalLayout rootLayout = new VerticalLayout();
 		CheckBox announceToAll = new CheckBox();
@@ -47,6 +47,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		RichTextArea announcementDescription = new RichTextArea();
 		Button publish = new Button();
 		addComponent(panel);
+		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 		panel.setContent(rootLayout);
 		announceToAll.setCaption("Send announcement to all?");
 		announceToAll.setVisible(true);
@@ -81,6 +82,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		publish.setVisible(true);
 		publish.setEnabled(false);
 		rootLayout.addComponent(publish);
+		rootLayout.setComponentAlignment(publish, Alignment.BOTTOM_RIGHT);
 		EmptyFieldListener<String> selectCourseListener = new EmptyFieldListener<String>();
 		selectCourseListener.setSourceListField(selectCourse);
 		selectCourseListener.setTargetBtn(publish);
@@ -106,7 +108,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		announcementDescriptionListener.setMandatoryFields(subject, scheduledDate, announcementDescription);
 		announcementDescriptionListener.setMandatoryListFields(selectCourse);
 		announcementDescription.addValueChangeListener(announcementDescriptionListener);
-		
+
 	}
 
 	@Override

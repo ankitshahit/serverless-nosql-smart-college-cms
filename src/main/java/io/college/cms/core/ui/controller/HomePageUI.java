@@ -10,6 +10,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
+import io.college.cms.core.announcement.ui.SeeAnnouncementView;
+import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.util.UIHelper;
 
@@ -22,9 +24,21 @@ public class HomePageUI extends UI {
 	private Navigator navigator;
 	private CreateCourseView createCourse;
 	private PublishAnnouncementView publishAnnouncement;
+	private SeeAnnouncementView seeAnnouncement;
+	private SeeResultsView seeResults;
 
 	public HomePageUI() {
 		this.navigator = new Navigator(this, this);
+	}
+
+	@Autowired
+	public void setSeeResults(SeeResultsView seeResults) {
+		this.seeResults = seeResults;
+	}
+
+	@Autowired
+	public void setSeeAnnouncement(SeeAnnouncementView seeAnnouncement) {
+		this.seeAnnouncement = seeAnnouncement;
 	}
 
 	@Autowired
@@ -44,9 +58,11 @@ public class HomePageUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
-		this.navigator.addView("", publishAnnouncement);
+		this.navigator.addView("", seeResults);
 		this.navigator.addView(ViewConstants.COURSES_CREATE, createCourse);
 		this.navigator.addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
+		this.navigator.addView(ViewConstants.SEE_ANNOUNCEMENT, seeAnnouncement);
+		this.navigator.addView(ViewConstants.SEE_RESULTS, seeResults);
 		UIHelper uiHelper = new UIHelper();
 		VerticalLayout rootLayout = new VerticalLayout();
 		rootLayout.setSpacing(true);

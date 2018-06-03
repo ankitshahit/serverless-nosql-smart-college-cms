@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.ui.Alignment;
 
 import lombok.Cleanup;
 
@@ -30,8 +31,7 @@ public class VaadinFieldInitializer {
 	public static void main(String[] args) throws JsonParseException, JsonMappingException, IOException {
 
 		@Cleanup
-		Scanner sc = new Scanner(new File(
-				"F:\\workspace\\college.io\\src\\main\\java\\io\\college\\cms\\core\\application\\example.json"));
+		Scanner sc = new Scanner(new File("F:\\workspace\\college.io\\src\\main\\resources\\see_results.json"));
 		StringBuilder sb = new StringBuilder();
 		while (sc.hasNextLine())
 			sb.append(sc.nextLine());
@@ -63,6 +63,8 @@ public class VaadinFieldInitializer {
 				addMethods(field, element);
 			}
 			addComponent(field, element);
+			addAlignment(field, element);
+
 		}
 
 		for (String string : declarations) {
@@ -83,6 +85,8 @@ public class VaadinFieldInitializer {
 			}
 		}
 
+		lines.insert(0, "@PostConstruct public void paint(){");
+		lines.append("}");
 		System.out.println(lines.toString());
 	}
 
@@ -130,6 +134,21 @@ public class VaadinFieldInitializer {
 			sb.append(field.getAddToComponent()).append(".");
 		}
 		sb.append(field.getAddToComponentMethodName()).append("(").append(field.getName()).append(");");
+		methods.add(sb.toString());
+	}
+
+	public static void addAlignment(Field field, FieldType type) {
+		StringBuilder sb = new StringBuilder();
+		if (field.getAlignment() == null) {
+			return;
+		}
+		if (StringUtils.isNotEmpty(field.getAlignmentComponentName())) {
+			sb.append(field.getAlignmentComponentName()).append(".");
+		}
+		if (StringUtils.isNotEmpty(field.getAlignmentMethodName())) {
+			sb.append(field.getAlignmentMethodName()).append("(").append(field.getName()).append(",")
+					.append(field.getAlignment()).append(");");
+		}
 		methods.add(sb.toString());
 	}
 
@@ -215,9 +234,9 @@ public class VaadinFieldInitializer {
 		TF("TextField", "new TextField()"), TA("TextArea", "new TextArea()"), BTN("Button", "new Button()"), LB("Label",
 				"new Label()"), HL("HorizontalLayout", "new HorizontalLayout()"), VL("VerticalLayout",
 						"new VerticalLayout()"), CK("CheckBox", "new CheckBox()"), CBG("CheckBoxGroup<String>",
-								"new CheckBoxGroup<String>()"), CB("ComboBox<String>",
-										"new ComboBox<String>()"), PL("Panel", "new Panel()"), DF("DateField",
-												"new DateField()"), RTA("RichTextArea", "new RichTextArea()");
+								"new CheckBoxGroup<String>()"), CB("ComboBox<String>", "new ComboBox<String>()"), PL(
+										"Panel", "new Panel()"), DF("DateField", "new DateField()"), RTA("RichTextArea",
+												"new RichTextArea()"), GD("Grid<String>", "new Grid<>()");
 		private String className;
 		private String constructor;
 
@@ -274,10 +293,40 @@ public class VaadinFieldInitializer {
 		private String addToComponent;
 		@JsonProperty("add_to_component_method")
 		private String addToComponentMethodName;
+		@JsonProperty("alignment")
+		private String alignment;
+		@JsonProperty("alignment_component_name")
+		private String alignmentComponentName;
+		@JsonProperty("alignment_method_name")
+		private String alignmentMethodName;
 		@JsonProperty("listeners")
 		private List<Listener> listeners = null;
 		@JsonIgnore
 		private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+		public String getAlignment() {
+			return alignment;
+		}
+
+		public void setAlignment(String alignment) {
+			this.alignment = alignment;
+		}
+
+		public String getAlignmentComponentName() {
+			return alignmentComponentName;
+		}
+
+		public void setAlignmentComponentName(String alignmentComponentName) {
+			this.alignmentComponentName = alignmentComponentName;
+		}
+
+		public String getAlignmentMethodName() {
+			return alignmentMethodName;
+		}
+
+		public void setAlignmentMethodName(String alignmentMethodName) {
+			this.alignmentMethodName = alignmentMethodName;
+		}
 
 		public int getMaxLength() {
 			return maxLength;
