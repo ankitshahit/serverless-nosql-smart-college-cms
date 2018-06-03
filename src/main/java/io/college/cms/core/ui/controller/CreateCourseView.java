@@ -1,5 +1,6 @@
 package io.college.cms.core.ui.controller;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -54,14 +55,12 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 
 			Accordion accordin = new Accordion();
 			accordin.setTabsVisible(true);
+			VerticalLayout step2 = courseUIService.buildCoursePageTwo(courseUIService.courseMetadataStep2());
 
-			VerticalLayout verticalLayout = new VerticalLayout();
-			verticalLayout.addComponent(new Label("Hello World"));
 			// we are tab 1 that is coursecreatestep1 in a different method to
 			// increase readbility
-			courseStepOne(accordin, verticalLayout);
-
-			accordin.addTab(verticalLayout, "Create course (2/3)");
+			courseStepOne(accordin, step2);
+			courseStepTwo(accordin, null);
 			accordin.setHeight("80%");
 			accordin.setWidth("80%");
 			addComponent(accordin);
@@ -92,11 +91,12 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 					.isArchive(courseDTO.getIsArchive().getValue())
 					.maxStudentsAllowed(Long.valueOf(courseDTO.getMaxStudents().getOptionalValue().get())).build());
 
-			if (io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
-					&& data.getResponse() instanceof String) {
+			boolean result = io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
+					&& data.getResponse() instanceof String;
+
+			if (result) {
 				Notification.show("Validation error: " + data.getResponse(), Type.ERROR_MESSAGE);
 			} else {
-				accordin.setSelectedTab(step2);
 
 				Notification notifi = Notification.show("Course created", Type.HUMANIZED_MESSAGE);
 				notifi.setIcon(VaadinIcons.CHECK);
@@ -104,9 +104,39 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 				notifi.setHtmlContentAllowed(true);
 				notifi.setDescription(
 						"A course has been created with metadata of coursename, description, max seats available and archive?\n Click here to dismiss and move to <b>step2</b>");
+				notifi.addCloseListener(close -> {
+					accordin.setSelectedTab(step2);
+				});
 			}
 
 		});
+	}
+
+	private void courseStepTwo(Accordion accord, Component step3) {
+		CourseDTO courseDTO = courseUIService.courseMetadataStep2();
+		courseDTO.getSubjectAttributes().addValueChangeListener(change -> {
+			boolean internal = false;
+			boolean theory = false;
+			boolean practical = false;
+			boolean others = false;
+			if (CollectionUtils.isNotEmpty(change.getValue())) {
+				internal = change.getValue().contains("Internal");
+				theory = change.getValue().contains("Theory");
+				practical = change.getValue().contains("Practical");
+				others = change.getValue().contains("Others");
+			}
+
+			courseDTO.getTheoryMarks().setVisible(theory);
+			courseDTO.getTheoryPassMarks().setVisible(theory);
+			courseDTO.getPracticalMarks().setVisible(practical);
+			courseDTO.getPracticalPassMarks().setVisible(practical);
+			courseDTO.getInternalMarks().setVisible(internal);
+			courseDTO.getInternalPassMarks().setVisible(internal);
+			courseDTO.getOtherMarks().setVisible(others);
+			courseDTO.getOtherPassMarks().setVisible(others);
+		});
+		VerticalLayout layout = courseUIService.buildCoursePageTwo(courseDTO);
+		accord.addTab(layout, "Create course			(2/3)");
 	}
 
 	@Override

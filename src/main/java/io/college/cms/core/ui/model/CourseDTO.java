@@ -2,7 +2,9 @@ package io.college.cms.core.ui.model;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
@@ -27,4 +29,15 @@ public class CourseDTO {
 	private Button reset;
 	private RichTextArea courseDescription;
 	private Label attributesSeperator;
+	private CheckBoxGroup<String> subjectAttributes;
+	private TextField theoryMarks;
+	private TextField theoryPassMarks;
+	private TextField practicalMarks;
+	private TextField practicalPassMarks;
+	private TextField internalMarks;
+	private TextField internalPassMarks;
+	private TextField otherMarks;
+	private TextField otherPassMarks;
+	private CheckBox optional;
+	private ListSelect<String> addedSubjects;
 }
