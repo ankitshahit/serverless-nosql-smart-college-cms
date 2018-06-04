@@ -52,6 +52,81 @@ public class ExamResponseService {
 		this.courseDbService = courseDbService;
 	}
 
+	public FactoryResponse deleteByExamName(String examName) {
+		FactoryResponse fr = null;
+		try {
+
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examName), "Exam name is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+			examDbService.deleteExam(examName);
+			fr = FactoryResponse.builder().response(examName).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (IllegalArgumentException ex) {
+			LOGGER.error("One of required fields is empty.");
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ResourceDeniedException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.ACCESS_DENIED).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Application dont feel so good!")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse saveExamMetadata(ExaminationModel model) {
+		FactoryResponse fr = null;
+		try {
+			ValidationHandler.throwExceptionIfNull(model, "Request json is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getCourseName()),
+					"Course name is not provided.", ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getExamName()),
+					"Exam name is not provided.", ExceptionType.VALIDATION_EXCEPTION);
+
+			ValidationHandler.throwExceptionIfNull(model.getExamStartDate(), "Exam start date is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfNull(model.getExamEndDate(), "Exam end date is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(model.getExamStartDate().compareTo(model.getExamEndDate()) > 1,
+					"Exam Start date cannot be greater than exam end date.", ExceptionType.VALIDATION_EXCEPTION);
+			examDbService.saveUpdateExam(model);
+			fr = FactoryResponse.builder().response(model).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (IllegalArgumentException ex) {
+			LOGGER.error("One of required fields is empty.");
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ResourceDeniedException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.ACCESS_DENIED).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Application dont feel so good!")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
 	public FactoryResponse getExamByExamId(HttpServletRequest request, String examName) {
 		FactoryResponse fr = null;
 		try {
@@ -262,5 +337,4 @@ public class ExamResponseService {
 		return fr;
 	}
 
-	
 }

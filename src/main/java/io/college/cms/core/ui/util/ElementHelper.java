@@ -1,9 +1,10 @@
 package io.college.cms.core.ui.util;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.shared.ui.ErrorLevel;
-import com.vaadin.ui.AbstractDateField;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractSingleSelect;
 
@@ -52,4 +53,10 @@ public class ElementHelper {
 		return hasValue;
 	}
 
+	public static <T> T value(Optional<T> value) {
+		if (value.isPresent()) {
+			return value.get();
+		}
+		return null;
+	}
 }

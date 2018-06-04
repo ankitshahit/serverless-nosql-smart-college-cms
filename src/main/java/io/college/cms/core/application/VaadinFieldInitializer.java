@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vaadin.ui.Alignment;
 
 import lombok.Cleanup;
 
@@ -31,7 +30,8 @@ public class VaadinFieldInitializer {
 	public static void main(String[] args) throws JsonParseException, JsonMappingException, IOException {
 
 		@Cleanup
-		Scanner sc = new Scanner(new File("F:\\workspace\\college.io\\src\\main\\resources\\see_results.json"));
+		Scanner sc = new Scanner(new File(
+				"C:\\Users\\1054480\\git\\serverless-nosql-smart-college-cms\\src\\main\\resources\\publish_exams.json"));
 		StringBuilder sb = new StringBuilder();
 		while (sc.hasNextLine())
 			sb.append(sc.nextLine());

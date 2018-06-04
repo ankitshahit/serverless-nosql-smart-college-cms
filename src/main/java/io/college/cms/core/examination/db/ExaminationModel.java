@@ -1,16 +1,14 @@
 package io.college.cms.core.examination.db;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.college.cms.core.courses.controller.CourseController;
@@ -37,14 +35,16 @@ public class ExaminationModel {
 	@DynamoDBAttribute(attributeName = "exam_subjects")
 	@Singular("withSubject")
 	private List<ExamSubject> examSubjects;
-	@DynamoDBAttribute(attributeName = "exam_start_date_time")
-	private Date examStartDate;
-	@DynamoDBAttribute(attributeName = "exam_end_date_time")
-	private Date examEndDate;
+	@DynamoDBAttribute(attributeName = "exam_start_Local_date_time")
+	private LocalDate examStartDate;
+	@DynamoDBAttribute(attributeName = "exam_end_Local_date_time")
+	private LocalDate examEndDate;
 	@DynamoDBAttribute(attributeName = "is_published")
 	private boolean published;
 	@DynamoDBAttribute(attributeName = "un_published")
 	private boolean unPublished;
+	@DynamoDBAttribute(attributeName = "semester")
+	private String semester;
 
 	@Data
 	@Builder
@@ -74,9 +74,9 @@ public class ExaminationModel {
 	public static class ExamSubjectTimeTable {
 		private String key;
 		@JsonFormat(shape = Shape.STRING)
-		private Date startTime;
+		private LocalDate startTime;
 		@JsonFormat(shape = Shape.STRING)
-		private Date endTime;
+		private LocalDate endTime;
 	}
 
 	@Data
@@ -94,7 +94,7 @@ public class ExaminationModel {
 		private Double totalScored;
 		private String actionBy;
 		@JsonFormat(shape = Shape.STRING)
-		private Date updatedOn;
+		private LocalDate updatedOn;
 		private boolean review;
 		private boolean disableQrLink;
 		private boolean pass;

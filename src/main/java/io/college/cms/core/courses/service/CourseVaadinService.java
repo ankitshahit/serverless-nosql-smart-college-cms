@@ -11,6 +11,7 @@ import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.VerticalLayout;
@@ -54,7 +55,7 @@ public class CourseVaadinService {
 		label.setSizeFull();
 		courseDTO.setAttributesSeperator(label);
 		courseDTO.setSaveCourse(ButtonWrapper.builder().caption("Save & Next").build().button());
-		courseDTO.setReset(ButtonWrapper.builder().caption("Reset?").build().button());
+		courseDTO.setReset(ButtonWrapper.builder().caption("Delete").build().button());
 		courseDTO.getReset().setStyleName(ValoTheme.BUTTON_DANGER);
 		courseDTO.getSaveCourse().setStyleName(ValoTheme.BUTTON_QUIET);
 		return courseDTO;
@@ -123,7 +124,7 @@ public class CourseVaadinService {
 		optional.setCaption("Is subject optional?");
 		dto.setOptional(optional);
 		dto.setSaveCourse(ButtonWrapper.builder().caption("Save & Next").build().button());
-		dto.setReset(ButtonWrapper.builder().caption("Reset?").build().button());
+		dto.setReset(ButtonWrapper.builder().caption("Reset").build().button());
 		dto.getReset().setStyleName(ValoTheme.BUTTON_DANGER);
 		dto.getSaveCourse().setStyleName(ValoTheme.BUTTON_QUIET);
 		return dto;

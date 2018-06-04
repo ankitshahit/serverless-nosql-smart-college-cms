@@ -5,10 +5,12 @@ import java.util.List;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.college.cms.core.dynamodbloader.constants.TableNames;
 import lombok.AllArgsConstructor;
@@ -54,6 +56,9 @@ public class CourseModel {
 	private List<String> users;
 	@DynamoDBAttribute(attributeName = "description")
 	private String description;
+	@JsonProperty("current_enrolled_out_of")
+	@DynamoDBIgnore
+	private String outOf;
 
 	@Data
 	@Builder

@@ -1,0 +1,119 @@
+{
+	"fields": [
+		{
+			"type": "pl",
+			"name": "panelStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "",
+			"add_to_component_method": "addComponent",
+			"alignment": "Alignment.MIDDLE_CENTER",
+			"alignment_component_name": "",
+			"alignment_method_name": "setComponentAlignment"
+		},
+		{
+			"type": "hl",
+			"name": "rootLayoutStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "panelStep2",
+			"add_to_component_method": "addComponent",
+			"alignment": "ALignment.MIDDLE_CENTER"
+		},
+		{
+			"type": "vl",
+			"name": "vRootLayoutStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "rootLayoutStep2",
+			"add_to_component_method": "addComponent",
+			"alignment": "ALignment.MIDDLE_CENTER"
+		},
+		{
+			"type": "cb",
+			"name": "selectSubject",
+			"caption": "Subject Name",
+			"placeholder": "Say, Subject 2018- ",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "vRootLayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "addTab"
+				}
+			]
+		},
+		{
+			"type": "df",
+			"name": "startTimeSubject",
+			"caption": "Subject start time",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "vRootLayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "addTab"
+				}
+			]
+		},
+		{
+			"type": "df",
+			"name": "endTimeSubject",
+			"caption": "Subject End time",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "vRootLayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [
+				{
+					"type": "el",
+					"target_btn": "addTab"
+				}
+			]
+		},
+		{
+			"type": "btn",
+			"name": "addTab",
+			"caption": "Add time table",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "vRootLayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		},
+		{
+			"type": "btn",
+			"name": "saveExams",
+			"caption": "Save.",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "horizontalLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		}
+	]
+}

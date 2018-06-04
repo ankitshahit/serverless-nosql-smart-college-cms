@@ -11,6 +11,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
+import io.college.cms.core.courses.controller.SeeCoursesView;
+import io.college.cms.core.examination.controller.PublishExamView;
+import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.util.UIHelper;
@@ -26,9 +29,27 @@ public class HomePageUI extends UI {
 	private PublishAnnouncementView publishAnnouncement;
 	private SeeAnnouncementView seeAnnouncement;
 	private SeeResultsView seeResults;
+	private SeeCoursesView seeCourses;
+	private PublishExamView publishExam;
+	private SeeExamsView seeExam;
 
 	public HomePageUI() {
 		this.navigator = new Navigator(this, this);
+	}
+
+	@Autowired
+	public void setSeeExam(SeeExamsView seeExam) {
+		this.seeExam = seeExam;
+	}
+
+	@Autowired
+	public void setPublishExam(PublishExamView publishExam) {
+		this.publishExam = publishExam;
+	}
+
+	@Autowired
+	public void setSeeCourses(SeeCoursesView seeCourses) {
+		this.seeCourses = seeCourses;
 	}
 
 	@Autowired
@@ -58,11 +79,14 @@ public class HomePageUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
-		this.navigator.addView("", seeResults);
+		this.navigator.addView("", publishExam);
 		this.navigator.addView(ViewConstants.COURSES_CREATE, createCourse);
+		this.navigator.addView(ViewConstants.COURSES_VIEW_ALL, seeCourses);
 		this.navigator.addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
 		this.navigator.addView(ViewConstants.SEE_ANNOUNCEMENT, seeAnnouncement);
 		this.navigator.addView(ViewConstants.SEE_RESULTS, seeResults);
+		this.navigator.addView(ViewConstants.EXAM_CREATE, publishExam);
+		this.navigator.addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
 		UIHelper uiHelper = new UIHelper();
 		VerticalLayout rootLayout = new VerticalLayout();
 		rootLayout.setSpacing(true);

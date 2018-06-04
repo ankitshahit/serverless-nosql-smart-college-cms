@@ -2,7 +2,7 @@ package io.college.cms.core.exception;
 
 public class ExceptionHandler {
 	public static String beautifyStackTrace(Exception ex) {
-		return "";
+		return ex.getMessage();
 	}
 
 	public static String beautifyStackTrace(Throwable ex) {
