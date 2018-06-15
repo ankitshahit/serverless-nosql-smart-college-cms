@@ -20,4 +20,6 @@ public class AppParams {
 	private String dynamoDbEndPoint;
 	@Value("${host:http://localhost:8080}")
 	private String host;
+	@Value("${generate-db-tables:false}")
+	private boolean generateDbTables;
 }

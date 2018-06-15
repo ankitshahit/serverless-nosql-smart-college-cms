@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootApplication
 @ComponentScan(basePackages = { "io.college.cms.core.*", "io.college.cms.core.configuration.*",
 		"io.college.cms.core.examination.*", "io.college.cms.core.courses.*", "io.college.cms.core.application.*",
-		"io.college.cms.core.application.automation.*", "io.college.cms.core.ui.*" })
+		"io.college.cms.core.application.automation.*", "io.college.cms.core.ui.*",
+		"io.college.cms.core.dynamodbloader.*", "io.college.cms.core.dynamodbloader.service.*" })
 @Slf4j
 public class Application {
 	public static void main(String[] args) {
