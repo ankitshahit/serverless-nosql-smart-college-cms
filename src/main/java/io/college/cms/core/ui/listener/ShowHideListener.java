@@ -8,7 +8,7 @@ import com.vaadin.ui.Button;
 
 import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
-import lombok.experimental.var;
+import lombok.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -95,17 +95,17 @@ public class ShowHideListener<T> implements HasValue.ValueChangeListener<T> {
 		boolean result = !(ElementHelper.hasValue(sourceField) || ElementHelper.hasValue(sourceListField)
 				|| ElementHelper.hasValue(sourceDateField));
 		if (mandatoryFields != null && mandatoryFields.length > 0) {
-			for (var field : mandatoryFields) {
+			for (AbstractField<?> field : mandatoryFields) {
 				field.setVisible(result);
 			}
 		}
 		if (mandatoryListFields != null && mandatoryListFields.length > 0) {
-			for (var field : mandatoryListFields) {
+			for (AbstractSingleSelect<?> field : mandatoryListFields) {
 				field.setVisible(result);
 			}
 		}
 		if (mandatoryDateFields != null && mandatoryDateFields.length > 0) {
-			for (var field : mandatoryDateFields) {
+			for (AbstractDateField field : mandatoryDateFields) {
 				field.setVisible(result);
 			}
 		}

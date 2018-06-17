@@ -20,7 +20,6 @@ import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.model.GroupModel;
 import lombok.NonNull;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -111,7 +110,7 @@ public class GroupService implements IGroupService {
 	@Override
 	public GroupModel listGroupMembers(@NonNull UserGroups group, Integer limit, String token)
 			throws IllegalArgumentException, ValidationException, ApplicationException {
-		var builder = GroupModel.builder().groupName(group.toString());
+		GroupModel.GroupModelBuilder builder = GroupModel.builder().groupName(group.toString());
 		try {
 
 			ListUsersInGroupRequest request = app.getBean(ListUsersInGroupRequest.class);

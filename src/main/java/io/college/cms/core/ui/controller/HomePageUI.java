@@ -11,7 +11,6 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -22,6 +21,7 @@ import io.college.cms.core.examination.controller.PublishExamView;
 import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.ui.model.ViewConstants;
+import lombok.var;
 
 @SpringUI(path = "/homepage")
 @UIScope
@@ -120,10 +120,7 @@ public class HomePageUI extends UI {
 	}
 
 	void sideMenus() {
-
-		// Navigation examples
-		sideMenu.addNavigation("Publish exam", ViewConstants.SEE_ANNOUNCEMENT);
-
+		
 		sideMenu.addMenuItem("Exams", () -> {
 
 		});
@@ -132,17 +129,6 @@ public class HomePageUI extends UI {
 		});
 		sideMenu.addMenuItem("View/Modify Exams", () -> {
 			navigator.navigateTo(ViewConstants.EXAM_VIEW_ALL);
-		});
-		// Arbitrary method execution
-		sideMenu.addMenuItem("My Menu Entry", () -> {
-			VerticalLayout content = new VerticalLayout();
-			content.addComponent(new Label("A layout"));
-			sideMenu.setContent(content);
-		});
-		sideMenu.addMenuItem("Entry With Icon", VaadinIcons.ACCESSIBILITY, () -> {
-			VerticalLayout content = new VerticalLayout();
-			content.addComponent(new Label("Another layout"));
-			sideMenu.setContent(content);
 		});
 
 		// User menu controls
@@ -157,6 +143,7 @@ public class HomePageUI extends UI {
 		});
 		sideMenu.setHeight("100%");
 		sideMenu.setWidth("100%");
+		sideMenu.setSizeFull();
 
 	}
 

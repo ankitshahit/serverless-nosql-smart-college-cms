@@ -17,7 +17,6 @@ import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import lombok.NonNull;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -27,17 +26,22 @@ public class ExamDynamoService implements IExamDbService {
 	private DynamoDBMapper dbMapper;
 
 	@Autowired
-	public ExamDynamoService( DynamoDBMapper dbMapper) {
+	public ExamDynamoService(DynamoDBMapper dbMapper) {
 		this.dbMapper = dbMapper;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.college.cms.core.examination.service.IExamDbService#findByExamName(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.college.cms.core.examination.service.IExamDbService#findByExamName(
+	 * java.lang.String)
 	 */
-	@Override@Cacheable
+	@Override
+	@Cacheable
 	public ExaminationModel findByExamName(@NonNull String examName)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
-		var examData = ExaminationModel.builder().build();
+		ExaminationModel examData = ExaminationModel.builder().build();
 		try {
 			examData = dbMapper.load(ExaminationModel.class, examName);
 			ValidationHandler.throwExceptionIfNull(examData, "", ExceptionType.VALIDATION_EXCEPTION);
@@ -51,16 +55,20 @@ public class ExamDynamoService implements IExamDbService {
 		return examData;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.college.cms.core.examination.service.IExamDbService#saveUpdateExam(io.college.cms.core.examination.db.ExaminationModel)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.college.cms.core.examination.service.IExamDbService#saveUpdateExam(io.
+	 * college.cms.core.examination.db.ExaminationModel)
 	 */
 	@Override
 	public void saveUpdateExam(@NonNull ExaminationModel model)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 
 		try {
-			// we won't be checking exam subjects for now 
-			//TODO: have to verify
+			// we won't be checking exam subjects for now
+			// TODO: have to verify
 			// each subject whether they working or not
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(model.getExamSubjects()),
 					"No exam subjects provided.", ExceptionType.VALIDATION_EXCEPTION);
@@ -83,8 +91,12 @@ public class ExamDynamoService implements IExamDbService {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see io.college.cms.core.examination.service.IExamDbService#deleteExam(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.college.cms.core.examination.service.IExamDbService#deleteExam(java.
+	 * lang.String)
 	 */
 	@Override
 	public void deleteExam(@NonNull String examName)

@@ -31,7 +31,6 @@ import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.user.constants.UserAttributes;
 import io.college.cms.core.user.model.UserModel;
 import lombok.NonNull;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -58,7 +57,7 @@ public class UserCognitoService implements IUserService {
 	 * @return
 	 */
 	public static UserModel valueOf(UserType user) {
-		var userBuilder = UserModel.builder();
+		UserModel.UserModelBuilder userBuilder = UserModel.builder();
 		userBuilder.username(user.getUsername()).isActive(user.getEnabled());
 		userBuilder.attributes(valueOf(user.getAttributes()).getAttributes());
 		return userBuilder.build();
@@ -71,7 +70,7 @@ public class UserCognitoService implements IUserService {
 	 * @return
 	 */
 	public static UserModel valueOf(List<AttributeType> attributes) {
-		var userBuilder = UserModel.builder();
+		UserModel.UserModelBuilder userBuilder = UserModel.builder();
 		for (AttributeType attributeType : attributes) {
 			if (attributeType == null || StringUtils.isEmpty(attributeType.getName())) {
 				continue;
@@ -93,7 +92,7 @@ public class UserCognitoService implements IUserService {
 	@Cacheable
 	public UserModel findByUsername(@NonNull String username)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
-		var userBuilder = UserModel.builder();
+		UserModel.UserModelBuilder userBuilder = UserModel.builder();
 		try {
 			AdminGetUserRequest request = app.getBean(AdminGetUserRequest.class);
 			request.setUsername(username);
@@ -125,7 +124,7 @@ public class UserCognitoService implements IUserService {
 	@Override
 	public List<UserModel> findAllUsers(UserModel model)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
-		var users = new ArrayList<UserModel>();
+		List<UserModel> users = new ArrayList<UserModel>();
 		try {
 			ListUsersRequest request = app.getBean(ListUsersRequest.class);
 
@@ -141,7 +140,7 @@ public class UserCognitoService implements IUserService {
 			ListUsersResult result = identityProvider.listUsers(request);
 
 			result.getUsers().forEach(user -> {
-				var data = valueOf(user);
+				UserModel data = valueOf(user);
 				data.setPaginationToken(result.getPaginationToken());
 				users.add(data);
 			});
@@ -167,7 +166,7 @@ public class UserCognitoService implements IUserService {
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(user.getAttributes()),
 					"User attributes not provided.", ExceptionType.VALIDATION_EXCEPTION);
 
-			var attributes = new ArrayList<AttributeType>();
+			List<AttributeType> attributes = new ArrayList<AttributeType>();
 			for (io.college.cms.core.user.model.UserModel.AttributeType attr : user.getAttributes()) {
 				AttributeType attribute = new AttributeType();
 				attribute.setName(StringUtils.lowerCase(attr.getName().toString()));

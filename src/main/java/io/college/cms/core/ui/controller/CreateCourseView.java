@@ -1,6 +1,7 @@
 package io.college.cms.core.ui.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -29,11 +30,11 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.courses.db.CourseModel;
+import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.courses.service.CourseVaadinService;
 import io.college.cms.core.ui.model.CourseDTO;
 import io.college.cms.core.ui.services.ICoursesService;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -98,8 +99,8 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 				courseStepOne.getIsArchive().setValue(courseModel.isArchive());
 				courseStepOne.getMaxStudents().setValue(String.valueOf(courseModel.getMaxStudentsAllowed()));
 				if (CollectionUtils.isNotEmpty(courseModel.getSubjects())) {
-					var collection = new ArrayList<String>();
-					for (var subject : courseModel.getSubjects()) {
+					List<String> collection = new ArrayList<String>();
+					for (SubjectModel subject : courseModel.getSubjects()) {
 						collection.add(subject.getSubjectName());
 
 					}

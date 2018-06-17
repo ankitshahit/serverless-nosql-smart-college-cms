@@ -1,5 +1,7 @@
 package io.college.cms.core.courses.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +15,6 @@ import io.college.cms.core.dynamodbloader.model.Paginate;
 import io.college.cms.core.exception.ExceptionType;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,7 +36,7 @@ public class CourseResponseService {
 					"No course name provided", ExceptionType.VALIDATION_EXCEPTION);
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(course.getDescription()),
 					"Course description is required", ExceptionType.VALIDATION_EXCEPTION);
-			var data = dbService.findByCourseName(course.getCourseName());
+			CourseModel data = dbService.findByCourseName(course.getCourseName());
 			ValidationHandler.throwExceptionIfTrue(data != null, "Course already exists. Use update option.",
 					ExceptionType.VALIDATION_EXCEPTION);
 			dbService.saveCourse(course);
@@ -56,7 +57,7 @@ public class CourseResponseService {
 		FactoryResponse fr = null;
 		try {
 			ValidationHandler.throwExceptionIfNull(courseName, null, ExceptionType.VALIDATION_EXCEPTION);
-			var course = dbService.findByCourseName(courseName);
+			CourseModel course = dbService.findByCourseName(courseName);
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (ValidationException | IllegalArgumentException e) {
 			LOGGER.error(e.getMessage());
@@ -114,7 +115,7 @@ public class CourseResponseService {
 			Paginate paginate = new Paginate();
 			paginate.setStartNumber(startRecord);
 			paginate.setEndNumber(endRecord);
-			var course = dbService.limitAndPaginateCourses(paginate);
+			List<CourseModel> course = dbService.limitAndPaginateCourses(paginate);
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (ValidationException | IllegalArgumentException e) {
 			LOGGER.error(e.getMessage());

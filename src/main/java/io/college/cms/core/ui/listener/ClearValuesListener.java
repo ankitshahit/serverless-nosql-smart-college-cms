@@ -6,8 +6,6 @@ import com.vaadin.ui.AbstractSingleSelect;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-import io.college.cms.core.ui.util.ListenerUtility;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -48,19 +46,19 @@ public class ClearValuesListener<T> implements ClickListener {
 
 		LOGGER.debug("is targetBtn null = {}");
 		if (mandatoryDateFields != null && mandatoryDateFields.length > 0) {
-			for (var date : mandatoryDateFields) {
+			for (AbstractDateField date : mandatoryDateFields) {
 				date.setComponentError(null);
 				date.clear();
 			}
 		}
 		if (mandatoryListFields != null && mandatoryListFields.length > 0) {
-			for (var element : mandatoryListFields) {
+			for (AbstractSingleSelect<?> element : mandatoryListFields) {
 				element.setComponentError(null);
 				element.clear();
 			}
 		}
 		if (mandatoryFields != null && mandatoryFields.length > 0) {
-			for (var element : mandatoryFields) {
+			for (AbstractField<?> element : mandatoryFields) {
 				element.setComponentError(null);
 				element.clear();
 			}

@@ -17,7 +17,6 @@ import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.user.model.UserModel;
 import lombok.NonNull;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -40,7 +39,7 @@ public class UserService implements IUserService {
 	public List<UserModel> findAllUsers()
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 
-		var users = new ArrayList<UserModel>();
+		List<UserModel> users = new ArrayList<UserModel>();
 		try {
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(users), "No users found.",
 					ExceptionType.VALIDATION_EXCEPTION);
@@ -76,7 +75,7 @@ public class UserService implements IUserService {
 		try {
 			ValidationHandler.throwExceptionIfNull(user.getUsername(), "user name is empty",
 					ExceptionType.VALIDATION_EXCEPTION);
-			var dbVersionUser = findByUsername(user.getUsername());
+			UserModel dbVersionUser = findByUsername(user.getUsername());
 			dbVersionUser.setDeletedOn(Date.from(Instant.now()));
 			dbMapper.save(user);
 		} catch (ValidationException ex) {
@@ -90,7 +89,7 @@ public class UserService implements IUserService {
 	@Override
 	public UserModel findByUsername(@NonNull String username)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
-		var user = UserModel.builder().build();
+		UserModel user = UserModel.builder().build();
 		try {
 			user = dbMapper.load(UserModel.class, username);
 

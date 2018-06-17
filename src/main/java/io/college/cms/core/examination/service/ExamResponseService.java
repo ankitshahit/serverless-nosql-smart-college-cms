@@ -1,8 +1,10 @@
 package io.college.cms.core.examination.service;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.courses.controller.constants.SubjectType;
+import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.ICourseDbService;
 import io.college.cms.core.examination.db.ExaminationModel;
@@ -27,7 +30,6 @@ import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import lombok.Cleanup;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -130,7 +132,7 @@ public class ExamResponseService {
 	public FactoryResponse getExamByExamId(HttpServletRequest request, String examName) {
 		FactoryResponse fr = null;
 		try {
-			var exam = examDbService.findByExamName(examName);
+			ExaminationModel exam = examDbService.findByExamName(examName);
 			fr = FactoryResponse.builder().response(exam).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (IllegalArgumentException ex) {
 			LOGGER.error("One of required fields is empty.");
@@ -166,15 +168,15 @@ public class ExamResponseService {
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examName), "Exam name is not provided.",
 					ExceptionType.VALIDATION_EXCEPTION);
 
-			var examData = examDbService.findByExamName(examName);
-			var courseData = courseDbService.findByCourseName(examData.getCourseName());
+			ExaminationModel examData = examDbService.findByExamName(examName);
+			CourseModel courseData = courseDbService.findByCourseName(examData.getCourseName());
 
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(courseData.getSubjects()),
 					"Course doesn't have any subjects", ExceptionType.VALIDATION_EXCEPTION);
 
 			// lombok var requires an instance of what is to be loaded, it can
 			// never be initialized as a null
-			var subjectData = SubjectModel.builder().build();
+			SubjectModel subjectData = SubjectModel.builder().build();
 			for (SubjectModel subject : courseData.getSubjects()) {
 				if (!subjectName.equalsIgnoreCase(subject.getSubjectName())) {
 					continue;
@@ -184,11 +186,11 @@ public class ExamResponseService {
 			}
 			ValidationHandler.throwExceptionIfNull(subjectData, "No such subject found",
 					ExceptionType.VALIDATION_EXCEPTION);
-			var students = new ArrayList<String>();
+			List<String> students = new ArrayList<String>();
 			students.add(username);
 
-			var subjectType = SubjectType.findByType(type);
-			var file = examQrService.printForSubject(examName, subjectName, subjectType, students);
+			SubjectType subjectType = SubjectType.findByType(type);
+			File file = examQrService.printForSubject(examName, subjectName, subjectType, students);
 			@Cleanup
 			InputStream inputStream = new FileInputStream(file);
 			response.setContentType("application/force-download");
@@ -220,15 +222,15 @@ public class ExamResponseService {
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examName), "Exam name is not provided.",
 					ExceptionType.VALIDATION_EXCEPTION);
 
-			var examData = examDbService.findByExamName(examName);
-			var courseData = courseDbService.findByCourseName(examData.getCourseName());
+			ExaminationModel examData = examDbService.findByExamName(examName);
+			CourseModel courseData = courseDbService.findByCourseName(examData.getCourseName());
 
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(courseData.getSubjects()),
 					"Course doesn't have any subjects", ExceptionType.VALIDATION_EXCEPTION);
 
 			// lombok var requires an instance of what is to be loaded, it can
 			// never be initialized as a null
-			var subjectData = SubjectModel.builder().build();
+			SubjectModel subjectData = SubjectModel.builder().build();
 			for (SubjectModel subject : courseData.getSubjects()) {
 				if (!subjectName.equalsIgnoreCase(subject.getSubjectName())) {
 					continue;
@@ -240,8 +242,8 @@ public class ExamResponseService {
 					subjectData == null || CollectionUtils.isEmpty(subjectData.getStudentUsernames()),
 					"No students are available for mentioned subject & course ", ExceptionType.VALIDATION_EXCEPTION);
 
-			var subjectType = SubjectType.findByType(type);
-			var file = examQrService.printForSubject(examName, subjectName, subjectType,
+			SubjectType subjectType = SubjectType.findByType(type);
+			File file = examQrService.printForSubject(examName, subjectName, subjectType,
 					subjectData.getStudentUsernames());
 			@Cleanup
 			InputStream inputStream = new FileInputStream(file);

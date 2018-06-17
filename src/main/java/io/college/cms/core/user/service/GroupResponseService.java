@@ -2,6 +2,7 @@ package io.college.cms.core.user.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,7 +20,6 @@ import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.model.GroupModel;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -147,7 +147,7 @@ public class GroupResponseService {
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(group.getGroupName()), "No group name provided ",
 					ExceptionType.VALIDATION_EXCEPTION);
 
-			var users = groupService.listGroupMembers(group);
+			GroupModel users = groupService.listGroupMembers(group);
 			ValidationHandler.throwExceptionIfNull(users, "No users are found", ExceptionType.VALIDATION_EXCEPTION);
 			fr = FactoryResponse.builder().response(users).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (IllegalArgumentException ex) {
@@ -176,7 +176,7 @@ public class GroupResponseService {
 	 */
 	@Cacheable
 	public FactoryResponse getAllGroupNames() {
-		var constants = new ArrayList<String>();
+		List<String> constants = new ArrayList<String>();
 		Arrays.asList(UserGroups.values()).forEach(attribute -> {
 			constants.add(attribute.toString());
 		});

@@ -2,6 +2,7 @@ package io.college.cms.core.user.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,7 +18,6 @@ import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.user.constants.UserAttributes;
 import io.college.cms.core.user.model.UserModel;
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -39,7 +39,7 @@ public class UserResponseService {
 	 */
 	@Cacheable
 	public FactoryResponse getAllUserAttributes() {
-		var constants = new ArrayList<String>();
+		List<String> constants = new ArrayList<String>();
 		Arrays.asList(UserAttributes.values()).forEach(attribute -> {
 			constants.add(attribute.toString());
 		});
@@ -50,7 +50,7 @@ public class UserResponseService {
 	public FactoryResponse getUserByUser(HttpServletRequest request, String username) {
 		FactoryResponse fr = null;
 		try {
-			var user = userService.findByUsername(username);
+			UserModel user = userService.findByUsername(username);
 			fr = FactoryResponse.builder().response(user).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (IllegalArgumentException ex) {
 			LOGGER.error("One of required fields is empty.");
