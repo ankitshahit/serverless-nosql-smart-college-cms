@@ -1,6 +1,6 @@
 package io.college.cms.core.examination.controller;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +51,7 @@ public class ExaminationController {
 		ExaminationModel.builder()
 				.withSubject(ExaminationModel.ExamSubject.builder().subjectName(subjectName)
 						.withResult(StudentResult.builder().actionBy(actionByUsername).disableQrLink(true)
-								.username(studentUsername).updatedOn(new Date()).build())
+								.username(studentUsername).updatedOn(LocalDate.now()).build())
 						.withTimeTable(ExamSubjectTimeTable.builder().key(subjectType).build()).build());
 
 		return null;

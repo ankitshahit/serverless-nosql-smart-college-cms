@@ -43,9 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
 public class PublishExamView extends VerticalLayout implements View {
-	/**
-	* 
-	*/
+	
 	private static final long serialVersionUID = 1L;
 	private ExamResponseService examResponseService;
 	private ExaminationModel model;
@@ -93,34 +91,44 @@ public class PublishExamView extends VerticalLayout implements View {
 		examName.setEnabled(true);
 		examName.setRequiredIndicatorVisible(true);
 		examName.setWidth("50%");
+		examName.setResponsive(true);
 		examName.focus();
+		rootLayout.setResponsive(true);
 		rootLayout.addComponent(examName);
 		rootLayout.setComponentAlignment(examName, Alignment.TOP_RIGHT);
+
 		selectCourse.setCaption("Course name");
 		selectCourse.setRequiredIndicatorVisible(true);
 		selectCourse.setVisible(true);
 		selectCourse.setEnabled(true);
+		selectCourse.setResponsive(true);
+
 		rootLayout.addComponent(selectCourse);
+
 		selectSem.setCaption("Semester");
 		selectSem.setRequiredIndicatorVisible(true);
 		selectSem.setVisible(true);
 		selectSem.setEnabled(true);
+		selectSem.setResponsive(true);
 		rootLayout.addComponent(selectSem);
 		startExamDate.setCaption("Exam start date");
 		startExamDate.setRequiredIndicatorVisible(true);
 		startExamDate.setVisible(true);
 		startExamDate.setEnabled(true);
+		startExamDate.setResponsive(true);
 		rootLayout.addComponent(startExamDate);
 		endExamDate.setCaption("Exam end date");
 		endExamDate.setRequiredIndicatorVisible(true);
 		endExamDate.setVisible(true);
 		endExamDate.setEnabled(true);
+		endExamDate.setResponsive(true);
 		rootLayout.addComponent(endExamDate);
 		rootLayout.addComponent(horizontalLayout);
 		deleteExam.setCaption("Delete examination");
 		deleteExam.setVisible(true);
 		deleteExam.setEnabled(true);
 		deleteExam.setStyleName(ValoTheme.BUTTON_DANGER);
+		deleteExam.setResponsive(true);
 		deleteExam.addClickListener(click -> {
 			if (ListenerUtility.isValidSourceEvent(click.getComponent(), deleteExam)) {
 				Window window = new Window();
@@ -175,7 +183,9 @@ public class PublishExamView extends VerticalLayout implements View {
 		publish.setVisible(true);
 		publish.setEnabled(false);
 		publish.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+		publish.setResponsive(true);
 		horizontalLayout.addComponent(publish);
+		horizontalLayout.setResponsive(true);
 		rootLayout.setComponentAlignment(horizontalLayout, Alignment.BOTTOM_RIGHT);
 		EmptyFieldListener<LocalDate> startExamDateListener = new EmptyFieldListener<LocalDate>();
 		startExamDateListener.setSourceDateField(startExamDate);
@@ -213,18 +223,23 @@ public class PublishExamView extends VerticalLayout implements View {
 		addComponent(panelStep2);
 		setComponentAlignment(panelStep2, Alignment.MIDDLE_CENTER);
 		panelStep2.setContent(rootLayoutStep2);
+		panelStep2.setResponsive(true);
+		rootLayoutStep2.setResponsive(true);
 		rootLayoutStep2.addComponent(vRootLayoutStep2);
+		selectSubject.setResponsive(true);
 		selectSubject.setCaption("Subject Name");
 		selectSubject.setPlaceholder("Say, Subject 2018- ");
 		selectSubject.setRequiredIndicatorVisible(true);
 		selectSubject.setVisible(true);
 		selectSubject.setEnabled(true);
 		vRootLayoutStep2.addComponent(selectSubject);
+		startTimeSubject.setResponsive(true);
 		startTimeSubject.setCaption("Subject start time");
 		startTimeSubject.setRequiredIndicatorVisible(true);
 		startTimeSubject.setVisible(true);
 		startTimeSubject.setEnabled(true);
 		vRootLayoutStep2.addComponent(startTimeSubject);
+		endTimeSubject.setResponsive(true);
 		endTimeSubject.setCaption("Subject End time");
 		endTimeSubject.setRequiredIndicatorVisible(true);
 		endTimeSubject.setVisible(true);
@@ -234,12 +249,13 @@ public class PublishExamView extends VerticalLayout implements View {
 		addTab.setVisible(true);
 		addTab.setEnabled(false);
 		addTab.setStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+		addTab.setResponsive(true);
 		vRootLayoutStep2.addComponent(addTab);
 		saveExams.setCaption("Save");
 		saveExams.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		saveExams.setVisible(true);
 		saveExams.setEnabled(true);
-
+		saveExams.setResponsive(true);
 		EmptyFieldListener<LocalDate> startTimeSubjectListener = new EmptyFieldListener<LocalDate>();
 		startTimeSubjectListener.setSourceDateField(startTimeSubject);
 		startTimeSubjectListener.setTargetBtn(addTab);
@@ -269,8 +285,8 @@ public class PublishExamView extends VerticalLayout implements View {
 
 		rootLayoutStep2.addComponents(secondStep2ListLayout);
 		accord.addTab(rootLayoutStep2, "Exam (2/2)");
-		rootLayoutStep2.setSizeFull();
-
+		accord.getTab(1).setEnabled(false);
+		rootLayoutStep2.setSizeFull();		
 		publish.addClickListener(list -> {
 			builder = ExaminationModel.builder().courseName(ElementHelper.value(selectCourse.getSelectedItem()))
 					.examName(ElementHelper.value(examName.getOptionalValue()))
@@ -288,6 +304,8 @@ public class PublishExamView extends VerticalLayout implements View {
 					notifi.setDescription("We couldn't save/update exam details.");
 				}
 
+			} else {
+				accord.getTab(1).setEnabled(true);
 			}
 		});
 	}
@@ -325,7 +343,6 @@ public class PublishExamView extends VerticalLayout implements View {
 
 	@Override
 	public void beforeLeave(ViewBeforeLeaveEvent event) {
-		// TODO Auto-generated method stub
 		View.super.beforeLeave(event);
 	}
 

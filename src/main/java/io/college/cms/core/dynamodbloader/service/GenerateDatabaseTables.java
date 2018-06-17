@@ -3,7 +3,6 @@ package io.college.cms.core.dynamodbloader.service;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
@@ -51,7 +50,7 @@ public class GenerateDatabaseTables {
 						.withAttributeName(table.getAnnotation(DynamoDBHashKey.class).attributeName())
 						.withKeyType(KeyType.HASH))
 				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(5L).withWriteCapacityUnits(6L));
+						new ProvisionedThroughput().withReadCapacityUnits(6L).withWriteCapacityUnits(6L));
 
 		Table dynamoDbTable = dynamoDb.createTable(request);
 

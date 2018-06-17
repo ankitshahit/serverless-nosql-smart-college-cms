@@ -31,6 +31,7 @@ public class TextFieldWrapper {
 	private String value;
 	private boolean readOnly;
 	private TextField field;
+	private String style;
 
 	public TextField textField() {
 		if (field == null) {
@@ -63,7 +64,9 @@ public class TextFieldWrapper {
 		if (StringUtils.isNotEmpty(width)) {
 			field.setWidth(width);
 		}
-
+		if (StringUtils.isNotEmpty(style)) {
+			field.setStyleName(style);
+		}
 		field.setCaptionAsHtml(captionAsHtml);
 		field.setRequiredIndicatorVisible(visible);
 		field.setReadOnly(readOnly);

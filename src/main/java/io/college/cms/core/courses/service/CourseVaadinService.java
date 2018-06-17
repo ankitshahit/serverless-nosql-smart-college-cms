@@ -102,8 +102,10 @@ public class CourseVaadinService {
 		dto.setSubjectAttributes(cbg);
 		dto.setTheoryMarks(TextFieldWrapper.builder().caption("Total available marks ~ Theory").required(false)
 				.visible(false).icon(VaadinIcons.ADJUST).build().textField());
-		dto.setPracticalMarks(TextFieldWrapper.builder().caption("Total available marks ~ Practical").required(false)
-				.visible(false).icon(VaadinIcons.ADJUST).build().textField());
+
+		dto.setPracticalMarks(
+				TextFieldWrapper.builder().caption("Total available marks ~ Practical").required(false).visible(false)
+						.icon(VaadinIcons.ADJUST).style(ValoTheme.TEXTFIELD_TINY).width("5%").build().textField());
 		dto.setInternalMarks(TextFieldWrapper.builder().caption("Total available marks ~ Internal").required(false)
 				.visible(false).build().textField());
 		dto.setOtherMarks(TextFieldWrapper.builder().caption("Total available marks ~ Others").required(false)

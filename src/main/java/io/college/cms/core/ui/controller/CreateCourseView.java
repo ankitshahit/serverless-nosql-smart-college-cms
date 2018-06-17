@@ -82,8 +82,8 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 		// increase readbility
 		courseStepOne(accordin, step2);
 		courseStepTwo(accordin, null);
-		accordin.setHeight("80%");
-		accordin.setWidth("80%");
+		accordin.setHeight("50%");
+		accordin.setWidth("50%");
 		addComponent(accordin);
 		setComponentAlignment(accordin, Alignment.MIDDLE_CENTER);
 	}
