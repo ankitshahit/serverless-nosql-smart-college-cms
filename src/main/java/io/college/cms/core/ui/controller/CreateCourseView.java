@@ -20,6 +20,7 @@ import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Composite;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class CreateCourseView extends VerticalLayout implements View, ICoursesService {
+public class CreateCourseView extends Composite implements View, ICoursesService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -50,6 +51,7 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 	private CourseModel courseModel;
 	private CourseDTO courseStepOne;
 	private CourseDTO courseStepTwo;
+	private VerticalLayout verticalLayout;
 
 	@Autowired
 	public CreateCourseView(CourseResponseService resp, CourseVaadinService uiService) {
@@ -73,6 +75,7 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 
 	@PostConstruct()
 	public void paint() {
+		verticalLayout = new VerticalLayout();
 		courseStepOne = courseUIService.courseMetaDataStep1();
 		courseStepTwo = courseUIService.courseMetadataStep2();
 		Accordion accordin = new Accordion();
@@ -83,16 +86,20 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 		// increase readbility
 		courseStepOne(accordin, step2);
 		courseStepTwo(accordin, null);
-		accordin.setHeight("50%");
-		accordin.setWidth("50%");
-		addComponent(accordin);
-		setComponentAlignment(accordin, Alignment.MIDDLE_CENTER);
+
+		accordin.setResponsive(true);
+		verticalLayout.addComponent(accordin);
+		verticalLayout.setComponentAlignment(accordin, Alignment.TOP_LEFT);
+
+		setCompositionRoot(verticalLayout);
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
+
+			LOGGER.debug("CreateCourseView is triggered");
 			if (courseModel != null) {
 				courseStepOne.getCourseName().setValue(courseModel.getCourseName());
 				courseStepOne.getCourseDescription().setValue(courseModel.getDescription());
@@ -110,6 +117,12 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setCaption("Application error");
+			notifi.setIcon(VaadinIcons.STOP_COG);
+			notifi.setDescription(
+					"We were unable to process request for some reason! Please try again later or contact admin");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
 		}
 	}
 

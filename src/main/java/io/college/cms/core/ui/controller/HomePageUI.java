@@ -2,17 +2,26 @@ package io.college.cms.core.ui.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.teemusa.sidemenu.SideMenu;
-import org.vaadin.teemusa.sidemenu.SideMenu.MenuRegistration;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewBeforeLeaveEvent;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Composite;
+import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
@@ -20,14 +29,16 @@ import io.college.cms.core.courses.controller.SeeCoursesView;
 import io.college.cms.core.examination.controller.PublishExamView;
 import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
+import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.ui.model.ViewConstants;
-import lombok.var;
 
 @SpringUI(path = "/homepage")
 @UIScope
+@PushStateNavigation
 public class HomePageUI extends UI {
 
 	private static final long serialVersionUID = 1L;
+	@Deprecated
 	private ViewAllCoursesUI viewCourses;
 	private Navigator navigator;
 	private CreateCourseView createCourse;
@@ -37,18 +48,18 @@ public class HomePageUI extends UI {
 	private SeeCoursesView seeCourses;
 	private PublishExamView publishExam;
 	private SeeExamsView seeExam;
+	private ChatFaqView chatFaq;
 	private SideMenu sideMenu = new SideMenu();
-	private boolean logoVisible = true;
-	// private ThemeResource logo = new
-	// ThemeResource("C:\\Users\\Public\\Pictures\\Sample
-	// Pictures\\Desert.jpg");
-	private String menuCaption = "SideMenu Add-on";
-
-	private MenuRegistration menuToRemove;
-	private MenuRegistration subSubTreeItem;
+	private CssLayout cssContainer;
 
 	public HomePageUI() {
-		this.navigator = new Navigator(this, this);
+		this.cssContainer = new CssLayout();
+		this.navigator = new Navigator(this, cssContainer);
+	}
+
+	@Autowired
+	public void setChatFaq(ChatFaqView chatFaq) {
+		this.chatFaq = chatFaq;
 	}
 
 	@Autowired
@@ -95,17 +106,14 @@ public class HomePageUI extends UI {
 	protected void init(VaadinRequest request) {
 		registerViews();
 		sideMenus();
-		VerticalLayout rootLayout = new VerticalLayout();
-		// rootLayout.addComponent(new UIHelper().getMenuBar(navigator));
-		rootLayout.addComponent(sideMenu);
-		rootLayout.setComponentAlignment(sideMenu, Alignment.TOP_LEFT);
-		rootLayout.setSpacing(true);
-		rootLayout.setSizeFull();
-		setContent(rootLayout);
+
+		setContent(sideMenuVaadin8());
+		// setContent(sideMenuVaadin8());
+
 	}
 
 	void registerViews() {
-
+		// addView("", createCourse);
 		addView(ViewConstants.COURSES_CREATE, createCourse);
 		addView(ViewConstants.COURSES_VIEW_ALL, seeCourses);
 		addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
@@ -113,52 +121,105 @@ public class HomePageUI extends UI {
 		addView(ViewConstants.SEE_RESULTS, seeResults);
 		addView(ViewConstants.EXAM_CREATE, publishExam);
 		addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
+		addView(ViewConstants.CHAT_FAQ_VIEW, chatFaq);
+		addView("Testing", new ExampleView());
 	}
 
 	void addView(String viewName, View view) {
 		this.navigator.addView(viewName, view);
 	}
 
+	HorizontalLayout sideMenuVaadin8() {
+		Label title = new Label("College CMS");
+		title.setStyleName(ValoTheme.MENU_TITLE);
+
+		Button exams = new Button("Exams");
+		exams.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.MENU_ITEM);
+		exams.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.EXAM_VIEW_ALL);
+		});
+		Button courses = new Button("Courses");
+		courses.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.MENU_ITEM);
+		courses.addClickListener(click -> {
+			// setContent(createCourse);
+			navigator.navigateTo(ViewConstants.COURSES_CREATE);
+		});
+		Button faqBot = new Button("FAQ Bot");
+		faqBot.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		faqBot.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.CHAT_FAQ_VIEW);
+		});
+
+		CssLayout menu = new CssLayout(title, exams, courses, faqBot);
+		menu.addStyleNames(ValoTheme.MENU_ROOT);
+		menu.setResponsive(true);
+		menu.setSizeFull();
+		cssContainer.setResponsive(true);
+		cssContainer.setWidth("90%");
+		HorizontalSplitPanel panel = new HorizontalSplitPanel(menu, cssContainer);
+
+		panel.setSplitPosition(9.05F, Unit.PERCENTAGE, false);
+		HorizontalLayout menuLayout = new HorizontalLayout();
+		menuLayout.addComponents(panel);
+		menuLayout.setSizeFull();
+		menuLayout.setResponsive(true);
+		return menuLayout;
+	}
+
+	static class ExampleView extends Composite implements View {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public ExampleView() {
+			VerticalLayout layout = new VerticalLayout();
+			Label lbl = new Label("adf");
+			layout.addComponent(lbl);
+			layout.setComponentAlignment(lbl, Alignment.TOP_LEFT);
+			layout.setSizeFull();
+			setCompositionRoot(layout);
+		}
+
+		@Override
+		public void enter(ViewChangeEvent event) {
+			View.super.enter(event);
+		}
+
+		@Override
+		public void beforeLeave(ViewBeforeLeaveEvent event) {
+			View.super.beforeLeave(event);
+		}
+	}
+
 	void sideMenus() {
-		
+		sideMenu.addMenuItem("Help!", VaadinIcons.COG, () -> {
+
+		});
+
+		sideMenu.addMenuItem("Ask FAQ Bot", VaadinIcons.CLIPBOARD_USER, () -> {
+			sideMenu.setContent(chatFaq);
+		});
+		sideMenu.addMenuItem("Chat with others!", () -> {
+
+		});
 		sideMenu.addMenuItem("Exams", () -> {
 
 		});
 		sideMenu.addMenuItem("Schedule an Exam", () -> {
-			navigator.navigateTo(ViewConstants.EXAM_CREATE);
+			sideMenu.setContent(publishExam);
+			// navigator.navigateTo(ViewConstants.EXAM_CREATE);
 		});
 		sideMenu.addMenuItem("View/Modify Exams", () -> {
-			navigator.navigateTo(ViewConstants.EXAM_VIEW_ALL);
+			sideMenu.setContent(seeExam);
+			// navigator.navigateTo(ViewConstants.EXAM_VIEW_ALL);
 		});
 
 		// User menu controls
 		sideMenu.addMenuItem("Show/Hide user menu", VaadinIcons.USER,
 				() -> sideMenu.setUserMenuVisible(!sideMenu.isUserMenuVisible()));
 
-		menuToRemove = sideMenu.addMenuItem("Remove this menu item", () -> {
-			if (menuToRemove != null) {
-				menuToRemove.remove();
-				menuToRemove = null;
-			}
-		});
-		sideMenu.setHeight("100%");
-		sideMenu.setWidth("100%");
-		sideMenu.setSizeFull();
-
 	}
 
-	private void initTreeMenu() {
-
-		/*
-		 * sideMenu.addTreeItem("Tree item", () ->
-		 * Notification.show("Parent!")); sideMenu.addTreeItem("Tree item",
-		 * "sub item", () -> { Notification.show("Sub item!");
-		 * sideMenu.addComponent(new Button("Add sub sub item", event ->
-		 * subSubTreeItem = sideMenu .addTreeItem("sub item", "sub sub item", ()
-		 * -> Notification.show("Inception!")))); sideMenu.addComponent(new
-		 * Button("Remove sub sub item", event -> { if (null != subSubTreeItem)
-		 * { subSubTreeItem.remove(); subSubTreeItem = null; } })); });
-		 */
-
-	}
 }

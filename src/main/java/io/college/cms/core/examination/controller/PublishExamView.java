@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
 public class PublishExamView extends VerticalLayout implements View {
-	
+
 	private static final long serialVersionUID = 1L;
 	private ExamResponseService examResponseService;
 	private ExaminationModel model;
@@ -286,7 +286,7 @@ public class PublishExamView extends VerticalLayout implements View {
 		rootLayoutStep2.addComponents(secondStep2ListLayout);
 		accord.addTab(rootLayoutStep2, "Exam (2/2)");
 		accord.getTab(1).setEnabled(false);
-		rootLayoutStep2.setSizeFull();		
+		rootLayoutStep2.setSizeFull();
 		publish.addClickListener(list -> {
 			builder = ExaminationModel.builder().courseName(ElementHelper.value(selectCourse.getSelectedItem()))
 					.examName(ElementHelper.value(examName.getOptionalValue()))
@@ -308,6 +308,9 @@ public class PublishExamView extends VerticalLayout implements View {
 				accord.getTab(1).setEnabled(true);
 			}
 		});
+
+		addTab.setSizeFull();
+		setSizeFull();
 	}
 
 	@Override

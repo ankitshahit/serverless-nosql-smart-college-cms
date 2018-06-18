@@ -22,4 +22,6 @@ public class AppParams {
 	private String host;
 	@Value("${generate-db-tables:false}")
 	private boolean generateDbTables;
+	@Value("${qna-maker-key:no-key}")
+	private String qnaMakerKey;
 }
