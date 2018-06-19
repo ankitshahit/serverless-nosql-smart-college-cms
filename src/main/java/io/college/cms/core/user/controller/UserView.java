@@ -19,6 +19,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Composite;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -180,20 +181,21 @@ public class UserView extends Composite implements View {
 				return;
 			}
 		});
+		GridLayout grid = new GridLayout();
 
 		VerticalLayout verticalLayout = new VerticalLayout();
-		verticalLayout.addComponents(nameCssLayout, dbAndGender, this.emailAddress, passwordCssLayout,
-				this.confirmPasswordField, buttonCssLayout);
+		grid.addComponents(nameCssLayout, dbAndGender, this.emailAddress, passwordCssLayout, this.confirmPasswordField,
+				buttonCssLayout);
 
-		verticalLayout.setSpacing(true);
-		verticalLayout.setComponentAlignment(this.emailAddress, Alignment.MIDDLE_LEFT);
+		grid.setSpacing(true);
+		/*verticalLayout.setComponentAlignment(this.emailAddress, Alignment.MIDDLE_LEFT);
 		verticalLayout.setComponentAlignment(nameCssLayout, Alignment.TOP_CENTER);
 		verticalLayout.setComponentAlignment(passwordCssLayout, Alignment.MIDDLE_CENTER);
 		verticalLayout.setComponentAlignment(dbAndGender, Alignment.MIDDLE_CENTER);
-		verticalLayout.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
+		verticalLayout.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);*/
 		verticalLayout.setSizeFull();
 
-		this.accordin.addTab(verticalLayout, "Step 1/2");
+		this.accordin.addTab(grid, "Step 1/2");
 		this.accordin.addTab(new Label("Data "), "Step 2/2");
 		this.rootPanel.setContent(this.accordin);
 		this.rootPanel.setSizeFull();
