@@ -183,17 +183,23 @@ public class UserView extends Composite implements View {
 		});
 		GridLayout grid = new GridLayout();
 
-		VerticalLayout verticalLayout = new VerticalLayout();
-		grid.addComponents(nameCssLayout, dbAndGender, this.emailAddress, passwordCssLayout, this.confirmPasswordField,
-				buttonCssLayout);
+		grid.addComponents(nameCssLayout, dbAndGender, this.emailAddress, this.passwordPolicy, this.passwordField,
+				this.confirmPasswordField, buttonCssLayout);
 
 		grid.setSpacing(true);
-		/*verticalLayout.setComponentAlignment(this.emailAddress, Alignment.MIDDLE_LEFT);
-		verticalLayout.setComponentAlignment(nameCssLayout, Alignment.TOP_CENTER);
-		verticalLayout.setComponentAlignment(passwordCssLayout, Alignment.MIDDLE_CENTER);
-		verticalLayout.setComponentAlignment(dbAndGender, Alignment.MIDDLE_CENTER);
-		verticalLayout.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);*/
-		verticalLayout.setSizeFull();
+		grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
+		/*
+		 * verticalLayout.setComponentAlignment(this.emailAddress,
+		 * Alignment.MIDDLE_LEFT);
+		 * verticalLayout.setComponentAlignment(nameCssLayout,
+		 * Alignment.TOP_CENTER);
+		 * verticalLayout.setComponentAlignment(passwordCssLayout,
+		 * Alignment.MIDDLE_CENTER);
+		 * verticalLayout.setComponentAlignment(dbAndGender,
+		 * Alignment.MIDDLE_CENTER);
+		 * verticalLayout.setComponentAlignment(buttonCssLayout,
+		 * Alignment.MIDDLE_RIGHT);
+		 */
 
 		this.accordin.addTab(grid, "Step 1/2");
 		this.accordin.addTab(new Label("Data "), "Step 2/2");
@@ -230,15 +236,18 @@ public class UserView extends Composite implements View {
 	}
 
 	protected void styleEmail() {
-		this.emailAddress.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_BORDERLESS);
+		this.emailAddress.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
+				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
+		this.emailAddress.setSizeFull();
 	}
 
 	protected void stylePassword() {
 		this.passwordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_BORDERLESS);
+				ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
+		this.passwordField.setSizeFull();
 		this.confirmPasswordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_BORDERLESS);
+				ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
+		this.confirmPasswordField.setSizeFull();
 	}
 
 	protected void styleDateOfBirth() {
