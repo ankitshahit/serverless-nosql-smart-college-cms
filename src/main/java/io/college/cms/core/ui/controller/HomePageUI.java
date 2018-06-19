@@ -31,6 +31,7 @@ import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.ui.model.ViewConstants;
+import io.college.cms.core.user.controller.UserView;
 
 @SpringUI(path = "/homepage")
 @UIScope
@@ -38,6 +39,7 @@ import io.college.cms.core.ui.model.ViewConstants;
 public class HomePageUI extends UI {
 
 	private static final long serialVersionUID = 1L;
+	private UserView userView;
 	@Deprecated
 	private ViewAllCoursesUI viewCourses;
 	private Navigator navigator;
@@ -55,6 +57,11 @@ public class HomePageUI extends UI {
 	public HomePageUI() {
 		this.cssContainer = new CssLayout();
 		this.navigator = new Navigator(this, cssContainer);
+	}
+
+	@Autowired
+	public void setUserView(UserView userView) {
+		this.userView = userView;
 	}
 
 	@Autowired
@@ -122,7 +129,7 @@ public class HomePageUI extends UI {
 		addView(ViewConstants.EXAM_CREATE, publishExam);
 		addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
 		addView(ViewConstants.CHAT_FAQ_VIEW, chatFaq);
-		addView("Testing", new ExampleView());
+		addView(ViewConstants.DEAL_WITH_USER, userView);
 	}
 
 	void addView(String viewName, View view) {
@@ -149,13 +156,19 @@ public class HomePageUI extends UI {
 		faqBot.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.CHAT_FAQ_VIEW);
 		});
+		Button user = new Button("User");
+		user.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		user.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.DEAL_WITH_USER);
+		});
 
-		CssLayout menu = new CssLayout(title, exams, courses, faqBot);
+		CssLayout menu = new CssLayout(title, exams, courses, faqBot, user);
 		menu.addStyleNames(ValoTheme.MENU_ROOT);
 		menu.setResponsive(true);
 		menu.setSizeFull();
 		cssContainer.setResponsive(true);
 		cssContainer.setWidth("90%");
+
 		HorizontalSplitPanel panel = new HorizontalSplitPanel(menu, cssContainer);
 
 		panel.setSplitPosition(9.05F, Unit.PERCENTAGE, false);
@@ -164,33 +177,6 @@ public class HomePageUI extends UI {
 		menuLayout.setSizeFull();
 		menuLayout.setResponsive(true);
 		return menuLayout;
-	}
-
-	static class ExampleView extends Composite implements View {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		public ExampleView() {
-			VerticalLayout layout = new VerticalLayout();
-			Label lbl = new Label("adf");
-			layout.addComponent(lbl);
-			layout.setComponentAlignment(lbl, Alignment.TOP_LEFT);
-			layout.setSizeFull();
-			setCompositionRoot(layout);
-		}
-
-		@Override
-		public void enter(ViewChangeEvent event) {
-			View.super.enter(event);
-		}
-
-		@Override
-		public void beforeLeave(ViewBeforeLeaveEvent event) {
-			View.super.beforeLeave(event);
-		}
 	}
 
 	void sideMenus() {

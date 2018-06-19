@@ -28,7 +28,10 @@ public class ConnectionService {
 	public static String HTTP_PROXY_HOST = "http.proxyHost";
 	public static String HTTP_PROXY_PORT = "http.proxyPort";
 	static {
-
+		System.setProperty(HTTPS_PROXY_HOST, "PITC-Zscaler-Americas-Cincinnati3PR.proxy.corporate.ge.com");
+		System.setProperty(HTTPS_PROXY_PORT, "80");
+		System.setProperty(HTTP_PROXY_HOST, "PITC-Zscaler-Americas-Cincinnati3PR.proxy.corporate.ge.com");
+		System.setProperty(HTTP_PROXY_PORT, "80");
 		processSSLTrust();
 	}
 

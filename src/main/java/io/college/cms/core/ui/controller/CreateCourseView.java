@@ -18,22 +18,19 @@ import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Composite;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.courses.service.CourseVaadinService;
+import io.college.cms.core.ui.builder.DeletePopupView;
 import io.college.cms.core.ui.model.CourseDTO;
 import io.college.cms.core.ui.services.ICoursesService;
 import lombok.extern.slf4j.Slf4j;
@@ -132,39 +129,20 @@ public class CreateCourseView extends Composite implements View, ICoursesService
 		courseStepOne.getSaveCourse().setEnabled(false);
 		courseUIService.attachEmptyValueListenerCourseStep1(courseStepOne);
 		courseStepOne.getReset().addClickListener(click -> {
-			Window window = new Window();
-			window.setResizable(false);
-			window.setClosable(false);
-			window.setWidth("50%");
-			window.center();
-			VerticalLayout verticalLayout = new VerticalLayout();
-			verticalLayout
-					.addComponent(new Label("You're about to delete content, once deleted it cannot be recovered."));
-			HorizontalLayout hLayout = new HorizontalLayout();
-			Button delete = new Button("Delete");
-			Button close = new Button("Close");
-			delete.setStyleName(ValoTheme.BUTTON_DANGER);
-			close.setStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-			close.addClickListener(clickUser -> {
-				window.close();
+			DeletePopupView deleteView = new DeletePopupView();
+			deleteView.show(getUI(), clickData -> {
+				deleteView.setVisible(false);
+				FactoryResponse fr = courseResp.deleteCourse(courseStepOne.getCourseName().getValue());
+				if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+					deleteView.getUnsuccessfullNotification(String.valueOf(fr.getResponse()));
+				} else {
+					deleteView.getDeleteNotification();
+				}
+				clickData.getComponent().setVisible(false);
+				clickData.getComponent().getParent().setVisible(false);
 			});
-			delete.addClickListener(clickDelete -> {
-				window.setVisible(false);
-				Notification notifi = Notification.show("", Type.HUMANIZED_MESSAGE);
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				notifi.setCaption("Deleted successfully.");
-				notifi.setDescription(
-						"The content is now deleted, please refresh the page incase you're still seeing the content available");
-				clickDelete.getComponent().setVisible(false);
-				courseStepOne.getReset().setVisible(false);
-				clickDelete.getComponent().getParent().setVisible(false);
-			});
-			hLayout.addComponents(close, delete);
-			verticalLayout.addComponent(hLayout);
-			verticalLayout.setComponentAlignment(hLayout, Alignment.BOTTOM_RIGHT);
-			window.setContent(verticalLayout);
-			getUI().addWindow(window);
 		});
+		
 		courseStepOne.getSaveCourse().addClickListener(click -> {
 			if (click.getSource() != courseStepOne.getSaveCourse()) {
 				return;

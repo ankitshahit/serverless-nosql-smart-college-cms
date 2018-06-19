@@ -72,4 +72,15 @@ public class TextFieldWrapper {
 		field.setReadOnly(readOnly);
 		return field;
 	}
+
+	public static TextField setAttributes(TextField textField, String caption, String placeholder, String description,
+			Resource icon, boolean isRequired) {
+		
+		textField.setCaption(caption);
+		textField.setPlaceholder(placeholder);
+		textField.setDescription(description);
+		textField.setIcon(icon);
+		textField.setRequiredIndicatorVisible(isRequired);
+		return textField;
+	}
 }

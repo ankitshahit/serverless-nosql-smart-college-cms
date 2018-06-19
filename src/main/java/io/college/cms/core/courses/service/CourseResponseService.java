@@ -90,11 +90,11 @@ public class CourseResponseService {
 		return fr;
 	}
 
-	public FactoryResponse deleteCourse(HttpServletRequest request, CourseModel course) {
+	public FactoryResponse deleteCourse(String courseName) {
 		FactoryResponse fr = null;
 		try {
-			ValidationHandler.throwExceptionIfNull(course, null, ExceptionType.VALIDATION_EXCEPTION);
-			dbService.deleteCourse(course);
+			ValidationHandler.throwExceptionIfNull(courseName, null, ExceptionType.VALIDATION_EXCEPTION);
+			dbService.deleteCourse(courseName);
 			fr = FactoryResponse.builder().response("deleted successfully.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();
 		} catch (ValidationException | IllegalArgumentException e) {
@@ -107,6 +107,10 @@ public class CourseResponseService {
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
 		}
 		return fr;
+	}
+
+	public FactoryResponse deleteCourse(HttpServletRequest request, CourseModel course) {
+		return deleteCourse(course.getCourseName());
 	}
 
 	public FactoryResponse findAllCourses(HttpServletRequest request, Long startRecord, Long endRecord) {
