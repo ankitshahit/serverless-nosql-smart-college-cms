@@ -87,8 +87,8 @@ public class UserView extends Composite implements View {
 				.icon(VaadinIcons.USER_STAR).build().textField();
 		this.lastName.setTabIndex(3);
 		// setting attributes for email address.
-		this.emailAddress = TextFieldWrapper.builder().caption("Email address").enabled(true).required(true)
-				.icon(VaadinIcons.USER_STAR).placeholder("example@example.org").build().textField();
+		this.emailAddress = TextFieldWrapper.builder().caption("").enabled(true).required(true)
+				.icon(VaadinIcons.USER_STAR).placeholder("Email Address").build().textField();
 		this.emailAddress.setTabIndex(4);
 		this.emailAddress.setStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 
@@ -97,7 +97,7 @@ public class UserView extends Composite implements View {
 		this.dateOfBirth.setRequiredIndicatorVisible(true);
 		this.dateOfBirth.setPlaceholder("Date of birth");
 		// TODO: need to import a better set of icons into spring
-		this.dateOfBirth.setIcon(VaadinIcons.DATE_INPUT);
+		// this.dateOfBirth.setIcon(VaadinIcons.DATE_INPUT);
 		this.dateOfBirth.setDateOutOfRangeMessage("Date is out of range");
 		this.dateOfBirth.setResponsive(true);
 		this.dateOfBirth.setRangeEnd(LocalDate.now());
@@ -110,15 +110,15 @@ public class UserView extends Composite implements View {
 
 		// setting attributes for passwordfield
 		this.passwordField = new PasswordField();
-		this.passwordField.setCaption("New password");
-		this.passwordField.setPlaceholder("Type here");
+		this.passwordField.setCaption("");
+		this.passwordField.setPlaceholder("New Password");
 		this.passwordField.setIcon(VaadinIcons.PASSWORD);
 		this.passwordField.setRequiredIndicatorVisible(true);
 
 		// setting attributes for confirm password field policy
 		this.confirmPasswordField = new PasswordField();
-		this.confirmPasswordField.setCaption("Confirm password");
-		this.confirmPasswordField.setPlaceholder("Type here");
+		this.confirmPasswordField.setCaption("");
+		this.confirmPasswordField.setPlaceholder("Confirm Password");
 		this.confirmPasswordField.setIcon(VaadinIcons.PASSWORD);
 		this.confirmPasswordField.setRequiredIndicatorVisible(true);
 
@@ -126,11 +126,14 @@ public class UserView extends Composite implements View {
 		// policy
 		this.passwordPolicy = new Label("Password should be greater than or equal to 8 characters");
 		// setting attributes for archive user button
-		this.archiveUser = new Button("Archive");
-		this.archiveUser.setStyleName(ValoTheme.BUTTON_DANGER);
+		this.archiveUser = new Button("<b style=color:red>Archive</b>");
+
+		this.archiveUser.setHtmlContentAllowed(true);
+		this.archiveUser.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.BUTTON_DANGER);
 		// setting attributes for save next button.
-		this.saveNext = new Button("Save & Next");
-		this.saveNext.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		this.saveNext = new Button("<b style=color:blue>Save & Next</b>");
+		this.saveNext.setHtmlContentAllowed(true);
+		this.saveNext.setStyleName(ValoTheme.BUTTON_BORDERLESS);
 		this.accordin = new Accordion();
 
 	}
@@ -146,12 +149,8 @@ public class UserView extends Composite implements View {
 		nameCssLayout.addComponents(this.firstName, this.middleName, this.lastName);
 
 		// combining all fields related to button on step one screen
-		CssLayout buttonCssLayout = new CssLayout();
+		HorizontalLayout buttonCssLayout = new HorizontalLayout();
 		buttonCssLayout.addComponents(this.archiveUser, this.saveNext);
-
-		// combining all fields related to password fields.
-		HorizontalLayout passwordCssLayout = new HorizontalLayout();
-		passwordCssLayout.addComponents(this.passwordField, this.passwordPolicy);
 
 		// adding click listener, that we need to execute stuff on click of a
 		// button in ui
@@ -183,8 +182,9 @@ public class UserView extends Composite implements View {
 		});
 		GridLayout grid = new GridLayout();
 
-		grid.addComponents(nameCssLayout, dbAndGender, this.emailAddress, this.passwordPolicy, this.passwordField,
-				this.confirmPasswordField, buttonCssLayout);
+		grid.addComponents(nameCssLayout, dbAndGender, new CssLayout(new Label("Email Address"), this.emailAddress),
+				this.passwordPolicy, new CssLayout(this.passwordField), new CssLayout(this.confirmPasswordField),
+				buttonCssLayout);
 
 		grid.setSpacing(true);
 		grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
@@ -224,8 +224,6 @@ public class UserView extends Composite implements View {
 
 		this.firstName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
 				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
-		this.firstName.setCaption("&nbsp;Required");
-		this.firstName.setCaptionAsHtml(true);
 
 		this.middleName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
 				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
@@ -244,18 +242,19 @@ public class UserView extends Composite implements View {
 	protected void stylePassword() {
 		this.passwordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
 				ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
-		this.passwordField.setSizeFull();
+		this.passwordField.setWidth("80%");
+		// this.passwordField.setSizeFull();
 		this.confirmPasswordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
 				ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
-		this.confirmPasswordField.setSizeFull();
+		this.confirmPasswordField.setWidth("80%");
 	}
 
 	protected void styleDateOfBirth() {
-		this.dateOfBirth.addStyleNames(ValoTheme.DATEFIELD_BORDERLESS);
+		this.dateOfBirth.addStyleNames(ValoTheme.DATEFIELD_ALIGN_CENTER);
 	}
 
 	protected void styleGender() {
-		this.gender.addStyleNames(ValoTheme.COMBOBOX_BORDERLESS);
+		this.gender.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
 	}
 
 	@Override
