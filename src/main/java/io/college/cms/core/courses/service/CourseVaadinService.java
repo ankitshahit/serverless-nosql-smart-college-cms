@@ -11,7 +11,6 @@ import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.VerticalLayout;
@@ -48,7 +47,7 @@ public class CourseVaadinService {
 		area.setResponsive(true);
 		courseDTO.setCourseDescription(area);
 		courseDTO.getCourseDescription().setResponsive(true);
-		Label label = new Label("Attributes \n ");
+		Label label = new Label("== Attributes ==");
 		courseDTO.setAttributesSeperator(label);
 		courseDTO.getAttributesSeperator().setResponsive(true);
 		courseDTO.setSaveCourse(ButtonWrapper.builder().caption("Save & Next").build().button());
@@ -58,6 +57,7 @@ public class CourseVaadinService {
 		courseDTO.getReset().setStyleName(ValoTheme.BUTTON_DANGER);
 		courseDTO.getSaveCourse().setStyleName(ValoTheme.BUTTON_QUIET);
 		courseDTO.getSaveCourse().setResponsive(true);
+		courseDTO.setTotalSem(TextFieldWrapper.builder().caption("Total semesters").required(true).build().textField());
 		return courseDTO;
 	}
 
@@ -66,12 +66,18 @@ public class CourseVaadinService {
 		hLayout.addComponent(courseDTO.getReset());
 		hLayout.addComponent(courseDTO.getSaveCourse());
 		hLayout.setResponsive(true);
+		HorizontalLayout groupedSeatsAndSem = new HorizontalLayout(courseDTO.getMaxStudents(), courseDTO.getTotalSem());
+		groupedSeatsAndSem.setResponsive(true);
+		groupedSeatsAndSem.setSizeFull();
+		groupedSeatsAndSem.setComponentAlignment(courseDTO.getMaxStudents(), Alignment.BOTTOM_LEFT);
+		groupedSeatsAndSem.setComponentAlignment(courseDTO.getTotalSem(), Alignment.BOTTOM_RIGHT);
 		VerticalLayout courseLayout = new VerticalLayout();
 		courseLayout.setResponsive(true);
 		courseLayout.addComponents(courseDTO.getCourseName(), courseDTO.getCourseDescription(),
-				courseDTO.getAttributesSeperator(), courseDTO.getMaxStudents(), courseDTO.getIsArchive(), hLayout);
+				courseDTO.getAttributesSeperator(), groupedSeatsAndSem, courseDTO.getIsArchive(), hLayout);
 		courseLayout.setComponentAlignment(hLayout, Alignment.BOTTOM_RIGHT);
 		courseLayout.setComponentAlignment(courseDTO.getAttributesSeperator(), Alignment.MIDDLE_CENTER);
+		courseLayout.setSizeFull();
 		return courseLayout;
 	}
 
@@ -105,10 +111,10 @@ public class CourseVaadinService {
 		dto.setSubjectAttributes(cbg);
 		dto.setTheoryMarks(TextFieldWrapper.builder().caption("Total available marks ~ Theory").required(false)
 				.visible(false).icon(VaadinIcons.ADJUST).build().textField());
+
 		cbg.setResponsive(true);
-		dto.setPracticalMarks(
-				TextFieldWrapper.builder().caption("Total available marks ~ Practical").required(false).visible(false)
-						.icon(VaadinIcons.ADJUST).style(ValoTheme.TEXTFIELD_TINY).width("5%").build().textField());
+		dto.setPracticalMarks(TextFieldWrapper.builder().caption("Total available marks ~ Practical").required(false)
+				.visible(false).icon(VaadinIcons.ADJUST).style(ValoTheme.TEXTFIELD_TINY).build().textField());
 		dto.getPracticalMarks().setResponsive(true);
 		dto.setInternalMarks(TextFieldWrapper.builder().caption("Total available marks ~ Internal").required(false)
 				.visible(false).build().textField());
@@ -195,7 +201,7 @@ public class CourseVaadinService {
 		mainLayout.addComponents(firstPart, secondPart);
 		VerticalLayout courseLayout = new VerticalLayout();
 		courseLayout.addComponents(mainLayout);
-		courseLayout.setResponsive(true	);
+		courseLayout.setResponsive(true);
 		return courseLayout;
 	}
 }

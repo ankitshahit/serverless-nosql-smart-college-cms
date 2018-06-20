@@ -3,6 +3,7 @@ package io.college.cms.core.ui.model;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CheckBoxGroup;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.RichTextArea;
@@ -40,4 +41,6 @@ public class CourseDTO {
 	private TextField otherPassMarks;
 	private CheckBox optional;
 	private ListSelect<String> addedSubjects;
+	private TextField totalSem;
+	private HorizontalLayout stepOneGroupSeatsAndSem;
 }

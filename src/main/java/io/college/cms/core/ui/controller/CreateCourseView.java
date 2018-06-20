@@ -19,10 +19,10 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Composite;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
@@ -33,12 +33,13 @@ import io.college.cms.core.courses.service.CourseVaadinService;
 import io.college.cms.core.ui.builder.DeletePopupView;
 import io.college.cms.core.ui.model.CourseDTO;
 import io.college.cms.core.ui.services.ICoursesService;
+import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class CreateCourseView extends Composite implements View, ICoursesService {
+public class CreateCourseView extends VerticalLayout implements View, ICoursesService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -88,15 +89,16 @@ public class CreateCourseView extends Composite implements View, ICoursesService
 		verticalLayout.addComponent(accordin);
 		verticalLayout.setComponentAlignment(accordin, Alignment.MIDDLE_CENTER);
 		verticalLayout.setSizeFull();
-		setCompositionRoot(verticalLayout);
+		addComponent(verticalLayout);
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-
 			LOGGER.debug("CreateCourseView is triggered");
+			courseStepTwo.getAddedSubjects().setSizeFull();
+			courseStepOne.getReset().setVisible(courseModel != null);
 			if (courseModel != null) {
 				courseStepOne.getCourseName().setValue(courseModel.getCourseName());
 				courseStepOne.getCourseDescription().setValue(courseModel.getDescription());
@@ -108,7 +110,7 @@ public class CreateCourseView extends Composite implements View, ICoursesService
 						collection.add(subject.getSubjectName());
 
 					}
-					courseStepOne.getAddedSubjects().setItems(collection);
+					courseStepTwo.getAddedSubjects().setItems(collection);
 				}
 
 			}
@@ -201,8 +203,19 @@ public class CreateCourseView extends Composite implements View, ICoursesService
 			courseStepTwo.getOtherMarks().setVisible(others);
 			courseStepTwo.getOtherPassMarks().setVisible(others);
 		});
+
+		courseStepTwo.getSaveCourse().addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), courseStepTwo.getSaveCourse())) {
+				return;
+			}
+			if (courseStepTwo.getSubjectName().getOptionalValue().isPresent()) {
+				
+			}
+		});
 		VerticalLayout layout = courseUIService.buildCoursePageTwo(courseStepTwo);
+		layout.setSizeFull();
 		accord.addTab(layout, "Create course			(2/3)");
+		accord.setSizeFull();
 	}
 
 	@Override
