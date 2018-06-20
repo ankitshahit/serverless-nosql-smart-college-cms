@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -32,9 +33,15 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.DeletePopupView;
 import io.college.cms.core.ui.builder.TextFieldWrapper;
+import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.util.ListenerUtility;
+import io.college.cms.core.user.constants.UserAttributes;
+import io.college.cms.core.user.model.UserModel;
+import io.college.cms.core.user.service.UserResponseService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -43,118 +50,25 @@ import lombok.extern.slf4j.Slf4j;
 public class UserView extends Composite implements View {
 
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Vaadin UI elements instance
-	 */
-	private VerticalLayout rootLayout;
-	private Panel rootPanel;
-	private TextField firstName;
-	private TextField middleName;
-	private TextField lastName;
-	private TextField emailAddress;
-	private DateField dateOfBirth;
-	private ComboBox<String> gender;
-	private PasswordField passwordField;
-	private PasswordField confirmPasswordField;
-	private Label passwordPolicy;
-	private Button archiveUser;
-	private Button saveNext;
-	private Accordion accordin;
+	private UserViewService userViewService;
+	private UserResponseService userResponseService;
 
 	public UserView() {
 		super();
-		initUI();
+		this.userViewService = new UserViewService();
 	}
 
-	/**
-	 * UI elements or instances need a place to be initialized, as well to avoid
-	 * duplication in-case there are multiple constructor to initialize
-	 * consolidating instantiating to a method will help to simply call from the
-	 * constructor or postconstruct whichever is more suitable.
-	 */
-	protected void initUI() {
-		// setting attributes for first name
-		this.firstName = TextFieldWrapper.builder().placeholder("First name").enabled(true).required(true)
-				.icon(VaadinIcons.USER_STAR).build().textField();
-		this.firstName.setTabIndex(1);
-		// setting attributes for second name
-		this.middleName = TextFieldWrapper.builder().placeholder("Middle name").enabled(true).required(true)
-				.icon(VaadinIcons.USER_STAR).build().textField();
-		this.middleName.setTabIndex(2);
-		// setting attributes for last name
-		this.lastName = TextFieldWrapper.builder().placeholder("Last name").enabled(true).required(true)
-				.icon(VaadinIcons.USER_STAR).build().textField();
-		this.lastName.setTabIndex(3);
-		// setting attributes for email address.
-		this.emailAddress = TextFieldWrapper.builder().caption("").enabled(true).required(true)
-				.icon(VaadinIcons.USER_STAR).placeholder("Email Address").build().textField();
-		this.emailAddress.setTabIndex(4);
-		this.emailAddress.setStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-
-		// setting attributes for date field.
-		this.dateOfBirth = new DateField();
-		this.dateOfBirth.setRequiredIndicatorVisible(true);
-		this.dateOfBirth.setPlaceholder("Date of birth");
-		// TODO: need to import a better set of icons into spring
-		// this.dateOfBirth.setIcon(VaadinIcons.DATE_INPUT);
-		this.dateOfBirth.setDateOutOfRangeMessage("Date is out of range");
-		this.dateOfBirth.setResponsive(true);
-		this.dateOfBirth.setRangeEnd(LocalDate.now());
-
-		// setting attributes for gender
-		this.gender = new ComboBox<String>();
-		this.gender.setCaption("Gender");
-		this.gender.setIcon(VaadinIcons.FEMALE);
-		this.gender.setRequiredIndicatorVisible(true);
-
-		// setting attributes for passwordfield
-		this.passwordField = new PasswordField();
-		this.passwordField.setCaption("");
-		this.passwordField.setPlaceholder("New Password");
-		this.passwordField.setIcon(VaadinIcons.PASSWORD);
-		this.passwordField.setRequiredIndicatorVisible(true);
-
-		// setting attributes for confirm password field policy
-		this.confirmPasswordField = new PasswordField();
-		this.confirmPasswordField.setCaption("");
-		this.confirmPasswordField.setPlaceholder("Confirm Password");
-		this.confirmPasswordField.setIcon(VaadinIcons.PASSWORD);
-		this.confirmPasswordField.setRequiredIndicatorVisible(true);
-
-		// no attributes are required at the moment, as there is no password
-		// policy
-		this.passwordPolicy = new Label("Password should be greater than or equal to 8 characters");
-		// setting attributes for archive user button
-		this.archiveUser = new Button("<b style=color:red>Archive</b>");
-
-		this.archiveUser.setHtmlContentAllowed(true);
-		this.archiveUser.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.BUTTON_DANGER);
-		// setting attributes for save next button.
-		this.saveNext = new Button("<b style=color:blue>Save & Next</b>");
-		this.saveNext.setHtmlContentAllowed(true);
-		this.saveNext.setStyleName(ValoTheme.BUTTON_BORDERLESS);
-		this.accordin = new Accordion();
-
+	@Autowired
+	public void setUserResponseService(UserResponseService userResponseService) {
+		this.userResponseService = userResponseService;
 	}
 
-	@PostConstruct
+	@PostConstruct()
 	protected void paint() {
-		this.rootPanel = new Panel();
-		this.rootLayout = new VerticalLayout();
-		style();
-		// grouping into as one layout to handle positioning of fields and
-		// styling better: combining all fields related to name
-		HorizontalLayout nameCssLayout = new HorizontalLayout();
-		nameCssLayout.addComponents(this.firstName, this.middleName, this.lastName);
-
-		// combining all fields related to button on step one screen
-		HorizontalLayout buttonCssLayout = new HorizontalLayout();
-		buttonCssLayout.addComponents(this.archiveUser, this.saveNext);
-
-		// adding click listener, that we need to execute stuff on click of a
+		// adding click listener, that we need to execute stuff on click of
+		// a
 		// button in ui
-		this.archiveUser.addClickListener(click -> {
+		this.userViewService.getArchiveUser().addClickListener(click -> {
 			DeletePopupView deleteView = new DeletePopupView();
 			deleteView.show(getUI(), clickData -> {
 				deleteView.setVisible(false);
@@ -169,98 +83,48 @@ public class UserView extends Composite implements View {
 			});
 		});
 
-		// setting items because we need these values to appear in a combobox.
-		this.gender.setItems("Male", "Female", "Others");
-
-		CssLayout dbAndGender = new CssLayout();
-		dbAndGender.addComponents(this.dateOfBirth, this.gender);
-
-		this.saveNext.addClickListener(click -> {
-			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.saveNext)) {
-				return;
-			}
-		});
-		GridLayout grid = new GridLayout();
-
-		grid.addComponents(nameCssLayout, dbAndGender, new CssLayout(new Label("Email Address"), this.emailAddress),
-				this.passwordPolicy, new CssLayout(this.passwordField), new CssLayout(this.confirmPasswordField),
-				buttonCssLayout);
-
-		grid.setSpacing(true);
-		grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
-		/*
-		 * verticalLayout.setComponentAlignment(this.emailAddress,
-		 * Alignment.MIDDLE_LEFT);
-		 * verticalLayout.setComponentAlignment(nameCssLayout,
-		 * Alignment.TOP_CENTER);
-		 * verticalLayout.setComponentAlignment(passwordCssLayout,
-		 * Alignment.MIDDLE_CENTER);
-		 * verticalLayout.setComponentAlignment(dbAndGender,
-		 * Alignment.MIDDLE_CENTER);
-		 * verticalLayout.setComponentAlignment(buttonCssLayout,
-		 * Alignment.MIDDLE_RIGHT);
-		 */
-
-		this.accordin.addTab(grid, "Step 1/2");
-		this.accordin.addTab(new Label("Data "), "Step 2/2");
-		this.rootPanel.setContent(this.accordin);
-		this.rootPanel.setSizeFull();
-		this.rootLayout.addComponent(this.rootPanel);
-		this.rootLayout.setSizeFull();
-		this.rootLayout.setComponentAlignment(this.rootPanel, Alignment.MIDDLE_RIGHT);
-		setCompositionRoot(this.rootPanel);
-
-	}
-
-	protected void style() {
-		styleName();
-		styleEmail();
-		stylePassword();
-		styleDateOfBirth();
-		styleGender();
-	}
-
-	protected void styleName() {
-
-		this.firstName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
-
-		this.middleName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
-
-		this.lastName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
-
-	}
-
-	protected void styleEmail() {
-		this.emailAddress.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-				ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
-		this.emailAddress.setSizeFull();
-	}
-
-	protected void stylePassword() {
-		this.passwordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
-		this.passwordField.setWidth("80%");
-		// this.passwordField.setSizeFull();
-		this.confirmPasswordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
-		this.confirmPasswordField.setWidth("80%");
-	}
-
-	protected void styleDateOfBirth() {
-		this.dateOfBirth.addStyleNames(ValoTheme.DATEFIELD_ALIGN_CENTER);
-	}
-
-	protected void styleGender() {
-		this.gender.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
+		setCompositionRoot(this.userViewService.getRootPanel());
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
+			this.userViewService.getSaveNext().addClickListener(click -> {
+				if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.userViewService.getSaveNext())) {
+					return;
+				}
+				UserModel userModel = UserModel.builder()
+						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.GIVEN_NAME)
+								.value(Utils.val(this.userViewService.getFirstName().getOptionalValue())).build())
+						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.MIDDLE_NAME)
+								.value(Utils.val(this.userViewService.getMiddleName().getOptionalValue())).build())
+						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.FAMILY_NAME)
+								.value(Utils.val(this.userViewService.getLastName().getOptionalValue())).build())
+
+						.email(Utils.val(this.userViewService.getEmailAddress().getOptionalValue()))
+						.token(Utils.val(this.userViewService.getPasswordField().getOptionalValue()))
+						.createdOn(LocalDate.now()).dateOfBirth(this.userViewService.getDateOfBirth().getValue())
+						.gender(Utils.val(this.userViewService.getGender().getOptionalValue())).build();
+				FactoryResponse fr = userResponseService.createUpdateUser(null, userModel);
+				if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+					Notification notifi = Notification.show("");
+					notifi.setCaption("Error!");
+					notifi.setDescription(String.valueOf(fr.getResponse()));
+					notifi.setIcon(VaadinIcons.STOP);
+					notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				} else {
+					Notification notifi = Notification.show("");
+					notifi.setCaption("Success!");
+					notifi.setDescription(String.valueOf(fr.getResponse()));
+					notifi.setIcon(VaadinIcons.CHECK);
+					notifi.setDelayMsec(Notification.DELAY_FOREVER);
+					notifi.addCloseListener(close -> {
+						this.userViewService.getAccordin().setSelectedTab(1);
+					});
+				}
+
+			});
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
@@ -275,5 +139,245 @@ public class UserView extends Composite implements View {
 	@Override
 	public void beforeLeave(ViewBeforeLeaveEvent event) {
 		View.super.beforeLeave(event);
+	}
+
+	@Data
+	private static class UserViewService {
+
+		/**
+		 * Vaadin UI elements instance
+		 */
+		private VerticalLayout rootLayout;
+		private Panel rootPanel;
+		private TextField firstName;
+		private TextField middleName;
+		private TextField lastName;
+		private TextField emailAddress;
+		private DateField dateOfBirth;
+		private ComboBox<String> gender;
+		private PasswordField passwordField;
+		private PasswordField confirmPasswordField;
+		private Label passwordPolicy;
+		private Button archiveUser;
+		private Button saveNext;
+		private Accordion accordin;
+
+		private UserViewService() {
+			initUI();
+			paint();
+			style();
+		}
+
+		/**
+		 * UI elements or instances need a place to be initialized, as well to
+		 * avoid duplication in-case there are multiple constructor to
+		 * initialize consolidating instantiating to a method will help to
+		 * simply call from the constructor or postconstruct whichever is more
+		 * suitable.
+		 */
+		@SuppressWarnings("deprecation")
+		protected void initUI() {
+			int tabIndex = 0;
+			// setting attributes for first name
+			this.firstName = TextFieldWrapper.builder().placeholder("First name").enabled(true).required(false)
+					.icon(VaadinIcons.USER_STAR).build().textField();
+			this.firstName.setTabIndex(++tabIndex);
+			// setting attributes for second name
+			this.middleName = TextFieldWrapper.builder().placeholder("Middle name").enabled(true).required(false)
+					.icon(VaadinIcons.USER_STAR).build().textField();
+			this.middleName.setTabIndex(++tabIndex);
+			// setting attributes for last name
+			this.lastName = TextFieldWrapper.builder().placeholder("Last name").enabled(true).required(false)
+					.icon(VaadinIcons.USER_STAR).build().textField();
+			this.lastName.setTabIndex(++tabIndex);
+
+			// setting attributes for date field.
+			this.dateOfBirth = new DateField();
+			// this.dateOfBirth.setRequiredIndicatorVisible(true);
+			this.dateOfBirth.setPlaceholder("Date of birth");
+			// TODO: need to import a better set of icons into spring
+			// this.dateOfBirth.setIcon(VaadinIcons.DATE_INPUT);
+			this.dateOfBirth.setDateOutOfRangeMessage("Date is out of range");
+			this.dateOfBirth.setResponsive(true);
+			this.dateOfBirth.setRangeEnd(LocalDate.now());
+			this.dateOfBirth.setTabIndex(++tabIndex);
+			this.dateOfBirth.addStyleNames(ValoTheme.DATEFIELD_BORDERLESS, ValoTheme.DATEFIELD_LARGE);
+			// setting attributes for gender
+			this.gender = new ComboBox<String>();
+			this.gender.setPlaceholder("Gender");
+			// this.gender.setRequiredIndicatorVisible(true);
+			this.gender.setTabIndex(++tabIndex);
+			this.gender.addStyleNames(ValoTheme.COMBOBOX_LARGE);
+
+			// setting attributes for email address.
+			this.emailAddress = TextFieldWrapper.builder().enabled(true).required(false).icon(VaadinIcons.USER_STAR)
+					.placeholder("Email Address").build().textField();
+			this.emailAddress.setTabIndex(++tabIndex);
+			this.emailAddress.setStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+
+			// setting attributes for passwordfield
+			this.passwordField = new PasswordField();
+			this.passwordField.setPlaceholder("New Password");
+			this.passwordField.setIcon(VaadinIcons.PASSWORD);
+			this.passwordField.setRequiredIndicatorVisible(false);
+			this.passwordField.setTabIndex(++tabIndex);
+
+			// setting attributes for confirm password field policy
+			this.confirmPasswordField = new PasswordField();
+			this.confirmPasswordField.setPlaceholder("Confirm Password");
+			this.confirmPasswordField.setIcon(VaadinIcons.PASSWORD);
+			this.confirmPasswordField.setRequiredIndicatorVisible(false);
+			this.confirmPasswordField.setTabIndex(++tabIndex);
+
+			// no attributes are required at the moment, as there is no password
+			// policy
+			this.passwordPolicy = new Label("Password should be greater than or equal to 8 characters");
+
+			// setting attributes for archive user button
+			this.archiveUser = new Button("<b style=color:red>Archive</b>");
+
+			this.archiveUser.setHtmlContentAllowed(true);
+			this.archiveUser.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.BUTTON_DANGER);
+			// setting attributes for save next button.
+			this.saveNext = new Button("<b style=color:white>Save & Next</b>");
+			this.saveNext.setHtmlContentAllowed(true);
+			this.saveNext.setStyleName(ValoTheme.BUTTON_PRIMARY);
+			this.saveNext.setTabIndex(++tabIndex);
+			this.saveNext.setEnabled(false);
+			this.accordin = new Accordion();
+
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void paint() {
+			this.rootPanel = new Panel();
+			this.rootLayout = new VerticalLayout();
+			style();
+			// grouping into as one layout to handle positioning of fields and
+			// styling better: combining all fields related to name
+			HorizontalLayout nameCssLayout = new HorizontalLayout();
+			nameCssLayout.addComponents(this.firstName, this.middleName, this.lastName);
+
+			// combining all fields related to button on step one screen
+			HorizontalLayout buttonCssLayout = new HorizontalLayout();
+			buttonCssLayout.addComponents(this.archiveUser, this.saveNext);
+
+			// setting items because we need these values to appear in a
+			// combobox.
+			this.gender.setItems("Male", "Female", "Others");
+
+			HorizontalLayout dbAndGender = new HorizontalLayout();
+			dbAndGender.addComponents(this.dateOfBirth, this.gender);
+			dbAndGender.setComponentAlignment(this.gender, Alignment.TOP_RIGHT);
+			dbAndGender.setSizeFull();
+			this.saveNext.addClickListener(click -> {
+				if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.saveNext)) {
+					return;
+				}
+			});
+
+			EmptyFieldListener<String> firstNameListener = (EmptyFieldListener<String>) getValueChangeListener();
+			firstNameListener.setSourceField(this.firstName);
+			this.firstName.addValueChangeListener(firstNameListener);
+
+			EmptyFieldListener<String> middleNameListener = (EmptyFieldListener<String>) getValueChangeListener();
+			middleNameListener.setSourceField(this.middleName);
+			this.middleName.addValueChangeListener(middleNameListener);
+
+			EmptyFieldListener<String> lastNameListener = (EmptyFieldListener<String>) getValueChangeListener();
+			lastNameListener.setSourceField(this.lastName);
+			this.lastName.addValueChangeListener(lastNameListener);
+
+			EmptyFieldListener<String> emailListener = (EmptyFieldListener<String>) getValueChangeListener();
+			emailListener.setSourceField(this.emailAddress);
+			this.emailAddress.addValueChangeListener(emailListener);
+
+			EmptyFieldListener<String> passwordListener = (EmptyFieldListener<String>) getValueChangeListener();
+			passwordListener.setSourceField(this.passwordField);
+			this.passwordField.addValueChangeListener(passwordListener);
+
+			EmptyFieldListener<String> passwordPolicyListener = (EmptyFieldListener<String>) getValueChangeListener();
+			passwordPolicyListener.setSourceField(this.confirmPasswordField);
+			this.confirmPasswordField.addValueChangeListener(passwordPolicyListener);
+
+			EmptyFieldListener<LocalDate> dateBirthListener = (EmptyFieldListener<LocalDate>) getValueChangeListener();
+			dateBirthListener.setSourceDateField(this.dateOfBirth);
+			this.dateOfBirth.addValueChangeListener(dateBirthListener);
+
+			EmptyFieldListener<String> comboBoxListener = (EmptyFieldListener<String>) getValueChangeListener();
+			comboBoxListener.setSourceListField(this.gender);
+			this.gender.addValueChangeListener(comboBoxListener);
+
+			GridLayout grid = new GridLayout();
+
+			grid.addComponents(nameCssLayout, dbAndGender, new CssLayout(this.emailAddress), this.passwordPolicy,
+					new CssLayout(this.passwordField), new CssLayout(this.confirmPasswordField), buttonCssLayout);
+
+			grid.setSpacing(true);
+			grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
+			this.accordin.addTab(grid, "Step 1/2");
+			this.accordin.addTab(new Label("Data "), "Step 2/2");
+			this.rootPanel.setContent(this.accordin);
+			this.rootPanel.setSizeFull();
+			this.rootLayout.addComponent(this.rootPanel);
+			this.rootLayout.setSizeFull();
+			this.rootLayout.setComponentAlignment(this.rootPanel, Alignment.MIDDLE_RIGHT);
+		}
+
+		protected void style() {
+			styleName();
+			styleEmail();
+			stylePassword();
+			styleDateOfBirth();
+			styleGender();
+		}
+
+		protected void styleName() {
+
+			this.firstName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
+					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
+
+			this.middleName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
+					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
+
+			this.lastName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
+					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
+
+		}
+
+		protected void styleEmail() {
+			this.emailAddress.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
+					ValoTheme.TEXTFIELD_HUGE, ValoTheme.TEXTFIELD_BORDERLESS);
+			this.emailAddress.setSizeFull();
+		}
+
+		protected void stylePassword() {
+			this.passwordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_HUGE,
+					ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
+			this.passwordField.setWidth("80%");
+			this.confirmPasswordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_HUGE,
+					ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
+			this.confirmPasswordField.setWidth("80%");
+		}
+
+		protected void styleDateOfBirth() {
+			this.dateOfBirth.addStyleNames(ValoTheme.DATEFIELD_ALIGN_CENTER);
+			this.dateOfBirth.setSizeFull();
+		}
+
+		protected void styleGender() {
+			this.gender.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
+			this.gender.setSizeFull();
+		}
+
+		protected EmptyFieldListener<?> getValueChangeListener() {
+			EmptyFieldListener<?> firstNameListener = new EmptyFieldListener<>();
+			firstNameListener.setMandatoryFields(this.firstName, this.middleName, this.lastName, this.emailAddress,
+					this.passwordField, this.confirmPasswordField);
+			firstNameListener.setMandatoryDateFields(this.dateOfBirth);
+			firstNameListener.setMandatoryListFields(this.gender);
+			firstNameListener.setTargetBtn(this.saveNext);
+			return firstNameListener;
+		}
 	}
 }

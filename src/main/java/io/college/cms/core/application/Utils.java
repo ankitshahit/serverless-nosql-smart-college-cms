@@ -1,6 +1,7 @@
 package io.college.cms.core.application;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Scanner;
 
 import lombok.Cleanup;
@@ -22,4 +23,10 @@ public class Utils {
 		return sb.toString();
 	}
 
+	public static String val(Optional<String> val) {
+		if (!val.isPresent()) {
+			return "";
+		}
+		return val.get();
+	}
 }

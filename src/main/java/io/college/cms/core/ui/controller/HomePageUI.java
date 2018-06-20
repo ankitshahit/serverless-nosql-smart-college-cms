@@ -16,6 +16,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Composite;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -167,7 +168,7 @@ public class HomePageUI extends UI {
 		menu.setResponsive(true);
 		menu.setSizeFull();
 		cssContainer.setResponsive(true);
-		cssContainer.setWidth("90%");
+		// cssContainer.setWidth("90%");
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel(menu, cssContainer);
 

@@ -26,12 +26,7 @@ public class DeletePopupView extends PopupBuilderView {
 	public DeletePopupView() {
 
 		setClosable(true);
-		center();
-		setResizable(true);
-		setWidth("50%");
-		center();
 		setResizable(false);
-
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.addComponent(new Label("You're about to delete content, once deleted it cannot be recovered."));
 		HorizontalLayout hLayout = new HorizontalLayout();

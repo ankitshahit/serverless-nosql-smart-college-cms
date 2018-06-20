@@ -68,7 +68,7 @@ public class TextFieldWrapper {
 			field.setStyleName(style);
 		}
 		field.setCaptionAsHtml(captionAsHtml);
-		field.setRequiredIndicatorVisible(visible);
+		field.setRequiredIndicatorVisible(required);
 		field.setReadOnly(readOnly);
 		return field;
 	}

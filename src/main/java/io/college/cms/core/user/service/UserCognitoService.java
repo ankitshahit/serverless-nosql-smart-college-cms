@@ -58,7 +58,7 @@ public class UserCognitoService implements IUserService {
 	 */
 	public static UserModel valueOf(UserType user) {
 		UserModel.UserModelBuilder userBuilder = UserModel.builder();
-		userBuilder.username(user.getUsername()).isActive(user.getEnabled());
+		userBuilder.email(user.getUsername()).isActive(user.getEnabled());
 		userBuilder.attributes(valueOf(user.getAttributes()).getAttributes());
 		return userBuilder.build();
 	}
@@ -98,7 +98,7 @@ public class UserCognitoService implements IUserService {
 			request.setUsername(username);
 			AdminGetUserResult result = identityProvider.adminGetUser(request);
 
-			userBuilder.username(result.getUsername()).isActive(result.getEnabled());
+			userBuilder.email(result.getUsername()).isActive(result.getEnabled());
 
 			for (AttributeType attributeType : result.getUserAttributes()) {
 				if (attributeType == null || StringUtils.isEmpty(attributeType.getName())) {
@@ -238,7 +238,7 @@ public class UserCognitoService implements IUserService {
 	@Override
 	public void deleteUser(String username)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
-		deleteUser(UserModel.builder().username(username).build());
+		deleteUser(UserModel.builder().email(username).build());
 	}
 
 }
