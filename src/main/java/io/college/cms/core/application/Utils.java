@@ -4,6 +4,10 @@ import java.io.File;
 import java.util.Optional;
 import java.util.Scanner;
 
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,5 +32,24 @@ public class Utils {
 			return "";
 		}
 		return val.get();
+	}
+
+	// TODO: refactor the method
+	public static Notification showFactoryResponseMsg(FactoryResponse fr) {
+		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			notifi.setCaption("Error");
+			notifi.setDescription(String.valueOf(fr.getResponse()));
+			notifi.setIcon(VaadinIcons.STOP);
+			return notifi;
+		} else {
+			Notification notifi = Notification.show("", Type.HUMANIZED_MESSAGE);
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			notifi.setCaption("Success");
+			notifi.setDescription(String.valueOf(fr.getResponse()));
+			notifi.setIcon(VaadinIcons.CHECK);
+			return notifi;
+		}
 	}
 }

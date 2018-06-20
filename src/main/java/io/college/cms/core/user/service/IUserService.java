@@ -38,6 +38,15 @@ public interface IUserService {
 		return null;
 	};
 
+	default void createUpdateUser(UserModel user, boolean isAdmin)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+	};
+
+	default void confirmSignup(String username, String confirmation)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		throw new ApplicationException("Service doesn't implement confirmSignup()");
+	}
+
 	/**
 	 * 
 	 * @param user
@@ -46,8 +55,9 @@ public interface IUserService {
 	 * @throws ApplicationException
 	 * @throws ResourceDeniedException
 	 */
-	void createUpdateUser(UserModel user)
-			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException;
+	default void createUpdateUser(UserModel user)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+	};
 
 	/**
 	 * 

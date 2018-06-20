@@ -86,8 +86,8 @@ public class CreateCourseView extends Composite implements View, ICoursesService
 
 		accordin.setResponsive(true);
 		verticalLayout.addComponent(accordin);
-		verticalLayout.setComponentAlignment(accordin, Alignment.TOP_LEFT);
-
+		verticalLayout.setComponentAlignment(accordin, Alignment.MIDDLE_CENTER);
+		verticalLayout.setSizeFull();
 		setCompositionRoot(verticalLayout);
 	}
 
@@ -142,7 +142,7 @@ public class CreateCourseView extends Composite implements View, ICoursesService
 				clickData.getComponent().getParent().setVisible(false);
 			});
 		});
-		
+
 		courseStepOne.getSaveCourse().addClickListener(click -> {
 			if (click.getSource() != courseStepOne.getSaveCourse()) {
 				return;

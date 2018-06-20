@@ -52,6 +52,7 @@ public class UserView extends Composite implements View {
 	private static final long serialVersionUID = 1L;
 	private UserViewService userViewService;
 	private UserResponseService userResponseService;
+	private UserModel userModel;
 
 	public UserView() {
 		super();
@@ -82,6 +83,56 @@ public class UserView extends Composite implements View {
 				clickData.getComponent().getParent().setVisible(false);
 			});
 		});
+		EmptyFieldListener<String> usernameTextFieldList = new EmptyFieldListener<>();
+		usernameTextFieldList.setSourceField(this.userViewService.getUsername());
+		usernameTextFieldList.setMandatoryFields(this.userViewService.getUsername());
+		usernameTextFieldList.setTargetBtn(this.userViewService.getValidateUsername());
+		this.userViewService.getUsername().addValueChangeListener(usernameTextFieldList);
+
+		this.userViewService.validateUsername.addClickListener(click -> {
+			FactoryResponse fr = FactoryResponse.builder().build();
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.userViewService.validateUsername)) {
+				return;
+			}
+			// if the userModel is null, means event is triggered by user
+			// and not programmatically from select users screen.
+			// we wanna check for field values to validate against. like
+			// username
+			if (userModel == null) {
+				fr = userResponseService.getUserByUser(null,
+						Utils.val(this.userViewService.getUsername().getOptionalValue()));
+				// if the request is success means we have an existing
+				// username available in database
+				if (fr != null && SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
+					this.userViewService.getUsername().setCaption("Username is already taken.");
+					this.userViewService.getUsername().setCaptionAsHtml(true);
+					Notification.show("Username is not available, please try new username", Type.ERROR_MESSAGE)
+							.setDelayMsec(Notification.DELAY_FOREVER);
+
+				} else {
+					Notification notifi = Notification.show("Username is available, click on message to continue!",
+							Type.HUMANIZED_MESSAGE);
+					notifi.setDelayMsec(Notification.DELAY_FOREVER);
+					notifi.addCloseListener(close -> {
+						this.userViewService.getPasswordField().setVisible(true);
+						this.userViewService.getConfirmPasswordField().setVisible(true);
+						this.userViewService.getEmailAddress().setVisible(true);
+						this.userViewService.getValidateUsername().setVisible(false);
+						this.userViewService.getSaveNext().setVisible(true);
+						this.userViewService.getUsername().setEnabled(false);
+						this.userViewService.getUsername().setCaption("<b style=color:blue>Username selected</b>:");
+						this.userViewService.getUsername().addStyleNames(ValoTheme.TEXTFIELD_ALIGN_RIGHT,
+								ValoTheme.TEXTFIELD_SMALL);
+
+						this.userViewService.getUsername().setCaptionAsHtml(true);
+						this.userViewService.getPasswordPolicy()
+								.setValue("Password should be greater than or equal to 8 characters");
+					});
+
+				}
+
+			}
+		});
 
 		setCompositionRoot(this.userViewService.getRootPanel());
 	}
@@ -89,36 +140,60 @@ public class UserView extends Composite implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
+
 		try {
+			this.userViewService.getArchiveUser().setVisible(userModel != null);
+			if (userModel == null) {
+				this.userViewService.getPasswordField().setVisible(false);
+				this.userViewService.getConfirmPasswordField().setVisible(false);
+				this.userViewService.getEmailAddress().setVisible(false);
+				this.userViewService.getValidateUsername().setVisible(true);
+				this.userViewService.getSaveNext().setVisible(false);
+				this.userViewService.getPasswordPolicy().setValue(
+						"Please enter an username, when done click on confirm.\n System will let you know of availability");
+				this.userViewService.getValidateUsername().setEnabled(false);
+
+			}
 			this.userViewService.getSaveNext().addClickListener(click -> {
+				FactoryResponse fr = FactoryResponse.builder().build();
 				if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.userViewService.getSaveNext())) {
 					return;
 				}
-				UserModel userModel = UserModel.builder()
-						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.GIVEN_NAME)
-								.value(Utils.val(this.userViewService.getFirstName().getOptionalValue())).build())
-						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.MIDDLE_NAME)
-								.value(Utils.val(this.userViewService.getMiddleName().getOptionalValue())).build())
-						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.FAMILY_NAME)
-								.value(Utils.val(this.userViewService.getLastName().getOptionalValue())).build())
 
-						.email(Utils.val(this.userViewService.getEmailAddress().getOptionalValue()))
+				UserModel user = UserModel.builder()
+						.username(Utils.val(this.userViewService.getUsername().getOptionalValue()))
 						.token(Utils.val(this.userViewService.getPasswordField().getOptionalValue()))
-						.createdOn(LocalDate.now()).dateOfBirth(this.userViewService.getDateOfBirth().getValue())
-						.gender(Utils.val(this.userViewService.getGender().getOptionalValue())).build();
-				FactoryResponse fr = userResponseService.createUpdateUser(null, userModel);
-				if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-					Notification notifi = Notification.show("");
-					notifi.setCaption("Error!");
-					notifi.setDescription(String.valueOf(fr.getResponse()));
-					notifi.setIcon(VaadinIcons.STOP);
-					notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				} else {
-					Notification notifi = Notification.show("");
-					notifi.setCaption("Success!");
-					notifi.setDescription(String.valueOf(fr.getResponse()));
-					notifi.setIcon(VaadinIcons.CHECK);
-					notifi.setDelayMsec(Notification.DELAY_FOREVER);
+						.withAttribute(UserModel.AttributeType.builder().name(UserAttributes.EMAIL)
+								.value(Utils.val(this.userViewService.getEmailAddress().getOptionalValue())).build())
+						.build();
+
+				/*
+				 * UserModel userModel = UserModel.builder()
+				 * .withAttribute(UserModel.AttributeType.builder().name(
+				 * UserAttributes.GIVEN_NAME)
+				 * .value(Utils.val(this.userViewService.getFirstName().
+				 * getOptionalValue())).build())
+				 * .withAttribute(UserModel.AttributeType.builder().name(
+				 * UserAttributes.MIDDLE_NAME)
+				 * .value(Utils.val(this.userViewService.getMiddleName().
+				 * getOptionalValue())).build())
+				 * .withAttribute(UserModel.AttributeType.builder().name(
+				 * UserAttributes.FAMILY_NAME)
+				 * .value(Utils.val(this.userViewService.getLastName().
+				 * getOptionalValue())).build())
+				 * .email(Utils.val(this.userViewService.getEmailAddress().
+				 * getOptionalValue()))
+				 * .token(Utils.val(this.userViewService.getPasswordField().
+				 * getOptionalValue()))
+				 * .createdOn(LocalDate.now()).dateOfBirth(this.userViewService.
+				 * getDateOfBirth().getValue())
+				 * .gender(Utils.val(this.userViewService.getGender().
+				 * getOptionalValue())).build();
+				 */
+
+				fr = userResponseService.createUpdateUser(null, user);
+				Notification notifi = Utils.showFactoryResponseMsg(fr);
+				if (fr != null && SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
 					notifi.addCloseListener(close -> {
 						this.userViewService.getAccordin().setSelectedTab(1);
 					});
@@ -161,6 +236,8 @@ public class UserView extends Composite implements View {
 		private Button archiveUser;
 		private Button saveNext;
 		private Accordion accordin;
+		private TextField username;
+		private Button validateUsername;
 
 		private UserViewService() {
 			initUI();
@@ -178,6 +255,14 @@ public class UserView extends Composite implements View {
 		@SuppressWarnings("deprecation")
 		protected void initUI() {
 			int tabIndex = 0;
+
+			this.username = TextFieldWrapper.builder().required(false).placeholder("Username")
+					.icon(VaadinIcons.NEWSPAPER).description("Select a unique username, to identify throughout.	")
+					.build().textField();
+			this.username.addStyleNames(ValoTheme.TEXTFIELD_HUGE, ValoTheme.TEXTFIELD_INLINE_ICON,
+					ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_BORDERLESS);
+			this.username.setSizeFull();
+			this.username.setTabIndex(++tabIndex);
 			// setting attributes for first name
 			this.firstName = TextFieldWrapper.builder().placeholder("First name").enabled(true).required(false)
 					.icon(VaadinIcons.USER_STAR).build().textField();
@@ -207,24 +292,22 @@ public class UserView extends Composite implements View {
 			this.gender.setPlaceholder("Gender");
 			// this.gender.setRequiredIndicatorVisible(true);
 			this.gender.setTabIndex(++tabIndex);
-			this.gender.addStyleNames(ValoTheme.COMBOBOX_LARGE);
 
 			// setting attributes for email address.
 			this.emailAddress = TextFieldWrapper.builder().enabled(true).required(false).icon(VaadinIcons.USER_STAR)
 					.placeholder("Email Address").build().textField();
 			this.emailAddress.setTabIndex(++tabIndex);
-			this.emailAddress.setStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 
 			// setting attributes for passwordfield
 			this.passwordField = new PasswordField();
-			this.passwordField.setPlaceholder("New Password");
+			this.passwordField.setPlaceholder("New password");
 			this.passwordField.setIcon(VaadinIcons.PASSWORD);
 			this.passwordField.setRequiredIndicatorVisible(false);
 			this.passwordField.setTabIndex(++tabIndex);
-
+			this.passwordField.setSizeFull();
 			// setting attributes for confirm password field policy
 			this.confirmPasswordField = new PasswordField();
-			this.confirmPasswordField.setPlaceholder("Confirm Password");
+			this.confirmPasswordField.setPlaceholder("Confirm password");
 			this.confirmPasswordField.setIcon(VaadinIcons.PASSWORD);
 			this.confirmPasswordField.setRequiredIndicatorVisible(false);
 			this.confirmPasswordField.setTabIndex(++tabIndex);
@@ -244,6 +327,9 @@ public class UserView extends Composite implements View {
 			this.saveNext.setStyleName(ValoTheme.BUTTON_PRIMARY);
 			this.saveNext.setTabIndex(++tabIndex);
 			this.saveNext.setEnabled(false);
+			this.validateUsername = new Button("Check Availability!");
+			this.validateUsername.addStyleNames(ValoTheme.BUTTON_PRIMARY);
+			this.validateUsername.setVisible(false);
 			this.accordin = new Accordion();
 
 		}
@@ -275,6 +361,10 @@ public class UserView extends Composite implements View {
 					return;
 				}
 			});
+
+			EmptyFieldListener<String> usernameListener = (EmptyFieldListener<String>) getValueChangeListener();
+			usernameListener.setSourceField(this.username);
+			this.username.addValueChangeListener(usernameListener);
 
 			EmptyFieldListener<String> firstNameListener = (EmptyFieldListener<String>) getValueChangeListener();
 			firstNameListener.setSourceField(this.firstName);
@@ -309,9 +399,10 @@ public class UserView extends Composite implements View {
 			this.gender.addValueChangeListener(comboBoxListener);
 
 			GridLayout grid = new GridLayout();
-
-			grid.addComponents(nameCssLayout, dbAndGender, new CssLayout(this.emailAddress), this.passwordPolicy,
-					new CssLayout(this.passwordField), new CssLayout(this.confirmPasswordField), buttonCssLayout);
+			// nameCssLayout, dbAndGender,
+			grid.addComponents(new CssLayout(this.username), new CssLayout(this.emailAddress), this.passwordPolicy,
+					new CssLayout(this.passwordField), new CssLayout(this.confirmPasswordField), this.validateUsername,
+					buttonCssLayout);
 
 			grid.setSpacing(true);
 			grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
@@ -335,7 +426,10 @@ public class UserView extends Composite implements View {
 		protected void styleName() {
 
 			this.firstName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
+					ValoTheme.TEXTFIELD_LARGE/*
+												 * , ValoTheme.
+												 * TEXTFIELD_BORDERLESS
+												 */);
 
 			this.middleName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
 					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
@@ -347,17 +441,21 @@ public class UserView extends Composite implements View {
 
 		protected void styleEmail() {
 			this.emailAddress.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-					ValoTheme.TEXTFIELD_HUGE, ValoTheme.TEXTFIELD_BORDERLESS);
+					ValoTheme.TEXTFIELD_HUGE/*
+											 * , ValoTheme.TEXTFIELD_BORDERLESS
+											 */);
 			this.emailAddress.setSizeFull();
 		}
 
 		protected void stylePassword() {
 			this.passwordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_HUGE,
-					ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
-			this.passwordField.setWidth("80%");
-			this.confirmPasswordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_HUGE,
-					ValoTheme.TEXTFIELD_BORDERLESS, ValoTheme.TEXTFIELD_ALIGN_CENTER);
-			this.confirmPasswordField.setWidth("80%");
+					/* ValoTheme.TEXTFIELD_BORDERLESS, */ValoTheme.TEXTFIELD_ALIGN_CENTER);
+			this.passwordField.setSizeFull();
+			this.confirmPasswordField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON,
+					ValoTheme.TEXTFIELD_HUGE/*
+											 * , ValoTheme.TEXTFIELD_BORDERLESS
+											 */, ValoTheme.TEXTFIELD_ALIGN_CENTER);
+			this.confirmPasswordField.setSizeFull();
 		}
 
 		protected void styleDateOfBirth() {
@@ -372,10 +470,14 @@ public class UserView extends Composite implements View {
 
 		protected EmptyFieldListener<?> getValueChangeListener() {
 			EmptyFieldListener<?> firstNameListener = new EmptyFieldListener<>();
-			firstNameListener.setMandatoryFields(this.firstName, this.middleName, this.lastName, this.emailAddress,
-					this.passwordField, this.confirmPasswordField);
-			firstNameListener.setMandatoryDateFields(this.dateOfBirth);
-			firstNameListener.setMandatoryListFields(this.gender);
+			firstNameListener.setMandatoryFields(
+					this.username, /*
+									 * this.firstName, this.middleName,
+									 * this.lastName,
+									 */
+					this.emailAddress, this.passwordField, this.confirmPasswordField);
+			// firstNameListener.setMandatoryDateFields(this.dateOfBirth);
+			// firstNameListener.setMandatoryListFields(this.gender);
 			firstNameListener.setTargetBtn(this.saveNext);
 			return firstNameListener;
 		}

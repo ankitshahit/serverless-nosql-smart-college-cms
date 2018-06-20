@@ -1,6 +1,7 @@
 package io.college.cms.core.user.service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +77,7 @@ public class UserService implements IUserService {
 			ValidationHandler.throwExceptionIfNull(user.getUsername(), "user name is empty",
 					ExceptionType.VALIDATION_EXCEPTION);
 			UserModel dbVersionUser = findByUsername(user.getUsername());
-			dbVersionUser.setDeletedOn(Date.from(Instant.now()));
+			dbVersionUser.setDeletedOn(LocalDate.now());
 			dbMapper.save(user);
 		} catch (ValidationException ex) {
 			throw ex;

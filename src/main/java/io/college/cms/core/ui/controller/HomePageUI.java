@@ -32,6 +32,7 @@ import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.ui.model.ViewConstants;
+import io.college.cms.core.user.controller.ConfirmUserView;
 import io.college.cms.core.user.controller.UserView;
 
 @SpringUI(path = "/homepage")
@@ -52,12 +53,17 @@ public class HomePageUI extends UI {
 	private PublishExamView publishExam;
 	private SeeExamsView seeExam;
 	private ChatFaqView chatFaq;
-	private SideMenu sideMenu = new SideMenu();
-	private CssLayout cssContainer;
+	private ConfirmUserView confirmUser;
+	private HorizontalLayout cssContainer;
 
 	public HomePageUI() {
-		this.cssContainer = new CssLayout();
+		this.cssContainer = new HorizontalLayout();
 		this.navigator = new Navigator(this, cssContainer);
+	}
+
+	@Autowired
+	public void setConfirmUser(ConfirmUserView confirmUser) {
+		this.confirmUser = confirmUser;
 	}
 
 	@Autowired
@@ -131,6 +137,7 @@ public class HomePageUI extends UI {
 		addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
 		addView(ViewConstants.CHAT_FAQ_VIEW, chatFaq);
 		addView(ViewConstants.DEAL_WITH_USER, userView);
+		addView(ViewConstants.CONFIRM_USER_VIEW, confirmUser);
 	}
 
 	void addView(String viewName, View view) {
@@ -162,8 +169,12 @@ public class HomePageUI extends UI {
 		user.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.DEAL_WITH_USER);
 		});
-
-		CssLayout menu = new CssLayout(title, exams, courses, faqBot, user);
+		Button confirmUser = new Button("Confirm user");
+		confirmUser.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		confirmUser.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.CONFIRM_USER_VIEW);
+		});
+		CssLayout menu = new CssLayout(title, exams, courses, faqBot, user, confirmUser);
 		menu.addStyleNames(ValoTheme.MENU_ROOT);
 		menu.setResponsive(true);
 		menu.setSizeFull();
@@ -181,6 +192,7 @@ public class HomePageUI extends UI {
 	}
 
 	void sideMenus() {
+		SideMenu sideMenu = new SideMenu();
 		sideMenu.addMenuItem("Help!", VaadinIcons.COG, () -> {
 
 		});

@@ -13,8 +13,10 @@ import com.amazonaws.services.cognitoidp.model.AdminGetUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminListGroupsForUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminRemoveUserFromGroupRequest;
 import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
+import com.amazonaws.services.cognitoidp.model.ConfirmSignUpRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersInGroupRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
+import com.amazonaws.services.cognitoidp.model.SignUpRequest;
 
 @Configuration
 public class CognitoConfiguration {
@@ -95,5 +97,21 @@ public class CognitoConfiguration {
 		ListUsersRequest userRequest = new ListUsersRequest();
 		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
 		return userRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public SignUpRequest signupRequest() {
+		SignUpRequest request = new SignUpRequest();
+		request.setClientId(appParams.getCognitoClientId());
+		return request;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public ConfirmSignUpRequest confirmSignupRequest() {
+		ConfirmSignUpRequest request = new ConfirmSignUpRequest();
+		request.setClientId(appParams.getCognitoClientId());
+		return request;
 	}
 }

@@ -28,4 +28,5 @@ public class ViewConstants {
 	public static final String SEE_RESULTS = "seeResults";
 	public static final String DEAL_WITH_USER = "dealWithUser";
 	public static final String CHAT_FAQ_VIEW = "chatFaq";
+	public static final String CONFIRM_USER_VIEW = "confirmUser";
 }

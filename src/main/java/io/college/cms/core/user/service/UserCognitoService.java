@@ -1,5 +1,6 @@
 package io.college.cms.core.user.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,8 +20,10 @@ import com.amazonaws.services.cognitoidp.model.AdminGetUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminGetUserResult;
 import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
 import com.amazonaws.services.cognitoidp.model.AttributeType;
+import com.amazonaws.services.cognitoidp.model.ConfirmSignUpRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersResult;
+import com.amazonaws.services.cognitoidp.model.SignUpRequest;
 import com.amazonaws.services.cognitoidp.model.UserType;
 
 import io.college.cms.core.exception.ApplicationException;
@@ -99,7 +102,7 @@ public class UserCognitoService implements IUserService {
 			AdminGetUserResult result = identityProvider.adminGetUser(request);
 
 			userBuilder.email(result.getUsername()).isActive(result.getEnabled());
-
+			userBuilder.userStatus(result.getUserStatus());
 			for (AttributeType attributeType : result.getUserAttributes()) {
 				if (attributeType == null || StringUtils.isEmpty(attributeType.getName())) {
 					continue;
@@ -119,6 +122,40 @@ public class UserCognitoService implements IUserService {
 			throw new ApplicationException(e);
 		}
 		return userBuilder.build();
+	}
+
+	@Override
+	public void confirmSignup(String username, String confirmation)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		try {
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(username), "No such user available",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(confirmation), "No confirmation value provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+			UserModel user = findByUsername(username);
+			// if there's no such user, an exception will be raised by
+			// findByUsername() to let us know resource doesn't exist.
+			if (!UserStatus.UNCONFIRMED.toString().equalsIgnoreCase(user.getUserStatus())) {
+				throw new ValidationException("User is already verified.");
+			}
+			ConfirmSignUpRequest request = app.getBean(ConfirmSignUpRequest.class);
+			request.setUsername(username);
+			request.setConfirmationCode(confirmation);
+			identityProvider.confirmSignUp(request);
+			LOGGER.debug("Confirmed user {} on {}", username, LocalDate.now());
+		} catch (ValidationException e) {
+			LOGGER.error("validation code provided : {}", confirmation);
+			LOGGER.error("user {} couldn't be verified, validation exception", username);
+			LOGGER.error(e.getMessage());
+			throw new ValidationException(e);
+		} catch (com.amazonaws.services.cognitoidp.model.UserNotFoundException ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ValidationException("No such user exists");
+		} catch (Exception e) {
+			LOGGER.error("user {} couldn't be verified, other exception", username);
+			LOGGER.error(e.getMessage());
+			throw new ApplicationException("Not a valid confirmation key, unable to verify!");
+		}
 	}
 
 	@Override
@@ -157,7 +194,7 @@ public class UserCognitoService implements IUserService {
 	}
 
 	@Override
-	public void createUpdateUser(@NonNull UserModel user)
+	public void createUpdateUser(@NonNull UserModel user, boolean isAdmin)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		try {
 			ValidationHandler.throwExceptionIfNull(user.getUsername(), "username not provided",
@@ -175,15 +212,33 @@ public class UserCognitoService implements IUserService {
 			}
 
 			try {
-				findByUsername(user.getUsername());
-				createRequest(user, attributes);
-			} catch (Exception e) {
-				// Note: It was really required to perform in a catch block as
+				// TODO: we need to fetch the existing details from cognito and
+				// update only those that are really required to.
+				UserModel cognitoUserDetails = findByUsername(user.getUsername());// Note:
+																					// It
+																					// was
+																					// really
+
+				// required to perform in a
+
+				// catch block as
 				// the validation has been set to be thrown if there's no such
 				// username with cognito.
-				updateRequest(user, attributes);
-				LOGGER.info("updating user request.");
+				if (isAdmin) {
+					updateRequestAdmin(user, attributes);
+					LOGGER.info("updating user request.");
+				} else {
+					//
+				}
 
+			} catch (Exception e) {
+				if (isAdmin) {
+					createRequestAdmin(user, attributes);
+				} else {
+					ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(user.getToken()), "No password provided",
+							ExceptionType.VALIDATION_EXCEPTION);
+					createRequest(user, attributes);
+				}
 			}
 
 		} catch (ValidationException e) {
@@ -195,18 +250,40 @@ public class UserCognitoService implements IUserService {
 		}
 	}
 
-	private void createRequest(UserModel model, Collection<AttributeType> attributes) throws ApplicationException {
+	private void createRequest(UserModel model, Collection<AttributeType> attributes)
+			throws ApplicationException, ValidationException {
+		try {
+
+			SignUpRequest request = app.getBean(SignUpRequest.class);
+			request.setUsername(model.getUsername());
+			request.setUserAttributes(attributes);
+			request.setPassword(model.getToken());
+			identityProvider.signUp(request);
+		} catch (com.amazonaws.services.cognitoidp.model.InvalidParameterException ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ValidationException(ex.getMessage());
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			throw new ApplicationException(e);
+		}
+	}
+
+	private void createRequestAdmin(UserModel model, Collection<AttributeType> attributes)
+			throws ApplicationException, ValidationException {
 		try {
 			AdminCreateUserRequest request = app.getBean(AdminCreateUserRequest.class);
 			request.setUsername(model.getUsername());
 			request.setUserAttributes(attributes);
 			identityProvider.adminCreateUser(request);
+		} catch (com.amazonaws.services.cognitoidp.model.InvalidParameterException ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ValidationException(ex.getMessage());
 		} catch (Exception e) {
 			throw new ApplicationException(e);
 		}
 	}
 
-	private void updateRequest(UserModel model, Collection<AttributeType> attributes) throws ApplicationException {
+	private void updateRequestAdmin(UserModel model, Collection<AttributeType> attributes) throws ApplicationException {
 		try {
 			AdminUpdateUserAttributesRequest request = app.getBean(AdminUpdateUserAttributesRequest.class);
 			request.setUserAttributes(attributes);
@@ -239,6 +316,10 @@ public class UserCognitoService implements IUserService {
 	public void deleteUser(String username)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		deleteUser(UserModel.builder().email(username).build());
+	}
+
+	public enum UserStatus {
+		UNCONFIRMED, CONFIRMED;
 	}
 
 }

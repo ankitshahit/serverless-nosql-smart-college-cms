@@ -24,4 +24,6 @@ public class AppParams {
 	private boolean generateDbTables;
 	@Value("${qna-maker-key:no-key}")
 	private String qnaMakerKey;
+	@Value("${cognito-client-id:no-key}")
+	private String cognitoClientId;
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -59,6 +60,8 @@ public class UserModel {
 	private List<AttributeType> attributes;
 	private Integer limit;
 	private String paginationToken;
+	@DynamoDBIgnore
+	private String userStatus;
 
 	@Builder
 	@Data

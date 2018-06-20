@@ -108,8 +108,9 @@ public class UserResponseService {
 	public FactoryResponse createUpdateUser(HttpServletRequest request, UserModel user) {
 		FactoryResponse fr = null;
 		try {
-			userService.createUpdateUser(user);
-			fr = FactoryResponse.builder().response("Successfully created/updated.")
+			userService.createUpdateUser(user, false);
+			fr = FactoryResponse.builder()
+					.response("Signup/update successfull. Provide with confirmation code on next step.")
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (IllegalArgumentException ex) {
 			LOGGER.error("One of required fields is empty.");
@@ -129,8 +130,36 @@ public class UserResponseService {
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
-			fr = FactoryResponse.builder().response("Application dont feel so good!")
+			fr = FactoryResponse.builder().response(ex.getMessage()).summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse confirmUserSignup(String username, String confirmation) {
+		FactoryResponse fr = null;
+		try {
+			userService.confirmSignup(username, confirmation);
+			fr = FactoryResponse.builder().response("Confirmation successfull.")
+					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (IllegalArgumentException ex) {
+			LOGGER.error("One of required fields is empty.");
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ResourceDeniedException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.ACCESS_DENIED).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ex.getMessage()).summaryMessage(SummaryMessageEnum.FAILURE).build();
 		}
 		return fr;
 	}
