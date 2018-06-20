@@ -121,7 +121,7 @@ public class HomePageUI extends UI {
 	}
 
 	void registerViews() {
-		// addView("", createCourse);
+		addView("", createCourse);
 		addView(ViewConstants.COURSES_CREATE, createCourse);
 		addView(ViewConstants.COURSES_VIEW_ALL, seeCourses);
 		addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
