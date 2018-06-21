@@ -253,7 +253,7 @@ public class UserCognitoService implements IUserService {
 	private void createRequest(UserModel model, Collection<AttributeType> attributes)
 			throws ApplicationException, ValidationException {
 		try {
-
+			
 			SignUpRequest request = app.getBean(SignUpRequest.class);
 			request.setUsername(model.getUsername());
 			request.setUserAttributes(attributes);

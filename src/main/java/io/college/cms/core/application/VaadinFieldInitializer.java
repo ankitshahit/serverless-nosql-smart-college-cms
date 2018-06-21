@@ -31,7 +31,7 @@ public class VaadinFieldInitializer {
 
 		@Cleanup
 		Scanner sc = new Scanner(new File(
-				"C:\\Users\\1054480\\git\\serverless-nosql-smart-college-cms\\src\\main\\resources\\publish_exams.json"));
+				"C:\\Users\\1054480\\git\\serverless-nosql-smart-college-cms\\src\\main\\resources\\userview-part2.json"));
 		StringBuilder sb = new StringBuilder();
 		while (sc.hasNextLine())
 			sb.append(sc.nextLine());

@@ -21,6 +21,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PublishAnnouncementView extends VerticalLayout implements View {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	@PostConstruct
@@ -60,12 +59,14 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		selectCourse.setEnabled(true);
 		rootLayout.addComponent(selectCourse);
 		rootLayout.addComponent(horizontalSubAndDate);
-		subject.setCaption("Heading for announcement, keep it simple!");
+		subject.setCaption("Subject");
 		subject.setPlaceholder("Write 100 characters at max");
 		subject.setRequiredIndicatorVisible(true);
 		subject.setVisible(true);
 		subject.setEnabled(true);
 		subject.setMaxLength(100);
+		subject.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS);
+		subject.setSizeFull();
 		horizontalSubAndDate.addComponent(subject);
 		scheduledDate.setCaption("Schedule date for announcement!");
 		scheduledDate.setPlaceholder("Select as today's date to publish immediately");
@@ -83,30 +84,27 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		publish.setEnabled(false);
 		rootLayout.addComponent(publish);
 		rootLayout.setComponentAlignment(publish, Alignment.BOTTOM_RIGHT);
-		EmptyFieldListener<String> selectCourseListener = new EmptyFieldListener<String>();
-		selectCourseListener.setSourceListField(selectCourse);
-		selectCourseListener.setTargetBtn(publish);
-		selectCourseListener.setMandatoryFields(subject, scheduledDate, announcementDescription);
-		selectCourseListener.setMandatoryListFields(selectCourse);
-		selectCourse.addValueChangeListener(selectCourseListener);
+
 		EmptyFieldListener<String> subjectListener = new EmptyFieldListener<String>();
 		subjectListener.setSourceField(subject);
 		subjectListener.setTargetBtn(publish);
-		subjectListener.setMandatoryFields(subject, scheduledDate, announcementDescription);
-		subjectListener.setMandatoryListFields(selectCourse);
+		subjectListener.setMandatoryFields(subject, announcementDescription);
+
+		subjectListener.setMandatoryDateFields(scheduledDate);
 		subject.addValueChangeListener(subjectListener);
+
 		EmptyFieldListener<LocalDate> scheduledDateListener = new EmptyFieldListener<LocalDate>();
 		scheduledDateListener.setSourceDateField(scheduledDate);
 		scheduledDateListener.setTargetBtn(publish);
 		scheduledDateListener.setMandatoryDateFields(scheduledDate);
-		scheduledDateListener.setMandatoryFields(subject, scheduledDate, announcementDescription);
-		scheduledDateListener.setMandatoryListFields(selectCourse);
+		scheduledDateListener.setMandatoryFields(subject, announcementDescription);
 		scheduledDate.addValueChangeListener(scheduledDateListener);
+
 		EmptyFieldListener<String> announcementDescriptionListener = new EmptyFieldListener<String>();
 		announcementDescriptionListener.setSourceField(announcementDescription);
 		announcementDescriptionListener.setTargetBtn(publish);
-		announcementDescriptionListener.setMandatoryFields(subject, scheduledDate, announcementDescription);
-		announcementDescriptionListener.setMandatoryListFields(selectCourse);
+		announcementDescriptionListener.setMandatoryDateFields(scheduledDate);
+		announcementDescriptionListener.setMandatoryFields(subject, announcementDescription);
 		announcementDescription.addValueChangeListener(announcementDescriptionListener);
 
 	}

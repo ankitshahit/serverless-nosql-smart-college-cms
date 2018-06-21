@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
@@ -32,6 +33,20 @@ public class Utils {
 			return "";
 		}
 		return val.get();
+	}
+
+	public static String val(AbstractField<?> field) {
+		if (field != null && field.getOptionalValue().isPresent()) {
+			return String.valueOf(field.getValue());
+		}
+		return "";
+	}
+
+	public static Double doubleVal(AbstractField<?> field) {
+		if (field != null && field.getOptionalValue().isPresent()) {
+			return Double.valueOf(String.valueOf(field.getOptionalValue().get()));
+		}
+		return 0.0;
 	}
 
 	// TODO: refactor the method

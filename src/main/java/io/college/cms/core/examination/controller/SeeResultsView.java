@@ -60,7 +60,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 		findStudent.setRequiredIndicatorVisible(true);
 		findStudent.setVisible(true);
 		findStudent.setEnabled(true);
-		findStudent.setCaption("Find for student:");
+		findStudent.setCaption("Find by email");
 		findStudent.setIcon(VaadinIcons.INSTITUTION);
 
 		welcomeLabel.addComponents(label, findStudent);

@@ -23,7 +23,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import io.college.cms.core.courses.db.CourseModel;
-import io.college.cms.core.ui.controller.CreateCourseView;
+import io.college.cms.core.ui.controller.PublishCourseView;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -55,7 +55,7 @@ public class SeeCoursesView extends VerticalLayout implements View {
 				Window window = new Window();
 				window.setClosable(true);
 
-				CreateCourseView view = app.getBean(CreateCourseView.class);
+				PublishCourseView view = app.getBean(PublishCourseView.class);
 				view.setCourseModel(courseModel);
 				view.enter(null);
 				window.setContent(view);

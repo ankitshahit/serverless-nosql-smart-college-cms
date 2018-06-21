@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.HorizontalLayout;
@@ -105,6 +106,8 @@ public class CourseVaadinService {
 						.icon(VaadinIcons.DIPLOMA).build().textField())
 				.build();
 		dto.getSubjectName().setResponsive(true);
+		dto.setCurrentSemester(TextFieldWrapper.builder().caption("For semester").build().textField());
+
 		CheckBoxGroup<String> cbg = new CheckBoxGroup<String>();
 		cbg.setCaption("Attributes: ");
 		cbg.setItems("Theory", "Practical", "Internal", "Others");
@@ -143,13 +146,20 @@ public class CourseVaadinService {
 		CheckBox optional = new CheckBox();
 		optional.setCaption("Is subject optional?");
 		dto.setOptional(optional);
-		dto.setSaveCourse(ButtonWrapper.builder().caption("Save & Next").build().button());
+		dto.setSaveCourse(ButtonWrapper.builder().caption("Add subject").build().button());
 		dto.setReset(ButtonWrapper.builder().caption("Reset").build().button());
 		dto.getReset().setStyleName(ValoTheme.BUTTON_DANGER);
 		dto.getSaveCourse().setStyleName(ValoTheme.BUTTON_QUIET);
 		dto.getOptional().setResponsive(true);
 		dto.getSaveCourse().setResponsive(true);
 		dto.getReset().setResponsive(true);
+
+		dto.setRemoveSubject(new Button("Remove"));
+		dto.getRemoveSubject().setVisible(false);
+		dto.getRemoveSubject().setIcon(VaadinIcons.STOP);
+		dto.getRemoveSubject().addStyleNames(ValoTheme.BUTTON_DANGER);
+		dto.setCompleteDialog(new Button("Save"));
+		dto.getCompleteDialog().addStyleNames(ValoTheme.BUTTON_PRIMARY);
 		return dto;
 	}
 
@@ -185,15 +195,15 @@ public class CourseVaadinService {
 		buttonLayout.addComponent(dto.getReset());
 		buttonLayout.addComponent(dto.getSaveCourse());
 
-		firstPanelLayout.addComponents(dto.getSubjectName(), dto.getSubjectAttributes(), theoryLayout, pLayout, iLayout,
-				oLayout, buttonLayout);
+		firstPanelLayout.addComponents(dto.getSubjectName(), dto.getCurrentSemester(), dto.getSubjectAttributes(),
+				theoryLayout, pLayout, iLayout, oLayout, buttonLayout);
 		firstPanelLayout.setResponsive(true);
 		firstPart.setContent(firstPanelLayout);
 		firstPart.setResponsive(true);
 		// we require total marks and next to it passing marks on ui
 		VerticalLayout subjectAttributes = new VerticalLayout();
 		subjectAttributes.setResponsive(true);
-		subjectAttributes.addComponent(dto.getAddedSubjects());
+		subjectAttributes.addComponents(dto.getAddedSubjects(), dto.getRemoveSubject(), dto.getCompleteDialog());
 
 		secondPart.setContent(subjectAttributes);
 		secondPart.setSizeFull();

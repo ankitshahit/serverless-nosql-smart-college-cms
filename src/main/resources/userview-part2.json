@@ -1,0 +1,119 @@
+{
+	"fields": [{
+			"type": "pl",
+			"name": "panelStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "",
+			"add_to_component_method": "addComponent",
+			"alignment": "Alignment.MIDDLE_CENTER",
+			"alignment_component_name": "",
+			"alignment_method_name": "setComponentAlignment"
+		},
+		{
+			"type": "vl",
+			"name": "rootLayoutStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "panelStep2",
+			"add_to_component_method": "addComponent",
+			"alignment": "ALignment.MIDDLE_CENTER"
+		},
+		{
+			"type": "tf",
+			"name": "username",
+			"caption": "",
+			"placeholder": "First Name",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		},
+		{
+			"type": "tf",
+			"name": "middleName",
+			"caption": "",
+			"placeholder": "Middle Name",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		},
+		{
+			"type": "tf",
+			"name": "lastName",
+			"caption": "",
+			"placeholder": "Last Name",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		}, {
+			"type": "cb",
+			"name": "gender",
+			"caption": "",
+			"placeholder": "Gender",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		},
+		{
+			"type": "df",
+			"name": "dateOfBirth",
+			"caption": "",
+			"placeholder": "Date of birth",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		},
+		{
+			"type": "btn",
+			"name": "addTab",
+			"caption": "Save & Next",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		}
+	]
+}

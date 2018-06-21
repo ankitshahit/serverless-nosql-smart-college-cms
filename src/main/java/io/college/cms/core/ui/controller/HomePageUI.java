@@ -7,21 +7,16 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewBeforeLeaveEvent;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Composite;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
@@ -34,25 +29,40 @@ import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.user.controller.ConfirmUserView;
 import io.college.cms.core.user.controller.UserView;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @SpringUI(path = "/homepage")
 @UIScope
 @PushStateNavigation
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class HomePageUI extends UI {
 
 	private static final long serialVersionUID = 1L;
+	@Autowired
 	private UserView userView;
 	@Deprecated
+	@Autowired
 	private ViewAllCoursesUI viewCourses;
 	private Navigator navigator;
-	private CreateCourseView createCourse;
+	@Autowired
+	private PublishCourseView createCourse;
+	@Autowired
 	private PublishAnnouncementView publishAnnouncement;
+	@Autowired
 	private SeeAnnouncementView seeAnnouncement;
+	@Autowired
 	private SeeResultsView seeResults;
+	@Autowired
 	private SeeCoursesView seeCourses;
+	@Autowired
 	private PublishExamView publishExam;
+	@Autowired
 	private SeeExamsView seeExam;
+	@Autowired
 	private ChatFaqView chatFaq;
+	@Autowired
 	private ConfirmUserView confirmUser;
 	private HorizontalLayout cssContainer;
 
@@ -61,61 +71,40 @@ public class HomePageUI extends UI {
 		this.navigator = new Navigator(this, cssContainer);
 	}
 
-	@Autowired
-	public void setConfirmUser(ConfirmUserView confirmUser) {
-		this.confirmUser = confirmUser;
-	}
-
-	@Autowired
-	public void setUserView(UserView userView) {
-		this.userView = userView;
-	}
-
-	@Autowired
-	public void setChatFaq(ChatFaqView chatFaq) {
-		this.chatFaq = chatFaq;
-	}
-
-	@Autowired
-	public void setSeeExam(SeeExamsView seeExam) {
-		this.seeExam = seeExam;
-	}
-
-	@Autowired
-	public void setPublishExam(PublishExamView publishExam) {
-		this.publishExam = publishExam;
-	}
-
-	@Autowired
-	public void setSeeCourses(SeeCoursesView seeCourses) {
-		this.seeCourses = seeCourses;
-	}
-
-	@Autowired
-	public void setSeeResults(SeeResultsView seeResults) {
-		this.seeResults = seeResults;
-	}
-
-	@Autowired
-	public void setSeeAnnouncement(SeeAnnouncementView seeAnnouncement) {
-		this.seeAnnouncement = seeAnnouncement;
-	}
-
-	@Autowired
-	public void setViewCourses(ViewAllCoursesUI viewCourses) {
-		this.viewCourses = viewCourses;
-	}
-
-	@Autowired
-	public void setCreateCourse(CreateCourseView createCourse) {
-		this.createCourse = createCourse;
-	}
-
-	@Autowired
-	public void setPublishAnnouncement(PublishAnnouncementView publishAnnouncement) {
-		this.publishAnnouncement = publishAnnouncement;
-	}
-
+	/*
+	 * @Autowired public void setConfirmUser(ConfirmUserView confirmUser) {
+	 * this.confirmUser = confirmUser; }
+	 * 
+	 * @Autowired public void setUserView(UserView userView) { this.userView =
+	 * userView; }
+	 * 
+	 * @Autowired public void setChatFaq(ChatFaqView chatFaq) { this.chatFaq =
+	 * chatFaq; }
+	 * 
+	 * @Autowired public void setSeeExam(SeeExamsView seeExam) { this.seeExam =
+	 * seeExam; }
+	 * 
+	 * @Autowired public void setPublishExam(PublishExamView publishExam) {
+	 * this.publishExam = publishExam; }
+	 * 
+	 * @Autowired public void setSeeCourses(SeeCoursesView seeCourses) {
+	 * this.seeCourses = seeCourses; }
+	 * 
+	 * @Autowired public void setSeeResults(SeeResultsView seeResults) {
+	 * this.seeResults = seeResults; }
+	 * 
+	 * @Autowired public void setSeeAnnouncement(SeeAnnouncementView
+	 * seeAnnouncement) { this.seeAnnouncement = seeAnnouncement; }
+	 * 
+	 * @Autowired public void setViewCourses(ViewAllCoursesUI viewCourses) {
+	 * this.viewCourses = viewCourses; }
+	 * 
+	 * @Autowired public void setCreateCourse(CreateCourseView createCourse) {
+	 * this.createCourse = createCourse; }
+	 * 
+	 * @Autowired public void setPublishAnnouncement(PublishAnnouncementView
+	 * publishAnnouncement) { this.publishAnnouncement = publishAnnouncement; }
+	 */
 	@Override
 	protected void init(VaadinRequest request) {
 		registerViews();
@@ -145,6 +134,7 @@ public class HomePageUI extends UI {
 	}
 
 	HorizontalLayout sideMenuVaadin8() {
+
 		Label title = new Label("College CMS");
 		title.setStyleName(ValoTheme.MENU_TITLE);
 
@@ -174,7 +164,23 @@ public class HomePageUI extends UI {
 		confirmUser.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.CONFIRM_USER_VIEW);
 		});
-		CssLayout menu = new CssLayout(title, exams, courses, faqBot, user, confirmUser);
+		Button publishExams = new Button("Exams");
+		publishExams.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		publishExams.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.EXAM_CREATE);
+		});
+		Button publishAnnouncement = new Button("Announcement");
+		publishAnnouncement.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		publishAnnouncement.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.PUBLISH_ANNOUNCEMENT);
+		});
+		Button seeResults = new Button("Results");
+		seeResults.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		seeResults.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.SEE_RESULTS);
+		});
+		CssLayout menu = new CssLayout(title, exams, courses, faqBot, user, confirmUser, publishExams,
+				publishAnnouncement, seeResults);
 		menu.addStyleNames(ValoTheme.MENU_ROOT);
 		menu.setResponsive(true);
 		menu.setSizeFull();
@@ -191,6 +197,7 @@ public class HomePageUI extends UI {
 		return menuLayout;
 	}
 
+	@Deprecated
 	void sideMenus() {
 		SideMenu sideMenu = new SideMenu();
 		sideMenu.addMenuItem("Help!", VaadinIcons.COG, () -> {

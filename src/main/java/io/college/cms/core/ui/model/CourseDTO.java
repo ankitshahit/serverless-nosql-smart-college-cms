@@ -43,4 +43,8 @@ public class CourseDTO {
 	private ListSelect<String> addedSubjects;
 	private TextField totalSem;
 	private HorizontalLayout stepOneGroupSeatsAndSem;
+	private TextField currentSemester;
+	private Button removeSubject;
+	private Button completeDialog;
+
 }

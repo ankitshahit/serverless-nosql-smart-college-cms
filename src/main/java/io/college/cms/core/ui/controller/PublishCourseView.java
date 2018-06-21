@@ -1,7 +1,9 @@
 package io.college.cms.core.ui.controller;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -22,10 +24,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.CourseResponseService;
@@ -39,20 +41,21 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class CreateCourseView extends VerticalLayout implements View, ICoursesService {
+public class PublishCourseView extends VerticalLayout implements View, ICoursesService {
 
 	private static final long serialVersionUID = 1L;
 
 	private CourseResponseService courseResp;
-
 	private CourseVaadinService courseUIService;
 	private CourseModel courseModel;
 	private CourseDTO courseStepOne;
 	private CourseDTO courseStepTwo;
 	private VerticalLayout verticalLayout;
+	private List<String> subjects;
+	private List<SubjectModel> subjectModels;
 
 	@Autowired
-	public CreateCourseView(CourseResponseService resp, CourseVaadinService uiService) {
+	public PublishCourseView(CourseResponseService resp, CourseVaadinService uiService) {
 		this.courseResp = resp;
 		this.courseUIService = uiService;
 	}
@@ -73,6 +76,9 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 
 	@PostConstruct()
 	public void paint() {
+
+		subjects = new ArrayList<>();
+		subjectModels = new ArrayList<>();
 		verticalLayout = new VerticalLayout();
 		courseStepOne = courseUIService.courseMetaDataStep1();
 		courseStepTwo = courseUIService.courseMetadataStep2();
@@ -90,6 +96,37 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 		verticalLayout.setComponentAlignment(accordin, Alignment.MIDDLE_CENTER);
 		verticalLayout.setSizeFull();
 		addComponent(verticalLayout);
+
+		courseStepTwo.getAddedSubjects().addValueChangeListener(singleSelect -> {
+			if (!ListenerUtility.isValidSourceEvent(singleSelect.getComponent(), courseStepTwo.getAddedSubjects())) {
+				return;
+			}
+
+			courseStepTwo.getRemoveSubject()
+					.setVisible(CollectionUtils.isNotEmpty(courseStepTwo.getAddedSubjects().getSelectedItems()));
+
+		});
+		courseStepTwo.getRemoveSubject().addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), courseStepTwo.getRemoveSubject())) {
+				return;
+			}
+			if (CollectionUtils.isEmpty(courseStepTwo.getAddedSubjects().getSelectedItems())) {
+				return;
+			}
+			for (String item : courseStepTwo.getAddedSubjects().getSelectedItems()) {
+				subjects.remove(item);
+				Iterator<SubjectModel> iterator = subjectModels.iterator();
+				while (iterator.hasNext()) {
+					SubjectModel subjectModel = iterator.next();
+					if (subjectModel != null && (item != null && !item.isEmpty())
+							&& item.equalsIgnoreCase(subjectModel.getSubjectName())) {
+						iterator.remove();
+						break;
+					}
+				}
+			}
+			courseStepTwo.getAddedSubjects().setItems(subjects);
+		});
 	}
 
 	@Override
@@ -149,15 +186,17 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 			if (click.getSource() != courseStepOne.getSaveCourse()) {
 				return;
 			}
+
 			if (!courseStepOne.getMaxStudents().getOptionalValue().isPresent()
 					|| !StringUtils.isNumber(courseStepOne.getMaxStudents().getOptionalValue().get())) {
 				Notification.show("Max seats available is not provided or is not a number", Type.ERROR_MESSAGE);
 			}
-			FactoryResponse data = courseResp.saveCourseMetadata(CourseModel.builder()
-					.courseName(courseStepOne.getCourseName().getOptionalValue().get())
+
+			this.courseModel = CourseModel.builder().courseName(courseStepOne.getCourseName().getOptionalValue().get())
 					.description(courseStepOne.getCourseDescription().getOptionalValue().get())
 					.isArchive(courseStepOne.getIsArchive().getValue())
-					.maxStudentsAllowed(Long.valueOf(courseStepOne.getMaxStudents().getOptionalValue().get())).build());
+					.maxStudentsAllowed(Long.valueOf(courseStepOne.getMaxStudents().getOptionalValue().get())).build();
+			FactoryResponse data = courseResp.saveCourseMetadata(this.courseModel);
 
 			boolean result = io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
 					&& data.getResponse() instanceof String;
@@ -208,9 +247,77 @@ public class CreateCourseView extends VerticalLayout implements View, ICoursesSe
 			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), courseStepTwo.getSaveCourse())) {
 				return;
 			}
-			if (courseStepTwo.getSubjectName().getOptionalValue().isPresent()) {
-				
+			if (this.courseModel == null) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				notifi.setCaption("Error");
+				notifi.setDescription(String.valueOf("Unable to save due to no course metadata available."));
+				notifi.setIcon(VaadinIcons.STOP);
+				return;
 			}
+			SubjectModel.SubjectModelBuilder subBuilder = SubjectModel.builder();
+			if (this.subjects.contains(Utils.val(courseStepTwo.getSubjectName()))) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				notifi.setCaption("Error");
+				notifi.setDescription(String.valueOf("Subject already exists."));
+				notifi.setIcon(VaadinIcons.STOP);
+				return;
+			}
+			Set<String> items = courseStepTwo.getSubjectAttributes().getSelectedItems();
+
+			if (CollectionUtils.isEmpty(items)) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				notifi.setCaption("Error");
+				notifi.setDescription(String.valueOf("No subject attribute is selected "));
+				notifi.setIcon(VaadinIcons.STOP);
+				return;
+			}
+			subBuilder.showInternal(items.contains("Internal"));
+			subBuilder.internalMarksRequired(Utils.doubleVal(courseStepTwo.getInternalPassMarks()));
+			subBuilder.internal(Utils.doubleVal(courseStepTwo.getInternalMarks()));
+
+			subBuilder.showTheory(items.contains("Theory"));
+			subBuilder.theory(Utils.doubleVal(courseStepTwo.getTheoryMarks()));
+			subBuilder.theoryMarksRequired(Utils.doubleVal(courseStepTwo.getTheoryPassMarks()));
+
+			subBuilder.showPractical(items.contains("Practical"));
+			subBuilder.practical(Utils.doubleVal(courseStepTwo.getPracticalMarks()));
+			subBuilder.practicalMarksRequired(Utils.doubleVal(courseStepTwo.getPracticalPassMarks()));
+
+			subBuilder.showOthers(items.contains("Others"));
+			subBuilder.others(Utils.doubleVal(courseStepTwo.getOtherMarks()));
+			subBuilder.othersMarksRequired(Utils.doubleVal(courseStepTwo.getOtherPassMarks()));
+			subBuilder.subjectName(Utils.val(courseStepTwo.getSubjectName()));
+			subBuilder.semester(Utils.val(courseStepTwo.getCurrentSemester()));
+			subjects.add(subBuilder.build().getSubjectName());
+			subjectModels.add(subBuilder.build());
+			courseStepTwo.getAddedSubjects().setItems(subjects);
+		});
+		courseStepTwo.getCompleteDialog().addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), courseStepTwo.getCompleteDialog())) {
+				return;
+			}
+			if (this.courseModel == null) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				notifi.setCaption("Error");
+				notifi.setDescription(String.valueOf("Unable to save due to no course metadata available."));
+				notifi.setIcon(VaadinIcons.STOP);
+				return;
+			}
+			if (CollectionUtils.isEmpty(subjectModels)) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				notifi.setCaption("Error");
+				notifi.setDescription(String.valueOf("No subjects information provided."));
+				notifi.setIcon(VaadinIcons.STOP);
+				return;
+			}
+			this.courseModel.setSubjects(subjectModels);
+			FactoryResponse fr = courseResp.createUpdateCourse(null, courseModel);
+			Utils.showFactoryResponseMsg(fr);
 		});
 		VerticalLayout layout = courseUIService.buildCoursePageTwo(courseStepTwo);
 		layout.setSizeFull();

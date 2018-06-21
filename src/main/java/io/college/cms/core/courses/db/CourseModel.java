@@ -125,6 +125,10 @@ public class CourseModel {
 		@DynamoDBAttribute(attributeName = "student_usernames")
 		@Singular("withUsername")
 		private List<String> studentUsernames;
+
+		@Builder.Default
+		@DynamoDBAttribute(attributeName = "semester")
+		private String semester = "Sem 1";
 	}
 
 }

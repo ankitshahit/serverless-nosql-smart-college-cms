@@ -1,5 +1,9 @@
 package io.college.cms.core.user.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +17,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileResource;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -22,12 +27,17 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.Upload.SucceededListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -103,6 +113,9 @@ public class UserView extends Composite implements View {
 						Utils.val(this.userViewService.getUsername().getOptionalValue()));
 				// if the request is success means we have an existing
 				// username available in database
+				// TODO: have to compare msg for failure, in-case it says
+				// resource is not found only the would we allow the user to
+				// continue further.
 				if (fr != null && SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
 					this.userViewService.getUsername().setCaption("Username is already taken.");
 					this.userViewService.getUsername().setCaptionAsHtml(true);
@@ -152,6 +165,7 @@ public class UserView extends Composite implements View {
 				this.userViewService.getPasswordPolicy().setValue(
 						"Please enter an username, when done click on confirm.\n System will let you know of availability");
 				this.userViewService.getValidateUsername().setEnabled(false);
+				this.userViewService.getAccordin().getTab(1).setEnabled(false);
 
 			}
 			this.userViewService.getSaveNext().addClickListener(click -> {
@@ -195,6 +209,7 @@ public class UserView extends Composite implements View {
 				Notification notifi = Utils.showFactoryResponseMsg(fr);
 				if (fr != null && SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
 					notifi.addCloseListener(close -> {
+						this.userViewService.getAccordin().getTab(1).setEnabled(true);
 						this.userViewService.getAccordin().setSelectedTab(1);
 					});
 				}
@@ -238,6 +253,10 @@ public class UserView extends Composite implements View {
 		private Accordion accordin;
 		private TextField username;
 		private Button validateUsername;
+		private GridLayout gridLayout2;
+		private Button saveAttributes;
+		private Upload upload;
+		public Image profile;
 
 		private UserViewService() {
 			initUI();
@@ -330,6 +349,17 @@ public class UserView extends Composite implements View {
 			this.validateUsername = new Button("Check Availability!");
 			this.validateUsername.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 			this.validateUsername.setVisible(false);
+			this.gridLayout2 = new GridLayout();
+			this.saveAttributes = new Button("Save Attributes");
+			this.saveAttributes.addStyleNames(ValoTheme.BUTTON_PRIMARY);
+			this.profile = new Image("Profile picture");
+
+			ImageUploader receiver = new ImageUploader(this.profile);
+			this.upload = new Upload("Upload", receiver);
+			this.upload.setImmediateMode(false);
+			this.upload.setButtonCaption("Upload profile picture");
+			this.upload.addSucceededListener(receiver);
+
 			this.accordin = new Accordion();
 
 		}
@@ -406,8 +436,24 @@ public class UserView extends Composite implements View {
 
 			grid.setSpacing(true);
 			grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
+
+			// second tab in accordin elements.
+			HorizontalLayout profilePictureLayout = new HorizontalLayout(this.profile, this.upload);
+			profilePictureLayout.setSizeFull();
+			this.upload.addSucceededListener(succeed -> {
+				Notification.show("Uploaded.");
+			});
+			dbAndGender.setSizeFull();
+			dbAndGender.setComponentAlignment(this.gender, Alignment.MIDDLE_RIGHT);
+			gridLayout2.addComponents(profilePictureLayout, nameCssLayout, dbAndGender, this.saveAttributes);
+			gridLayout2.setComponentAlignment(this.saveAttributes, Alignment.BOTTOM_RIGHT);
+			gridLayout2.setSpacing(true);
+			gridLayout2.setSizeFull();
 			this.accordin.addTab(grid, "Step 1/2");
-			this.accordin.addTab(new Label("Data "), "Step 2/2");
+			this.accordin.addTab(gridLayout2, "Step 2/2");
+
+			// we need to add accordin to a panel and panel to a vertical layout
+			// to give a proper look and feel
 			this.rootPanel.setContent(this.accordin);
 			this.rootPanel.setSizeFull();
 			this.rootLayout.addComponent(this.rootPanel);
@@ -426,10 +472,7 @@ public class UserView extends Composite implements View {
 		protected void styleName() {
 
 			this.firstName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
-					ValoTheme.TEXTFIELD_LARGE/*
-												 * , ValoTheme.
-												 * TEXTFIELD_BORDERLESS
-												 */);
+					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
 
 			this.middleName.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
 					ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_BORDERLESS);
@@ -481,5 +524,38 @@ public class UserView extends Composite implements View {
 			firstNameListener.setTargetBtn(this.saveNext);
 			return firstNameListener;
 		}
+
+		// Implement both receiver that saves upload in a file and
+		// listener for successful upload
+		@SuppressWarnings("unused")
+		public static class ImageUploader implements Receiver, SucceededListener {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public File file;
+			public Image image;
+
+			public ImageUploader(Image image) {
+				this.image = image;
+			}
+
+			public OutputStream receiveUpload(String filename, String mimeType) {
+				try {
+
+					return new FileOutputStream(filename);
+				} catch (FileNotFoundException e) {
+					LOGGER.error(e.getMessage());
+				}
+				return null;
+			}
+
+			public void uploadSucceeded(SucceededEvent event) {
+
+				this.file = new File(event.getFilename());
+				this.image.setSource(new FileResource(file));
+			}
+		};
+
 	}
 }
