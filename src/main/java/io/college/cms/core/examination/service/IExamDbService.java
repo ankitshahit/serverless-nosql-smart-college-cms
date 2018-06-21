@@ -1,5 +1,7 @@
 package io.college.cms.core.examination.service;
 
+import java.util.List;
+
 import io.college.cms.core.examination.db.ExaminationModel;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ResourceDeniedException;
@@ -16,4 +18,6 @@ public interface IExamDbService {
 	void deleteExam(String examName)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException;
 
+	List<ExaminationModel> findAllExams()
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException;
 }

@@ -1,15 +1,21 @@
 package io.college.cms.core.courses.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.cache.CacheType;
+import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.dynamodbloader.model.Paginate;
+import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
 import lombok.NonNull;
@@ -26,7 +32,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	@Cacheable
+	@Cacheable("courseName")
 	public CourseModel findByCourseName(@NonNull() String courseName)
 			throws NoSuchRecordException, NullPointerException {
 		CourseModel course = null;
@@ -72,15 +78,30 @@ public class CourseDynamoService implements ICourseDbService {
 
 	}
 
-	// TODO: limit and pagination of courses is pending.
-	@Override
-	public List<CourseModel> limitAndPaginateCourses(Paginate paginate) {
+	@Cacheable(cacheNames = "courseData")
+	private List<CourseModel> loadCourses() throws ApplicationException, ValidationException {
+		List<CourseModel> scanResult = new ArrayList<>();
 		try {
-
-		} catch (Exception e) {
-
+			LOGGER.info("Db hit");
+			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+			scanResult = dbMapper.scan(CourseModel.class, scanExpression);
+			if (CollectionUtils.isEmpty(scanResult)) {
+				throw new ValidationException("No courses are available.");
+			}
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			throw ex;
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ex.getLocalizedMessage());
 		}
-		return null;
+		return scanResult;
+	}
+
+	@Override
+	public List<CourseModel> limitAndPaginateCourses(Paginate paginate)
+			throws ValidationException, ApplicationException {
+		return loadCourses();
 	}
 
 }

@@ -2,6 +2,8 @@ package io.college.cms.core.application;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 		"io.college.cms.core.dynamodbloader.*", "io.college.cms.core.dynamodbloader.service.*",
 		"io.college.cms.core.faq.*" })
 @Slf4j
+@EnableCaching()
 public class Application {
 	public static void main(String[] args) {
 		LOGGER.info("isDebugEnabled = {}", LOGGER.isDebugEnabled());
@@ -20,4 +23,5 @@ public class Application {
 
 		SpringApplication.run(Application.class, args);
 	}
+
 }

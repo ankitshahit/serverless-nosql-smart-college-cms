@@ -1,6 +1,9 @@
 package io.college.cms.core.courses.db;
 
+import java.io.Serializable;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
@@ -27,7 +30,12 @@ import lombok.Singular;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = Include.USE_DEFAULTS)
-public class CourseModel {
+public class CourseModel implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @param courseName
@@ -57,8 +65,16 @@ public class CourseModel {
 	@DynamoDBAttribute(attributeName = "description")
 	private String description;
 	@JsonProperty("current_enrolled_out_of")
-	@DynamoDBIgnore
+	@DynamoDBAttribute(attributeName = "outOfCount")
 	private String outOf;
+
+	public String getOutOf() {
+		if (StringUtils.isEmpty(outOf)) {
+			outOf = new StringBuilder().append(getEnrolledStudents()).append("/").append(getMaxStudentsAllowed())
+					.toString();
+		}
+		return outOf;
+	}
 
 	@Data
 	@Builder

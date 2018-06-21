@@ -15,14 +15,19 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.courses.db.CourseModel;
+import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.controller.PublishCourseView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,37 +39,40 @@ public class SeeCoursesView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private ApplicationContext app;
-	
+	private CourseResponseService courseResponseService;
+	private Grid<CourseModel> grid;
+
+	@Autowired
+	public SeeCoursesView(CourseResponseService service) {
+		this.courseResponseService = service;
+	}
+
 	@PostConstruct
 	public void paint() {
 		Panel panel = new Panel();
-		Grid<CourseModel> grid = new Grid<>();
+		grid = new Grid<>();
 		VerticalLayout layout = new VerticalLayout();
 		List<CourseModel> models = new ArrayList<>();
 		models.add(CourseModel.builder().courseName("hello").build());
+		FactoryResponse fr = courseResponseService.findAllCourses(null, 0L, 0L);
+		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setIcon(VaadinIcons.STOP);
+			notifi.setCaption("Error");
+			notifi.setDescription("We couldn't load course data");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			return;
+		}
+		models = (List<CourseModel>) fr.getResponse();
 		grid.setItems(models);
 		grid.addColumn(CourseModel::getCourseName).setCaption("Course name");
 		grid.addColumn(CourseModel::getOutOf).setCaption("Enrolled/Out of");
 		grid.addColumn(CourseModel::isArchive).setCaption("Archived?");
 		grid.setSizeFull();
-		grid.addSelectionListener(selection -> {
-			LOGGER.debug("Selection listener fired.");
-			if (selection.getFirstSelectedItem().isPresent()) {
-				CourseModel courseModel = selection.getFirstSelectedItem().get();
-				LOGGER.debug("course name : {}", courseModel.getCourseName());
-				Window window = new Window();
-				window.setClosable(true);
+		grid.setSelectionMode(SelectionMode.SINGLE);
 
-				PublishCourseView view = app.getBean(PublishCourseView.class);
-				view.setCourseModel(courseModel);
-				view.enter(null);
-				window.setContent(view);
-				window.setSizeFull();
-				
-				getUI().addWindow(window);
-			}
-		});
 		layout.addComponent(grid);
+		layout.setSizeFull();
 		panel.setContent(layout);
 		addComponent(panel);
 	}
@@ -73,6 +81,24 @@ public class SeeCoursesView extends VerticalLayout implements View {
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
+			grid.addSelectionListener(selection -> {
+				LOGGER.debug("Selection listener fired.");
+				if (selection.getFirstSelectedItem().isPresent()) {
+					CourseModel courseModel = selection.getFirstSelectedItem().get();
+					LOGGER.debug("course name : {}", courseModel.getCourseName());
+					PublishCourseView view = app.getBean(PublishCourseView.class);
+					view.setCourseModel(courseModel);
+					Window window = new Window();
+					window.setContent(view);
+					window.center();
+					window.setResizable(false);
+					window.addCloseListener(close -> {
+
+					});
+					getUI().addWindow(window);
+					view.enter(null);
+				}
+			});
 			LOGGER.debug("request received view : {}", event);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());

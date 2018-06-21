@@ -22,7 +22,11 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.examination.db.ExaminationModel;
+import io.college.cms.core.examination.service.ExamResponseService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -36,6 +40,12 @@ public class SeeExamsView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private ApplicationContext app;
+	private ExamResponseService examResponseService;
+
+	@Autowired
+	public SeeExamsView(ExamResponseService service) {
+		this.examResponseService = service;
+	}
 
 	@PostConstruct
 	public void paint() {
@@ -43,7 +53,16 @@ public class SeeExamsView extends VerticalLayout implements View {
 		Grid<ExaminationModel> grid = new Grid<>();
 		VerticalLayout layout = new VerticalLayout();
 		List<ExaminationModel> models = new ArrayList<>();
-
+		FactoryResponse fr = examResponseService.getExamsScheduled(null);
+		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setIcon(VaadinIcons.STOP);
+			notifi.setCaption("Error");
+			notifi.setDescription("We couldn't load course data");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			return;
+		}
+		models = (List<ExaminationModel>) fr.getResponse();
 		grid.setItems(models);
 		grid.addColumn(ExaminationModel::getExamName).setCaption("Exam name");
 		grid.addColumn(ExaminationModel::getCourseName).setCaption("Course name");
@@ -64,7 +83,6 @@ public class SeeExamsView extends VerticalLayout implements View {
 				view.enter(null);
 				window.setContent(view);
 				window.setSizeFull();
-
 				getUI().addWindow(window);
 			}
 		});

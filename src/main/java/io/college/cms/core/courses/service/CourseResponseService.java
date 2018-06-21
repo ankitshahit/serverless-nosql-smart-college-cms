@@ -116,6 +116,10 @@ public class CourseResponseService {
 	public FactoryResponse findAllCourses(HttpServletRequest request, Long startRecord, Long endRecord) {
 		FactoryResponse fr = null;
 		try {
+			ValidationHandler.throwExceptionIfNull(startRecord, "No start page number",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfNull(startRecord, "No end page number",
+					ExceptionType.VALIDATION_EXCEPTION);
 			Paginate paginate = new Paginate();
 			paginate.setStartNumber(startRecord);
 			paginate.setEndNumber(endRecord);

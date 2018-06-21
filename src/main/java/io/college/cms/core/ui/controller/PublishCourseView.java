@@ -274,6 +274,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 				notifi.setIcon(VaadinIcons.STOP);
 				return;
 			}
+
 			subBuilder.showInternal(items.contains("Internal"));
 			subBuilder.internalMarksRequired(Utils.doubleVal(courseStepTwo.getInternalPassMarks()));
 			subBuilder.internal(Utils.doubleVal(courseStepTwo.getInternalMarks()));

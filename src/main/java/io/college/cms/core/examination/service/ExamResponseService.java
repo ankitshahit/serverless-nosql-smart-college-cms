@@ -158,7 +158,36 @@ public class ExamResponseService {
 		return fr;
 	}
 
-	@Cacheable()
+	public FactoryResponse getExamsScheduled(HttpServletRequest request) {
+		FactoryResponse fr = null;
+		try {
+			List<ExaminationModel> exams = examDbService.findAllExams();
+			fr = FactoryResponse.builder().response(exams).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (IllegalArgumentException ex) {
+			LOGGER.error("One of required fields is empty.");
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ResourceDeniedException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.ACCESS_DENIED).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Application dont feel so good!")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	@Cacheable("qrForExam")
 	public void qrForStudentBySubjectNameAndType(HttpServletRequest request, HttpServletResponse response,
 			String examName, String subjectName, String type, String fileName, String username) {
 		try {

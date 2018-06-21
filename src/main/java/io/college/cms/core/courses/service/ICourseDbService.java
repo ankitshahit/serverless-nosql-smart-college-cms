@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.dynamodbloader.model.Paginate;
+import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
 
@@ -16,5 +17,5 @@ public interface ICourseDbService {
 
 	void deleteCourse(String courseName) throws ValidationException, NoSuchRecordException;
 
-	List<CourseModel> limitAndPaginateCourses(Paginate paginate) throws ValidationException;
+	List<CourseModel> limitAndPaginateCourses(Paginate paginate) throws ValidationException, ApplicationException;
 }

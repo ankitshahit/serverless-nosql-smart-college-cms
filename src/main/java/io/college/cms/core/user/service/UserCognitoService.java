@@ -117,6 +117,9 @@ public class UserCognitoService implements IUserService {
 				}
 
 			}
+		} catch (com.amazonaws.services.cognitoidp.model.UserNotFoundException ex) {
+			LOGGER.error("User not found{}", username);
+			throw new ValidationException(ex.getMessage());
 		} catch (Exception e) {
 			LOGGER.error("{} " + e.getMessage(), username);
 			throw new ApplicationException(e);
@@ -147,7 +150,7 @@ public class UserCognitoService implements IUserService {
 			LOGGER.error("validation code provided : {}", confirmation);
 			LOGGER.error("user {} couldn't be verified, validation exception", username);
 			LOGGER.error(e.getMessage());
-			throw new ValidationException(e);
+			throw new ValidationException(e.getLocalizedMessage());
 		} catch (com.amazonaws.services.cognitoidp.model.UserNotFoundException ex) {
 			LOGGER.error(ex.getMessage());
 			throw new ValidationException("No such user exists");
@@ -253,7 +256,7 @@ public class UserCognitoService implements IUserService {
 	private void createRequest(UserModel model, Collection<AttributeType> attributes)
 			throws ApplicationException, ValidationException {
 		try {
-			
+
 			SignUpRequest request = app.getBean(SignUpRequest.class);
 			request.setUsername(model.getUsername());
 			request.setUserAttributes(attributes);

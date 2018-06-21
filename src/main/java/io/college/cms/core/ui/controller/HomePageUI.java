@@ -10,12 +10,12 @@ import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -138,17 +138,29 @@ public class HomePageUI extends UI {
 		Label title = new Label("College CMS");
 		title.setStyleName(ValoTheme.MENU_TITLE);
 
-		Button exams = new Button("Exams");
+		Button exams = new Button("Schedule Exams");
 		exams.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.MENU_ITEM);
 		exams.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.EXAM_VIEW_ALL);
 		});
-		Button courses = new Button("Courses");
+		Button publishExams = new Button("Publish Exams");
+		publishExams.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		publishExams.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.EXAM_CREATE);
+		});
+		Button courses = new Button("Create Courses");
 		courses.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.MENU_ITEM);
 		courses.addClickListener(click -> {
 			// setContent(createCourse);
 			navigator.navigateTo(ViewConstants.COURSES_CREATE);
 		});
+		Button seeCourses = new Button("See Courses");
+		seeCourses.addStyleNames(ValoTheme.BUTTON_BORDERLESS, ValoTheme.MENU_ITEM);
+		seeCourses.addClickListener(click -> {
+			// setContent(createCourse);
+			navigator.navigateTo(ViewConstants.COURSES_VIEW_ALL);
+		});
+
 		Button faqBot = new Button("FAQ Bot");
 		faqBot.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
 		faqBot.addClickListener(click -> {
@@ -164,11 +176,7 @@ public class HomePageUI extends UI {
 		confirmUser.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.CONFIRM_USER_VIEW);
 		});
-		Button publishExams = new Button("Exams");
-		publishExams.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
-		publishExams.addClickListener(click -> {
-			navigator.navigateTo(ViewConstants.EXAM_CREATE);
-		});
+
 		Button publishAnnouncement = new Button("Announcement");
 		publishAnnouncement.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
 		publishAnnouncement.addClickListener(click -> {
@@ -179,17 +187,19 @@ public class HomePageUI extends UI {
 		seeResults.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.SEE_RESULTS);
 		});
-		CssLayout menu = new CssLayout(title, exams, courses, faqBot, user, confirmUser, publishExams,
+		CssLayout menu = new CssLayout(title, exams, publishExams, courses, seeCourses, faqBot, user, confirmUser,
 				publishAnnouncement, seeResults);
 		menu.addStyleNames(ValoTheme.MENU_ROOT);
 		menu.setResponsive(true);
 		menu.setSizeFull();
 		cssContainer.setResponsive(true);
+		cssContainer.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+
 		// cssContainer.setWidth("90%");
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel(menu, cssContainer);
 
-		panel.setSplitPosition(9.05F, Unit.PERCENTAGE, false);
+		panel.setSplitPosition(15.0f, Unit.PERCENTAGE, false);
 		HorizontalLayout menuLayout = new HorizontalLayout();
 		menuLayout.addComponents(panel);
 		menuLayout.setSizeFull();

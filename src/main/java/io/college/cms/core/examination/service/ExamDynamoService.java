@@ -1,5 +1,8 @@
 package io.college.cms.core.examination.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 
 import io.college.cms.core.courses.service.ICourseDbService;
 import io.college.cms.core.examination.db.ExaminationModel;
@@ -118,4 +122,23 @@ public class ExamDynamoService implements IExamDbService {
 			throw new ApplicationException(ExceptionHandler.beautifyStackTrace(ex));
 		}
 	}
+
+	@Override
+	public List<ExaminationModel> findAllExams()
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		List<ExaminationModel> scanResults = new ArrayList<>();
+		try {
+			scanResults = dbMapper.scan(ExaminationModel.class, new DynamoDBScanExpression());
+			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(scanResults), "No exams are scheduled",
+					ExceptionType.VALIDATION_EXCEPTION);
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ValidationException(ExceptionHandler.beautifyStackTrace(ex));
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			throw new ApplicationException(ExceptionHandler.beautifyStackTrace(ex));
+		}
+		return scanResults;
+	}
+
 }
