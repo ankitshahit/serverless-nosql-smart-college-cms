@@ -18,4 +18,6 @@ public interface ICourseDbService {
 	void deleteCourse(String courseName) throws ValidationException, NoSuchRecordException;
 
 	List<CourseModel> limitAndPaginateCourses(Paginate paginate) throws ValidationException, ApplicationException;
+
+	List<CourseModel> loadCourses() throws ApplicationException, ValidationException;
 }

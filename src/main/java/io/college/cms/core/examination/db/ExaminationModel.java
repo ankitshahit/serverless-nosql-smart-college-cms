@@ -7,7 +7,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,7 +27,6 @@ import lombok.Singular;
 @Data
 @DynamoDBTable(tableName = TableNames.EXAMINATION_TABLE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@DynamoDBTyped
 public class ExaminationModel {
 	@DynamoDBHashKey(attributeName = ExaminationController.EXAM_NAME)
 	private String examName;
@@ -53,7 +51,7 @@ public class ExaminationModel {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@DynamoDBDocument
-	@DynamoDBTyped
+
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class ExamSubject {
 		@DynamoDBAttribute(attributeName = CourseController.SUBJECT_NAME)
@@ -73,7 +71,6 @@ public class ExaminationModel {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@DynamoDBDocument
-	@DynamoDBTyped
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class ExamSubjectTimeTable {
 		private String key;
@@ -88,7 +85,6 @@ public class ExaminationModel {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@DynamoDBDocument
-	@DynamoDBTyped
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class StudentResult {
 		private String username;

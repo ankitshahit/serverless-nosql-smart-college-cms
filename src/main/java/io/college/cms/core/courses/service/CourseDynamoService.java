@@ -77,7 +77,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Cacheable(cacheNames = "courseData")
-	private List<CourseModel> loadCourses() throws ApplicationException, ValidationException {
+	public List<CourseModel> loadCourses() throws ApplicationException, ValidationException {
 		List<CourseModel> scanResult = new ArrayList<>();
 		try {
 			LOGGER.info("Db hit");

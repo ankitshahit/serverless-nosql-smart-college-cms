@@ -19,6 +19,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.admission.controller.ApplyAdmissionView;
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
@@ -64,6 +65,8 @@ public class HomePageUI extends UI {
 	private ChatFaqView chatFaq;
 	@Autowired
 	private ConfirmUserView confirmUser;
+	@Autowired
+	private ApplyAdmissionView applyAdmission;
 	private HorizontalLayout cssContainer;
 
 	public HomePageUI() {
@@ -71,40 +74,6 @@ public class HomePageUI extends UI {
 		this.navigator = new Navigator(this, cssContainer);
 	}
 
-	/*
-	 * @Autowired public void setConfirmUser(ConfirmUserView confirmUser) {
-	 * this.confirmUser = confirmUser; }
-	 * 
-	 * @Autowired public void setUserView(UserView userView) { this.userView =
-	 * userView; }
-	 * 
-	 * @Autowired public void setChatFaq(ChatFaqView chatFaq) { this.chatFaq =
-	 * chatFaq; }
-	 * 
-	 * @Autowired public void setSeeExam(SeeExamsView seeExam) { this.seeExam =
-	 * seeExam; }
-	 * 
-	 * @Autowired public void setPublishExam(PublishExamView publishExam) {
-	 * this.publishExam = publishExam; }
-	 * 
-	 * @Autowired public void setSeeCourses(SeeCoursesView seeCourses) {
-	 * this.seeCourses = seeCourses; }
-	 * 
-	 * @Autowired public void setSeeResults(SeeResultsView seeResults) {
-	 * this.seeResults = seeResults; }
-	 * 
-	 * @Autowired public void setSeeAnnouncement(SeeAnnouncementView
-	 * seeAnnouncement) { this.seeAnnouncement = seeAnnouncement; }
-	 * 
-	 * @Autowired public void setViewCourses(ViewAllCoursesUI viewCourses) {
-	 * this.viewCourses = viewCourses; }
-	 * 
-	 * @Autowired public void setCreateCourse(CreateCourseView createCourse) {
-	 * this.createCourse = createCourse; }
-	 * 
-	 * @Autowired public void setPublishAnnouncement(PublishAnnouncementView
-	 * publishAnnouncement) { this.publishAnnouncement = publishAnnouncement; }
-	 */
 	@Override
 	protected void init(VaadinRequest request) {
 		registerViews();
@@ -116,7 +85,7 @@ public class HomePageUI extends UI {
 	}
 
 	void registerViews() {
-		addView("", createCourse);
+		addView("", applyAdmission);
 		addView(ViewConstants.COURSES_CREATE, createCourse);
 		addView(ViewConstants.COURSES_VIEW_ALL, seeCourses);
 		addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
@@ -127,6 +96,7 @@ public class HomePageUI extends UI {
 		addView(ViewConstants.CHAT_FAQ_VIEW, chatFaq);
 		addView(ViewConstants.DEAL_WITH_USER, userView);
 		addView(ViewConstants.CONFIRM_USER_VIEW, confirmUser);
+		addView(ViewConstants.APPLY_ADMISSION, applyAdmission);
 	}
 
 	void addView(String viewName, View view) {
@@ -187,8 +157,13 @@ public class HomePageUI extends UI {
 		seeResults.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.SEE_RESULTS);
 		});
+		Button applyAdmission = new Button("Apply admission");
+		applyAdmission.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
+		applyAdmission.addClickListener(click -> {
+			navigator.navigateTo(ViewConstants.APPLY_ADMISSION);
+		});
 		CssLayout menu = new CssLayout(title, exams, publishExams, courses, seeCourses, faqBot, user, confirmUser,
-				publishAnnouncement, seeResults);
+				publishAnnouncement, seeResults, applyAdmission);
 		menu.addStyleNames(ValoTheme.MENU_ROOT);
 		menu.setResponsive(true);
 		menu.setSizeFull();

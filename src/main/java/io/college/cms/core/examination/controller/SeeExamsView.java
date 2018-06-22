@@ -24,7 +24,6 @@ import com.vaadin.ui.Window;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
-import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.examination.db.ExaminationModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import lombok.extern.slf4j.Slf4j;

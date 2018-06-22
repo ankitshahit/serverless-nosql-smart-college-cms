@@ -123,7 +123,7 @@ public class CourseResponseService {
 			Paginate paginate = new Paginate();
 			paginate.setStartNumber(startRecord);
 			paginate.setEndNumber(endRecord);
-			List<CourseModel> course = dbService.limitAndPaginateCourses(paginate);
+			List<CourseModel> course = dbService.loadCourses();
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (ValidationException | IllegalArgumentException e) {
 			LOGGER.error(e.getMessage());
