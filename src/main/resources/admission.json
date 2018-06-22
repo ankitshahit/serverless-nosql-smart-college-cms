@@ -1,0 +1,85 @@
+{
+	"fields": [{
+			"type": "pl",
+			"name": "panelStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "",
+			"add_to_component_method": "addComponent",
+			"alignment": "Alignment.MIDDLE_CENTER",
+			"alignment_component_name": "",
+			"alignment_method_name": "setComponentAlignment"
+		},
+		{
+			"type": "vl",
+			"name": "rootLayoutStep2",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"required": false,
+			"add_to_component": "panelStep2",
+			"add_to_component_method": "addComponent",
+			"alignment": "ALignment.MIDDLE_CENTER"
+		},
+		{
+			"type": "lb",
+			"name": "username",
+			"caption": "",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		},
+		{
+			"type": "cb",
+			"name": "courses",
+			"caption": "Apply for course",
+			"placeholder": "Select course",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		},
+		{
+			"type": "df",
+			"name": "courseYear",
+			"caption": "",
+			"placeholder": "Course year",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": [{
+				"type": "el",
+				"target_btn": "addTab"
+			}]
+		},
+		{
+			"type": "btn",
+			"name": "addTab",
+			"caption": "Save & Next",
+			"placeholder": "",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootlayoutStep2",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		}
+	]
+}
