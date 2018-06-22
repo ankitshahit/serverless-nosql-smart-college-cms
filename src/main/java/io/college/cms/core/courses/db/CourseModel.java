@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -67,6 +66,12 @@ public class CourseModel implements Serializable {
 	@JsonProperty("current_enrolled_out_of")
 	@DynamoDBAttribute(attributeName = "outOfCount")
 	private String outOf;
+	@DynamoDBAttribute(attributeName = "semester_abbrivation")
+	private String semesterAbbrivation;
+	@DynamoDBAttribute(attributeName = "total_semesters_in_number")
+	private Long totalSemestersInNumber;
+	@DynamoDBAttribute(attributeName = "semesters")
+	private List<String> semesters;
 
 	public String getOutOf() {
 		if (StringUtils.isEmpty(outOf)) {

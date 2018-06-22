@@ -45,7 +45,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 
 	private static final long serialVersionUID = 1L;
 
-	private CourseResponseService courseResp;
+	private CourseResponseService courseResponseService;
 	private CourseVaadinService courseUIService;
 	private CourseModel courseModel;
 	private CourseDTO courseStepOne;
@@ -56,7 +56,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 
 	@Autowired
 	public PublishCourseView(CourseResponseService resp, CourseVaadinService uiService) {
-		this.courseResp = resp;
+		this.courseResponseService = resp;
 		this.courseUIService = uiService;
 	}
 
@@ -71,7 +71,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 
 	@Autowired
 	public void setCourseResp(CourseResponseService courseResp) {
-		this.courseResp = courseResp;
+		this.courseResponseService = courseResp;
 	}
 
 	@PostConstruct()
@@ -171,7 +171,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 			DeletePopupView deleteView = new DeletePopupView();
 			deleteView.show(getUI(), clickData -> {
 				deleteView.setVisible(false);
-				FactoryResponse fr = courseResp.deleteCourse(courseStepOne.getCourseName().getValue());
+				FactoryResponse fr = courseResponseService.deleteCourse(courseStepOne.getCourseName().getValue());
 				if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
 					deleteView.getUnsuccessfullNotification(String.valueOf(fr.getResponse()));
 				} else {
@@ -196,7 +196,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 					.description(courseStepOne.getCourseDescription().getOptionalValue().get())
 					.isArchive(courseStepOne.getIsArchive().getValue())
 					.maxStudentsAllowed(Long.valueOf(courseStepOne.getMaxStudents().getOptionalValue().get())).build();
-			FactoryResponse data = courseResp.saveCourseMetadata(this.courseModel);
+			FactoryResponse data = courseResponseService.saveCourseMetadata(this.courseModel);
 
 			boolean result = io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
 					&& data.getResponse() instanceof String;
@@ -317,7 +317,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 				return;
 			}
 			this.courseModel.setSubjects(subjectModels);
-			FactoryResponse fr = courseResp.createUpdateCourse(null, courseModel);
+			FactoryResponse fr = courseResponseService.createUpdateCourse(null, courseModel);
 			Utils.showFactoryResponseMsg(fr);
 		});
 		VerticalLayout layout = courseUIService.buildCoursePageTwo(courseStepTwo);

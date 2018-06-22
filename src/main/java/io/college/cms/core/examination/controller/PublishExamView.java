@@ -1,9 +1,12 @@
 package io.college.cms.core.examination.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -32,6 +35,8 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.courses.db.CourseModel;
+import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.examination.db.ExaminationModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
@@ -46,6 +51,7 @@ public class PublishExamView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
 	private ExamResponseService examResponseService;
+	private CourseResponseService courseResponseService;
 	private ExaminationModel model;
 	private Panel panel = new Panel();
 	private VerticalLayout rootLayout = new VerticalLayout();
@@ -67,13 +73,16 @@ public class PublishExamView extends VerticalLayout implements View {
 	private Button saveExams = new Button();
 	private ExaminationModel.ExaminationModelBuilder builder;
 
-	public void setModel(ExaminationModel model) {
-		this.model = model;
-	}
+	private List<CourseModel> courses;
 
 	@Autowired
-	public void setExamResponseService(ExamResponseService examResponseService) {
-		this.examResponseService = examResponseService;
+	public PublishExamView(ExamResponseService model, CourseResponseService courseResponseService) {
+		this.examResponseService = model;
+		this.courseResponseService = courseResponseService;
+	}
+
+	public void setModel(ExaminationModel model) {
+		this.model = model;
 	}
 
 	@PostConstruct
@@ -103,11 +112,54 @@ public class PublishExamView extends VerticalLayout implements View {
 		selectCourse.setEnabled(true);
 		selectCourse.setResponsive(true);
 
+		FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
+		if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setIcon(VaadinIcons.STOP);
+			notifi.setCaption("Error");
+			notifi.setDescription("We couldn't load course data");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			return;
+		}
+		this.courses = (List<CourseModel>) courseResponse.getResponse();
+		if (CollectionUtils.isEmpty(courses)) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setIcon(VaadinIcons.STOP);
+			notifi.setCaption("Error");
+			notifi.setDescription("We couldn't load course data");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			return;
+		}
+
+		List<String> courseNames = new ArrayList<>();
+		courses.forEach(course -> {
+			courseNames.add(course.getCourseName());
+		});
+
+		selectCourse.setItems(courseNames);
+		selectCourse.addSelectionListener(select -> {
+			if (!ListenerUtility.isValidSourceEvent(select.getComponent(), this.selectCourse)) {
+				return;
+			}
+			this.selectSem.setVisible(CollectionUtils.isNotEmpty(select.getAllSelectedItems()));
+			String courseName = select.getFirstSelectedItem().get();
+			List<String> semesters = new ArrayList<>();
+			courses.forEach(course -> {
+				if (course.getCourseName().equalsIgnoreCase(courseName)) {
+					if (CollectionUtils.isEmpty(course.getSemesters())) {
+						semesters.add("Sem 1");
+					} else {
+						semesters.addAll(course.getSemesters());
+					}
+				}
+			});
+			selectSem.setItems(semesters);
+		});
 		rootLayout.addComponent(selectCourse);
 
 		selectSem.setCaption("Semester");
 		selectSem.setRequiredIndicatorVisible(true);
-		selectSem.setVisible(true);
+		selectSem.setVisible(false);
 		selectSem.setEnabled(true);
 		selectSem.setResponsive(true);
 		rootLayout.addComponent(selectSem);

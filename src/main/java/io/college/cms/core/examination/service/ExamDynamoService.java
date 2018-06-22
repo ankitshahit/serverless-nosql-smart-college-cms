@@ -34,6 +34,11 @@ public class ExamDynamoService implements IExamDbService {
 		this.dbMapper = dbMapper;
 	}
 
+	@Autowired
+	public void setCourseDbService(ICourseDbService courseDbService) {
+		this.courseDbService = courseDbService;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -74,8 +79,11 @@ public class ExamDynamoService implements IExamDbService {
 			// we won't be checking exam subjects for now
 			// TODO: have to verify
 			// each subject whether they working or not
-			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(model.getExamSubjects()),
-					"No exam subjects provided.", ExceptionType.VALIDATION_EXCEPTION);
+			/*
+			 * ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(
+			 * model.getExamSubjects()), "No exam subjects provided.",
+			 * ExceptionType.VALIDATION_EXCEPTION);
+			 */
 
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getCourseName()), "NO course provided.",
 					ExceptionType.VALIDATION_EXCEPTION);
