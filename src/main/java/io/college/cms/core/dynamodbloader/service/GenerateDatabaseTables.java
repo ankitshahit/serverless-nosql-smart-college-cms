@@ -1,8 +1,12 @@
 package io.college.cms.core.dynamodbloader.service;
 
+import java.lang.reflect.Field;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
@@ -17,8 +21,11 @@ import io.college.cms.core.configuration.AppParams;
 import io.college.cms.core.courses.db.CourseModel;
 import lombok.extern.slf4j.Slf4j;
 
+@Service
 @Slf4j
 
+
+@Order(1000)
 public class GenerateDatabaseTables {
 	private AppParams app;
 	private DynamoDB dynamoDb;
@@ -33,6 +40,7 @@ public class GenerateDatabaseTables {
 		if (!app.isGenerateDbTables()) {
 			return;
 		}
+
 		LOGGER.info("Generating tables.");
 		try {
 			create(CourseModel.class);
@@ -43,12 +51,15 @@ public class GenerateDatabaseTables {
 	}
 
 	public void create(Class<?> table) throws InterruptedException {
-
+		String attributeNameHashKey = "";
+		for (Field field : table.getDeclaredFields()) {
+			if (field.isAnnotationPresent(DynamoDBHashKey.class)) {
+				attributeNameHashKey = field.getAnnotation(DynamoDBHashKey.class).attributeName();
+			}
+		}
 		CreateTableRequest request = new CreateTableRequest()
 				.withTableName(table.getAnnotation(DynamoDBTable.class).tableName())
-				.withKeySchema(new KeySchemaElement()
-						.withAttributeName(table.getAnnotation(DynamoDBHashKey.class).attributeName())
-						.withKeyType(KeyType.HASH))
+				.withKeySchema(new KeySchemaElement().withAttributeName(attributeNameHashKey).withKeyType(KeyType.HASH))
 				.withProvisionedThroughput(
 						new ProvisionedThroughput().withReadCapacityUnits(6L).withWriteCapacityUnits(6L));
 

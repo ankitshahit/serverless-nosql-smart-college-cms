@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.CacheType;
-import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +51,7 @@ public class CourseDynamoService implements ICourseDbService {
 			LOGGER.error(e.getMessage());
 			throw new ValidationException(e);
 		}
-
+		//
 	}
 
 	@Override
