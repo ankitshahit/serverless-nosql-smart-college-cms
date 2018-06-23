@@ -91,10 +91,10 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 		courseStepOne(accordin, step2);
 		courseStepTwo(accordin, null);
 
-		accordin.setResponsive(true);
+		accordin.setResponsive(false);
 		verticalLayout.addComponent(accordin);
 		verticalLayout.setComponentAlignment(accordin, Alignment.MIDDLE_CENTER);
-		verticalLayout.setSizeFull();
+
 		addComponent(verticalLayout);
 
 		courseStepTwo.getAddedSubjects().addValueChangeListener(singleSelect -> {

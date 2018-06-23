@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -51,10 +52,10 @@ public class CourseDynamoService implements ICourseDbService {
 			LOGGER.error(e.getMessage());
 			throw new ValidationException(e);
 		}
-		//
 	}
 
 	@Override
+	@CacheEvict(value = "coursesData", key = "#course.courseName")
 	public void deleteCourse(@NonNull CourseModel course) throws ValidationException, NoSuchRecordException {
 
 		try {
@@ -66,6 +67,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
+
 	public void deleteCourse(@NonNull String courseName) throws ValidationException, NoSuchRecordException {
 		try {
 			deleteCourse(new CourseModel(courseName));
@@ -76,7 +78,7 @@ public class CourseDynamoService implements ICourseDbService {
 
 	}
 
-	@Cacheable(cacheNames = "courseData")
+	@Cacheable(cacheNames = "coursesData")
 	public List<CourseModel> loadCourses() throws ApplicationException, ValidationException {
 		List<CourseModel> scanResult = new ArrayList<>();
 		try {

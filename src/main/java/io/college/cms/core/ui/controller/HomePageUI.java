@@ -17,9 +17,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-import io.college.cms.core.admission.controller.ApplyAdmissionView;
+import io.college.cms.core.admission.controller.PublishAdmissionView;
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
@@ -66,11 +67,11 @@ public class HomePageUI extends UI {
 	@Autowired
 	private ConfirmUserView confirmUser;
 	@Autowired
-	private ApplyAdmissionView applyAdmission;
-	private HorizontalLayout cssContainer;
+	private PublishAdmissionView applyAdmission;
+	private VerticalLayout cssContainer;
 
 	public HomePageUI() {
-		this.cssContainer = new HorizontalLayout();
+		this.cssContainer = new VerticalLayout();
 		this.navigator = new Navigator(this, cssContainer);
 	}
 
@@ -176,7 +177,9 @@ public class HomePageUI extends UI {
 
 		panel.setSplitPosition(15.0f, Unit.PERCENTAGE, false);
 		HorizontalLayout menuLayout = new HorizontalLayout();
+
 		menuLayout.addComponents(panel);
+		menuLayout.setComponentAlignment(panel, Alignment.MIDDLE_RIGHT);
 		menuLayout.setSizeFull();
 		menuLayout.setResponsive(true);
 		return menuLayout;
