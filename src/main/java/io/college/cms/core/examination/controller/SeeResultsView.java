@@ -20,6 +20,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -79,7 +80,9 @@ public class SeeResultsView extends VerticalLayout implements View {
 		HorizontalLayout welcomeLabel = new HorizontalLayout();
 		welcomeLabel.setSizeFull();
 		Label label = new Label();
-		label.setCaption("<h2>See Results</h2>");
+		label.setCaption("<h1><center>View Results</center></h1>");
+		label.setValue(
+				"Filter & download report in PDF/Excel format, for additional configuration view documentation.");
 		label.setCaptionAsHtml(true);
 
 		findStudent.setPlaceholder("Email@Address.com");
@@ -91,7 +94,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 
 		welcomeLabel.addComponents(label, findStudent);
 		welcomeLabel.setComponentAlignment(findStudent, Alignment.TOP_RIGHT);
-		rootLayout.addComponent(welcomeLabel);
+		//rootLayout.addComponent(welcomeLabel);
 
 		this.selectCourse.setCaption("Select course to view results for: ");
 		this.selectCourse.setPlaceholder("Type starting letter of course name");
@@ -115,7 +118,12 @@ public class SeeResultsView extends VerticalLayout implements View {
 		this.selectSem.addStyleNames(ValoTheme.COMBOBOX_LARGE);
 		this.selectSem.setSizeFull();
 
-		rootLayout.addComponents(this.selectCourse, this.selectSem, this.selectSubject);
+		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(new VerticalLayout(new Label("Filter by subject"),
+				this.selectCourse, this.selectSem, this.selectSubject),
+				new VerticalLayout(new Label("Filter by student"), findStudent));
+		splitPanel.setSplitPosition(62.0f);
+
+		rootLayout.addComponents(splitPanel);
 		reset.setStyleName(ValoTheme.BUTTON_DANGER);
 		rootLayout.addComponent(reset);
 
@@ -131,6 +139,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 		rootLayout.setComponentAlignment(btnLayout, Alignment.BOTTOM_RIGHT);
 
 		panel.setWidth("80%");
+
 		ClearValuesListener<String> clearValues = new ClearValuesListener<>();
 		clearValues.setMandatoryFields(findStudent);
 		clearValues.setMandatoryListFields(selectCourse, selectSem, selectSubject);
@@ -162,7 +171,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 				return;
 			}
 			this.selectSem.setVisible(this.selectCourse.getOptionalValue().isPresent());
-			if (!this.selectSem.isVisible()) {
+			if (!this.selectCourse.getOptionalValue().isPresent()) {
 				return;
 			}
 			List<String> semesters = new ArrayList<>();
@@ -211,6 +220,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 			});
 			if (CollectionUtils.isEmpty(subjectNames)) {
 				Utils.showErrorNotification("No subjects are available for the sem. Contact admin for help!");
+				this.selectSubject.setVisible(false);
 				return;
 			}
 			this.selectSubject.setItems(subjectNames);
