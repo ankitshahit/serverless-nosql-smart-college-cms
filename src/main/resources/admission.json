@@ -2,7 +2,7 @@
 	"fields": [
 		{
 			"type": "pl",
-			"name": "panelStep2",
+			"name": "rootPanel",
 			"caption": "",
 			"placeholder": "",
 			"icon": "",
@@ -15,125 +15,100 @@
 		},
 		{
 			"type": "vl",
-			"name": "rootLayoutStep2",
+			"name": "rootLayout",
 			"caption": "",
 			"placeholder": "",
 			"icon": "",
 			"required": false,
-			"add_to_component": "panelStep2",
+			"add_to_component": "rootPanel",
 			"add_to_component_method": "addComponent",
 			"alignment": "ALignment.MIDDLE_CENTER"
 		},
 		{
-			"type": "hl",
-			"name": "horizontalLayout1",
+			"type": "tf",
+			"name": "usernameField",
 			"caption": "",
-			"placeholder": "",
-			"icon": "",
-			"required": false,
-			"add_to_component": "rootLayoutStep2",
-			"add_to_component_method": "addComponent",
-			"alignment": "ALignment.MIDDLE_CENTER"
-		},
-		{
-			"type": "vl",
-			"name": "rootLayoutStep2FirstPart",
-			"caption": "",
-			"placeholder": "",
-			"icon": "",
-			"required": false,
-			"add_to_component": "horizontalLayout1",
-			"add_to_component_method": "addComponent",
-			"alignment": "ALignment.MIDDLE_CENTER"
-		},
-		{
-			"type": "vl",
-			"name": "rootLayoutStep2SecondPart",
-			"caption": "",
-			"placeholder": "",
-			"icon": "",
-			"required": false,
-			"add_to_component": "horizontalLayout1",
-			"add_to_component_method": "addComponent",
-			"alignment": "ALignment.MIDDLE_CENTER"
-		},
-		{
-			"type": "lb",
-			"name": "message",
-			"caption": "",
-			"placeholder": "",
-			"icon": "",
-			"visible": true,
-			"enabled": true,
-			"required": false,
-			"add_to_component": "rootlayoutStep2",
-			"add_to_component_method": "addComponent",
-			"listeners": []
-		},
-		{
-			"type": "cb",
-			"name": "courses",
-			"caption": "Apply for course",
-			"placeholder": "Select course",
+			"placeholder": "username or email id",
 			"icon": "",
 			"visible": true,
 			"enabled": true,
 			"required": true,
-			"add_to_component": "rootLayoutStep2FirstPart",
+			"add_to_component": "rootLayout",
 			"add_to_component_method": "addComponent",
 			"listeners": [
 				{
 					"type": "el",
-					"target_btn": "addTab"
+					"target_btn": "loginBtn"
 				}
 			]
 		},
 		{
-			"type": "cb",
-			"name": "semester",
-			"caption": "Select semester",
-			"placeholder": "Select semester",
-			"icon": "",
-			"visible": true,
-			"enabled": true,
-			"required": true,
-			"add_to_component": "rootLayoutStep2FirstPart",
-			"add_to_component_method": "addComponent",
-			"listeners": [
-				{
-					"type": "el",
-					"target_btn": "addTab"
-				}
-			]
-		},
-		{
-			"type": "df",
-			"name": "courseYear",
+			"type": "pf",
+			"name": "passwordField",
 			"caption": "",
-			"placeholder": "Course year",
+			"placeholder": "password",
 			"icon": "",
 			"visible": true,
 			"enabled": true,
 			"required": true,
-			"add_to_component": "rootLayoutStep2FirstPart",
+			"add_to_component": "rootLayout",
 			"add_to_component_method": "addComponent",
 			"listeners": [
 				{
 					"type": "el",
-					"target_btn": "addTab"
+					"target_btn": "loginBtn"
 				}
 			]
 		},
 		{
 			"type": "btn",
-			"name": "addTab",
-			"caption": "Save & Next",
+			"name": "signupBtn",
+			"caption": "New user?",
+			"placeholder": "Signup",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		},
+		{
+			"type": "btn",
+			"name": "forgotPasswordBtn",
+			"caption": "Forgot password?",
+			"placeholder": "Forgot password?",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		},
+		{
+			"type": "btn",
+			"name": "confirmAccountBtn ",
+			"caption": "Confirm user",
+			"placeholder": "confirm user",
+			"icon": "",
+			"visible": true,
+			"enabled": true,
+			"required": true,
+			"add_to_component": "rootLayout",
+			"add_to_component_method": "addComponent",
+			"listeners": []
+		},
+		{
+			"type": "btn",
+			"name": "loginBtn",
+			"caption": "Login",
 			"placeholder": "",
 			"icon": "",
 			"visible": true,
 			"enabled": true,
 			"required": true,
-			"add_to_component": "rootlayoutStep2",
+			"add_to_component": "rootLayout",
 			"add_to_component_method": "addComponent",
 			"listeners": []
 		}

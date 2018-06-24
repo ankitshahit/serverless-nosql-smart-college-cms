@@ -158,7 +158,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		this.courses.setRequiredIndicatorVisible(true);
 		this.courses.setVisible(true);
 		this.courses.setEnabled(true);
-		this.courses.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
+		this.courses.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER, ValoTheme.COMBOBOX_LARGE);
 
 		verticalLayoutFirstPart.addComponent(courses);
 		semester.setCaption("Select semester");
@@ -166,7 +166,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		semester.setRequiredIndicatorVisible(true);
 		semester.setVisible(true);
 		semester.setEnabled(true);
-		semester.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
+		semester.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER, ValoTheme.COMBOBOX_LARGE);
 		verticalLayoutFirstPart.addComponent(semester);
 
 		this.fees.addStyleNames(ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_INLINE_ICON);

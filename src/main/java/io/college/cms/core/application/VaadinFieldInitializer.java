@@ -30,8 +30,7 @@ public class VaadinFieldInitializer {
 	public static void main(String[] args) throws JsonParseException, JsonMappingException, IOException {
 
 		@Cleanup
-		Scanner sc = new Scanner(new File(
-				"C:\\Users\\1054480\\git\\serverless-nosql-smart-college-cms\\src\\main\\resources\\userview-part2.json"));
+		Scanner sc = new Scanner(new File("F:\\workspace\\college.io\\src\\main\\resources\\admission.json"));
 		StringBuilder sb = new StringBuilder();
 		while (sc.hasNextLine())
 			sb.append(sc.nextLine());
@@ -241,7 +240,8 @@ public class VaadinFieldInitializer {
 						"new VerticalLayout()"), CK("CheckBox", "new CheckBox()"), CBG("CheckBoxGroup<String>",
 								"new CheckBoxGroup<String>()"), CB("ComboBox<String>", "new ComboBox<String>()"), PL(
 										"Panel", "new Panel()"), DF("DateField", "new DateField()"), RTA("RichTextArea",
-												"new RichTextArea()"), GD("Grid<String>", "new Grid<>()");
+												"new RichTextArea()"), GD("Grid<String>",
+														"new Grid<>()"), PF("PasswordField", "new PasswordField()");
 		private String className;
 		private String constructor;
 

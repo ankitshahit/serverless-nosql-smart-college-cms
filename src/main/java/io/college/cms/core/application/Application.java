@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 		"io.college.cms.core.examination.*", "io.college.cms.core.courses.*", "io.college.cms.core.application.*",
 		"io.college.cms.core.application.automation.*", "io.college.cms.core.ui.*",
 		"io.college.cms.core.dynamodbloader.*", "io.college.cms.core.dynamodbloader.service.*",
-		"io.college.cms.core.faq.*", "io.college.cms.core.admission.*" })
+		"io.college.cms.core.faq.*", "io.college.cms.core.admission.*", "io.college.cms.core.ui.services.*" })
 @Slf4j
 @EnableCaching()
 public class Application {
