@@ -167,9 +167,9 @@ public class ConfigureAdmissionActionView extends VerticalLayout implements View
 
 		protected void initStyles() {
 			dto.getClearBtn().addStyleNames(ValoTheme.BUTTON_DANGER);
-			dto.getCoursesList().addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER, ValoTheme.COMBOBOX_HUGE);
+			dto.getCoursesList().addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER, ValoTheme.COMBOBOX_LARGE);
 			dto.getCoursesList().setWidth("100%");
-			dto.getUsersList().addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER, ValoTheme.COMBOBOX_HUGE);
+			dto.getUsersList().addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER, ValoTheme.COMBOBOX_LARGE);
 			dto.getUsersList().setWidth("100%");
 
 			dto.getUsersList().setItemIconGenerator(new IconGenerator<String>() {
