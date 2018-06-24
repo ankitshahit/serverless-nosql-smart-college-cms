@@ -238,7 +238,7 @@ public class ConfigureAdmissionActionView extends VerticalLayout implements View
 					return;
 				}
 				if (this.addedUsers.contains(username)) {
-					Utils.showErrorNotification(String.format("username %s is already added. "));
+					Utils.showErrorNotification(String.format("username %s is already added. ", username));
 					return;
 				}
 				this.addedUsers.add(username);
