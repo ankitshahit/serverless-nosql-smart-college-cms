@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -18,11 +19,13 @@ import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
@@ -33,9 +36,14 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
+import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.ui.builder.DeletePopupView;
+import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +56,15 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	private List<CourseModel> models;
 	private TextField fees;
 	private RichTextArea additionalDetails;
+	private CheckBox verifyFeesReceipt;
+	private Button feesHelpBtn;
+	private ListSelect<String> subjects;
+	private ComboBox<String> courses;
+	private CheckBox showEnrolledOutOf;
+	private Button showEnrolledHelpBtn;
+	private Label maxStudents;
+	private Label totalEnrolled;
+	private Button disableAdmissions;
 
 	@Autowired
 	public PublishAdmissionView(CourseResponseService courseResponseService) {
@@ -57,85 +74,92 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	@PostConstruct
 	public void paint() {
 		Panel rootPanel = new Panel();
+		rootPanel.setSizeFull();
+
 		VerticalLayout rootLayout = new VerticalLayout();
 		HorizontalLayout firstLayout = new HorizontalLayout();
 		VerticalLayout verticalLayoutFirstPart = new VerticalLayout();
 		VerticalLayout verticalLayoutSecondPart = new VerticalLayout();
+		this.disableAdmissions = new Button("Disable");
+		this.disableAdmissions.addStyleNames(ValoTheme.BUTTON_DANGER);
+		this.disableAdmissions.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.showEnrolledHelpBtn)) {
+				return;
+			}
+			DeletePopupView deleteAction = new DeletePopupView();
+			deleteAction.center();
+			deleteAction.show(getUI(), event -> {
+				if (!ListenerUtility.isValidSourceEvent(event.getComponent(), deleteAction.getDelete())) {
+					return;
+				}
+				// TODO: implement apply admission page.
+			});
+			getUI().addWindow(deleteAction);
+		});
+		this.showEnrolledOutOf = new CheckBox("Show 'enrolled / out of' <br/>to students? ");
+		this.showEnrolledOutOf.setCaptionAsHtml(true);
+		this.showEnrolledOutOf.setResponsive(true);
+		this.maxStudents = new Label();
+		this.maxStudents.setCaptionAsHtml(true);
+		this.maxStudents.setCaption("<b>Max Intake</b>: N/A");
+		this.totalEnrolled = new Label();
+		this.totalEnrolled.setCaption("<b>Enrolled</b>: N/A");
+		this.totalEnrolled.setCaptionAsHtml(true);
+		this.showEnrolledHelpBtn = new Button();
+		this.showEnrolledHelpBtn.addStyleNames(ValoTheme.BUTTON_QUIET, ValoTheme.BUTTON_ICON_ONLY);
+		this.showEnrolledHelpBtn.setIcon(VaadinIcons.QUESTION);
+		this.showEnrolledHelpBtn.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.showEnrolledHelpBtn)) {
+				return;
+			}
+			getUI().addWindow(new MessagePopupView("What's this?",
+					"Enabling allows students to view total number of seats that are enrolled <br/>at the time of applying for admission."));
+		});
+		this.courses = new ComboBox<String>();
+		this.courses.setSizeFull();
 		this.fees = new TextField();
 		this.additionalDetails = new RichTextArea();
-		Label message = new Label();
-		/*
-		 * message.setCaption(
-		 * "You're about to apply for course(s), once applied your application will be reviewed and a notification will be sent once a decision is taken."
-		 * );
-		 */ message.setCaptionAsHtml(true);
+		this.verifyFeesReceipt = new CheckBox("Require fees using CMS?");
+		this.feesHelpBtn = new Button();
+		this.feesHelpBtn.setCaption("Caption");
+		this.feesHelpBtn.setDescription("This is description");
+		this.feesHelpBtn.setIcon(VaadinIcons.QUESTION);
+		this.feesHelpBtn.addStyleNames(ValoTheme.BUTTON_QUIET, ValoTheme.BUTTON_ICON_ONLY);
+		this.subjects = new ListSelect<>("Subjects");
+		this.subjects.setItems("");
+		this.subjects.setWidth("100%");
+		this.subjects.setEnabled(false);
 
-		ComboBox<String> courses = new ComboBox<String>();
 		ComboBox<String> semester = new ComboBox<String>();
+		semester.setSizeFull();
 		DateField courseYear = new DateField();
 		Button addTab = new Button();
 		addComponent(rootPanel);
-		setComponentAlignment(rootPanel, Alignment.MIDDLE_CENTER);
+		setComponentAlignment(rootPanel, Alignment.TOP_RIGHT);
 		rootPanel.setContent(rootLayout);
 		rootLayout.addComponent(firstLayout);
 
 		HorizontalSplitPanel horizontalSplitPanel = new HorizontalSplitPanel();
 		horizontalSplitPanel.addComponents(verticalLayoutFirstPart, verticalLayoutSecondPart);
-		horizontalSplitPanel.setSplitPosition(60.0f);
+		horizontalSplitPanel.setSplitPosition(62.0f);
+		horizontalSplitPanel.setLocked(false);
+
 		firstLayout.addComponent(horizontalSplitPanel);
 		firstLayout.setSizeFull();
+
+		HorizontalLayout feesLayout = new HorizontalLayout(this.verifyFeesReceipt, this.feesHelpBtn);
+		verticalLayoutSecondPart.addComponents(feesLayout);
+		verticalLayoutSecondPart.addComponents(new HorizontalLayout(this.showEnrolledOutOf, this.showEnrolledHelpBtn),
+				this.maxStudents, this.totalEnrolled);
 		setSizeFull();
 		setComponentAlignment(rootPanel, Alignment.MIDDLE_RIGHT);
-		message.setVisible(true);
-		message.setEnabled(true);
-		rootLayout.addComponent(message);
-		FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-		if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
-		models = (List<CourseModel>) courseResponse.getResponse();
-		if (CollectionUtils.isEmpty(models)) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
 
-		List<String> courseNames = new ArrayList<>();
-		models.forEach(course -> {
-			courseNames.add(course.getCourseName());
-		});
-		courses.setCaption("Apply for course");
-		courses.setPlaceholder("Select course");
-		courses.setRequiredIndicatorVisible(true);
-		courses.setVisible(true);
-		courses.setEnabled(true);
-		courses.setItems(courseNames);
-		courses.addSelectionListener(select -> {
-			if (!ListenerUtility.isValidSourceEvent(select.getComponent(), courses)) {
-				return;
-			}
-			semester.setVisible(CollectionUtils.isNotEmpty(select.getAllSelectedItems()));
-			String courseName = select.getFirstSelectedItem().get();
-			List<String> semesters = new ArrayList<>();
-			models.forEach(course -> {
-				if (course.getCourseName().equalsIgnoreCase(courseName)) {
-					if (CollectionUtils.isEmpty(course.getSemesters())) {
-						semesters.add("Sem 1");
-					} else {
-						semesters.addAll(course.getSemesters());
-					}
-				}
-			});
-			semester.setItems(semesters);
-		});
+		this.courses.setCaption("Apply for course");
+		this.courses.setPlaceholder("Select course");
+		this.courses.setRequiredIndicatorVisible(true);
+		this.courses.setVisible(true);
+		this.courses.setEnabled(true);
+
 		verticalLayoutFirstPart.addComponent(courses);
 		semester.setCaption("Select semester");
 		semester.setPlaceholder("Select semester");
@@ -144,23 +168,102 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		semester.setEnabled(true);
 		verticalLayoutFirstPart.addComponent(semester);
 
-		this.fees.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_INLINE_ICON);
+		this.fees.addStyleNames(ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_INLINE_ICON);
 		this.additionalDetails.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_LARGE,
 				ValoTheme.TEXTFIELD_INLINE_ICON);
 
 		this.additionalDetails.setCaptionAsHtml(true);
 		this.additionalDetails.setCaption(
 				"<p>Provide additional details that <br/>might be required or <br/>that can be used by student.</p>");
+		this.fees.setValue("Rs. ");
 		this.fees.setCaptionAsHtml(true);
 		this.fees.setCaption("Provide details about fees <br/>to be shown to student.");
 		this.fees.setSizeFull();
-		verticalLayoutFirstPart.addComponents(this.fees, this.additionalDetails);
-		addTab.setCaption("Save & Next");
 
+		verticalLayoutFirstPart.addComponents(this.fees, this.additionalDetails);
+		verticalLayoutSecondPart.addComponent(this.subjects);
+		addTab.setCaption("Save");
+		addTab.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 		addTab.setVisible(true);
-		addTab.setEnabled(true);
-		rootLayout.addComponent(addTab);
+		addTab.setEnabled(false);
+		HorizontalLayout actionButtonLayout = new HorizontalLayout();
+		actionButtonLayout.addComponents(this.disableAdmissions, addTab);
+		actionButtonLayout.setSpacing(true);
+		rootLayout.addComponent(actionButtonLayout);
+		rootLayout.setComponentAlignment(actionButtonLayout, Alignment.BOTTOM_RIGHT);
+		// adding listeners throughout page to listen for event and execute
+		// their snippet.
+		this.courses.addSelectionListener(select -> {
+			if (!ListenerUtility.isValidSourceEvent(select.getComponent(), courses)) {
+				return;
+			}
+			List<String> semesters = new ArrayList<>();
+			List<SubjectModel> courseSubjectModel = new ArrayList<>();
+			List<String> subjectNames = new ArrayList<>();
+			FactoryResponse fr = null;
+			// this.subjects.setItems();
+			semester.setVisible(CollectionUtils.isNotEmpty(select.getAllSelectedItems()));
+			String courseName = select.getFirstSelectedItem().get();
+			courses.setValue(courseName);
+
+			fr = courseResponseService.findByCourseName(null, courseName);
+			Utils.showFactoryResponseOnlyError(fr);
+			if (Utils.isError(fr)) {
+				return;
+			}
+			CourseModel course = (CourseModel) fr.getResponse();
+			if (Utils.isNull(course)) {
+				return;
+			}
+			this.maxStudents.setCaption(new StringBuilder().append("<b>Max Intake:</b> ")
+					.append(course.getMaxStudentsAllowed()).toString());
+			this.totalEnrolled.setCaption(
+					new StringBuilder().append("<b>Enrolled:</b> ").append(course.getEnrolledStudents()).toString());
+			if (course.getCourseName().equalsIgnoreCase(courseName)) {
+				if (CollectionUtils.isEmpty(course.getSemesters())) {
+					semesters.add("Sem 1");
+				} else {
+					semesters.addAll(course.getSemesters());
+				}
+				courseSubjectModel.addAll(course.getSubjects());
+			}
+
+			semester.setItems(semesters);
+			if (CollectionUtils.isEmpty(courseSubjectModel)) {
+				return;
+			}
+			courseSubjectModel.forEach(subject -> {
+				subjectNames.add(new StringBuilder().append(subject.getSubjectName())
+						.append(subject.isOptional() ? " (Opt)" : " (Req)").toString());
+			});
+			this.subjects.setItems(subjectNames);
+
+		});
+		this.fees.addValueChangeListener(value -> {
+			if (!ListenerUtility.isValidSourceEvent(value.getComponent(), this.fees)) {
+				return;
+			}
+			if (!this.fees.getOptionalValue().isPresent()) {
+				this.fees.setValue("Rs. ");
+			} else if (!this.fees.getValue().startsWith("Rs. ")) {
+				this.fees.setValue("Rs. ");
+			}
+			if (!StringUtils
+					.isNumber(this.fees.getValue().substring("Rs. ".length() - 1, this.fees.getValue().length() - 1))) {
+				ElementHelper.addComponentError(this.fees, "Fees has to be in numeric value.");
+				this.fees.setValue("Rs. ");
+			} else {
+				ElementHelper.removeComponentError(this.fees);
+			}
+		});
+		this.feesHelpBtn.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.feesHelpBtn)) {
+				return;
+			}
+			MessagePopupView messageView = new MessagePopupView("What's this?",
+					"By checking fees checkbox, <br/>CMS requires a verification or payment of fees online whichever is suitable and available <br/>before enrolling into course. ");
+			getUI().addWindow(messageView);
+		});
 		EmptyFieldListener<String> coursesListener = new EmptyFieldListener<String>();
 		coursesListener.setSourceListField(courses);
 		coursesListener.setTargetBtn(addTab);
@@ -180,12 +283,36 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		semesterListener.setMandatoryFields(courseYear);
 		semesterListener.setMandatoryListFields(courses, semester);
 		semester.addValueChangeListener(semesterListener);
-
+		setSpacing(true);
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
+		FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
+
+		if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setIcon(VaadinIcons.STOP);
+			notifi.setCaption("Error");
+			notifi.setDescription("We couldn't load course data");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			return;
+		}
+		this.models = (List<CourseModel>) courseResponse.getResponse();
+		if (CollectionUtils.isEmpty(this.models)) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setIcon(VaadinIcons.STOP);
+			notifi.setCaption("Error");
+			notifi.setDescription("We couldn't load course data");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			return;
+		}
+		List<String> courseNames = new ArrayList<>();
+		this.models.forEach(course -> {
+			courseNames.add(course.getCourseName());
+		});
+		this.courses.setItems(courseNames);
 	}
 
 	@Override

@@ -49,6 +49,15 @@ public class Utils {
 		return 0.0;
 	}
 
+	public static Notification showErrorNotification(String description) {
+		Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+		notifi.setDelayMsec(Notification.DELAY_FOREVER);
+		notifi.setCaption("Error");
+		notifi.setDescription(description);
+		notifi.setIcon(VaadinIcons.STOP);
+		return notifi;
+	}
+
 	// TODO: refactor the method
 	public static Notification showFactoryResponseMsg(FactoryResponse fr) {
 		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
@@ -66,5 +75,32 @@ public class Utils {
 			notifi.setIcon(VaadinIcons.CHECK);
 			return notifi;
 		}
+	}
+
+	public static void showFactoryResponseOnlyError(FactoryResponse fr) {
+		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			notifi.setCaption("Error");
+			notifi.setDescription(String.valueOf(fr.getResponse()));
+			notifi.setIcon(VaadinIcons.STOP);
+		}
+		return;
+	}
+
+	public static boolean isError(FactoryResponse fr) {
+		return fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage();
+	}
+
+	public static boolean isSuccess(FactoryResponse fr) {
+		return !isError(fr);
+	}
+
+	public static boolean isNull(Object val) {
+		return val == null;
+	}
+
+	public static boolean isNotNull(Object val) {
+		return !isNull(val);
 	}
 }

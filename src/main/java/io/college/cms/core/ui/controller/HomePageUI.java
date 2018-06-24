@@ -158,7 +158,7 @@ public class HomePageUI extends UI {
 		seeResults.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.SEE_RESULTS);
 		});
-		Button applyAdmission = new Button("Apply admission");
+		Button applyAdmission = new Button("Open Admissions");
 		applyAdmission.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED, ValoTheme.MENU_ITEM);
 		applyAdmission.addClickListener(click -> {
 			navigator.navigateTo(ViewConstants.APPLY_ADMISSION);

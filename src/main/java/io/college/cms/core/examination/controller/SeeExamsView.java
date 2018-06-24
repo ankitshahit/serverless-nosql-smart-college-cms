@@ -103,6 +103,7 @@ public class SeeExamsView extends VerticalLayout implements View {
 					"We were unable to process request for some reason! Please try again later or contact admin");
 			notifi.setDelayMsec(Notification.DELAY_FOREVER);
 		}
+
 	}
 
 	@Override

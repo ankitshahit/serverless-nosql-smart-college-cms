@@ -435,6 +435,7 @@ public class UserView extends Composite implements View {
 					buttonCssLayout);
 
 			grid.setSpacing(true);
+			grid.setComponentAlignment(this.validateUsername, Alignment.BOTTOM_RIGHT);
 			grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
 
 			// second tab in accordin elements.

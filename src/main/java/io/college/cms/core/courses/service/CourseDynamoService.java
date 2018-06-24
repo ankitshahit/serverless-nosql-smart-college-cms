@@ -45,6 +45,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
+	@CacheEvict(value = { "coursesData", "courseName" }, key = "#course.courseName")
 	public void saveCourse(@NonNull CourseModel course) throws ValidationException {
 		try {
 			dbMapper.save(course);

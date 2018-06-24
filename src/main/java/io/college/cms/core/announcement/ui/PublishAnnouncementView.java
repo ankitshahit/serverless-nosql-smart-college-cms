@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +21,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
@@ -34,16 +36,18 @@ import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
 public class PublishAnnouncementView extends VerticalLayout implements View {
-
+	private static final float SPLITTER_POSITION = 65.0F;
 	private static final long serialVersionUID = 1L;
 	private CourseResponseService courseResponseService;
 	private List<CourseModel> models;
+	private ComboBox<String> selectCourse;
 
 	@Autowired
 	public PublishAnnouncementView(CourseResponseService courseResponseService) {
@@ -55,68 +59,69 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		Panel panel = new Panel();
 		VerticalLayout rootLayout = new VerticalLayout();
 		CheckBox announceToAll = new CheckBox();
-		ComboBox<String> selectCourse = new ComboBox<String>();
-		HorizontalLayout horizontalSubAndDate = new HorizontalLayout();
+		selectCourse = new ComboBox<String>();
 		TextField subject = new TextField();
 		DateField scheduledDate = new DateField();
 		RichTextArea announcementDescription = new RichTextArea();
 		Button publish = new Button();
-		addComponent(panel);
-		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
-		panel.setContent(rootLayout);
+
 		announceToAll.setCaption("Send announcement to all?");
 		announceToAll.setVisible(true);
 		announceToAll.setEnabled(true);
-		rootLayout.addComponent(announceToAll);
-		FactoryResponse fr = courseResponseService.findAllCourses(null, 0L, 0L);
-		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
-		models = (List<CourseModel>) fr.getResponse();
-		List<String> courseNames = new ArrayList<>();
-		models.forEach(course -> {
-			courseNames.add(course.getCourseName());
-		});
-		selectCourse.setItems(courseNames);
-		selectCourse.setCaption("Select course to send announcement to:");
-		selectCourse.setPlaceholder("Type starting letter of course name");
-		selectCourse.setRequiredIndicatorVisible(true);
-		selectCourse.setVisible(true);
-		selectCourse.setEnabled(true);
+
+		this.selectCourse.setCaption("Select course to send announcement to:");
+		this.selectCourse.setPlaceholder("Type starting letter of course name");
+		this.selectCourse.setRequiredIndicatorVisible(true);
+		this.selectCourse.setVisible(true);
+		this.selectCourse.setEnabled(true);
+		this.selectCourse.setSizeFull();
+		this.selectCourse.addStyleNames(ValoTheme.COMBOBOX_LARGE);
 		// selectCourse.setItems(models);
-		rootLayout.addComponent(selectCourse);
-		rootLayout.addComponent(horizontalSubAndDate);
-		subject.setCaption("Subject");
+
+		subject.setCaption("Title");
 		subject.setPlaceholder("Write 100 characters at max");
 		subject.setRequiredIndicatorVisible(true);
 		subject.setVisible(true);
 		subject.setEnabled(true);
 		subject.setMaxLength(100);
-		subject.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS);
+		subject.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_LARGE,
+				ValoTheme.TEXTFIELD_INLINE_ICON);
 		subject.setSizeFull();
-		horizontalSubAndDate.addComponent(subject);
+
 		scheduledDate.setCaption("Schedule date for announcement!");
-		scheduledDate.setPlaceholder("Select as today's date to publish immediately");
+		scheduledDate.setValue(LocalDate.now());
 		scheduledDate.setRequiredIndicatorVisible(true);
 		scheduledDate.setVisible(true);
 		scheduledDate.setEnabled(true);
-		horizontalSubAndDate.addComponent(scheduledDate);
+		scheduledDate.addStyleNames(ValoTheme.DATEFIELD_ALIGN_CENTER, ValoTheme.DATEFIELD_LARGE);
+		scheduledDate.setSizeFull();
+
 		announcementDescription.setCaption("Description for announcement, keep it simple!");
 		announcementDescription.setRequiredIndicatorVisible(true);
 		announcementDescription.setVisible(true);
 		announcementDescription.setEnabled(true);
-		rootLayout.addComponent(announcementDescription);
+		announcementDescription.setSizeFull();
 		publish.setCaption("Publish");
 		publish.setVisible(true);
 		publish.setEnabled(false);
-		rootLayout.addComponent(publish);
+		publish.addStyleNames(ValoTheme.BUTTON_PRIMARY);
+		// attaching and positioning on ui page
+		HorizontalSplitPanel pageSplit = new HorizontalSplitPanel();
+		VerticalLayout firstPageLayout = new VerticalLayout();
+		VerticalLayout secondPageLayout = new VerticalLayout();
+		firstPageLayout.addComponents(subject, announcementDescription);
+		Label typeMsg = new Label("");
+		typeMsg.setValue("OR");
+		typeMsg.setCaptionAsHtml(true);
+		secondPageLayout.addComponents(announceToAll, typeMsg, this.selectCourse, scheduledDate);
+		pageSplit.setSplitPosition(SPLITTER_POSITION);
+		pageSplit.addComponents(firstPageLayout, secondPageLayout);
+		rootLayout.addComponents(pageSplit, publish);
 		rootLayout.setComponentAlignment(publish, Alignment.BOTTOM_RIGHT);
-
+		panel.setContent(rootLayout);
+		addComponent(panel);
+		// attaching event listeners as per vaadin's documentation to listen for
+		// snippets that are to be executed on event trigger
 		EmptyFieldListener<String> subjectListener = new EmptyFieldListener<String>();
 		subjectListener.setSourceField(subject);
 		subjectListener.setTargetBtn(publish);
@@ -138,13 +143,63 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		announcementDescriptionListener.setMandatoryDateFields(scheduledDate);
 		announcementDescriptionListener.setMandatoryFields(subject, announcementDescription);
 		announcementDescription.addValueChangeListener(announcementDescriptionListener);
-
+		this.selectCourse.addValueChangeListener(value -> {
+			if (!ListenerUtility.isValidSourceEvent(value.getComponent(), this.selectCourse)) {
+				return;
+			}
+			announceToAll.setEnabled(!this.selectCourse.getOptionalValue().isPresent());
+		});
+		announceToAll.addValueChangeListener(value -> {
+			if (!ListenerUtility.isValidSourceEvent(value.getComponent(), announceToAll)) {
+				return;
+			}
+			if (announceToAll.getValue()) {
+				selectCourse.clear();
+				selectCourse.setEnabled(false);
+			} else {
+				selectCourse.setEnabled(true);
+			}
+		});
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
-		LOGGER.debug("Entered");
+
+		try {
+			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
+			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setIcon(VaadinIcons.STOP);
+				notifi.setCaption("Error");
+				notifi.setDescription("We couldn't load course data");
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				return;
+			}
+			this.models = (List<CourseModel>) courseResponse.getResponse();
+			if (CollectionUtils.isEmpty(this.models)) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setIcon(VaadinIcons.STOP);
+				notifi.setCaption("Error");
+				notifi.setDescription("We couldn't load course data");
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				return;
+			}
+			List<String> courseNames = new ArrayList<>();
+			this.models.forEach(course -> {
+				courseNames.add(course.getCourseName());
+			});
+			this.selectCourse.setItems(courseNames);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+			notifi.setCaption("Application error");
+			notifi.setIcon(VaadinIcons.STOP_COG);
+			notifi.setDescription(
+					"We were unable to process request for some reason! Please try again later or contact admin");
+			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+		}
+
 	}
 
 	@Override

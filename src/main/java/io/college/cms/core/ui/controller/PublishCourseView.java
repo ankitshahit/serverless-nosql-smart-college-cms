@@ -321,9 +321,9 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 			Utils.showFactoryResponseMsg(fr);
 		});
 		VerticalLayout layout = courseUIService.buildCoursePageTwo(courseStepTwo);
-		layout.setSizeFull();
+		//layout.setSizeFull();
 		accord.addTab(layout, "Create course			(2/3)");
-		accord.setSizeFull();
+		//accord.setSizeFull();
 	}
 
 	@Override

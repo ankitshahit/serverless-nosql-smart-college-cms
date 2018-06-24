@@ -14,6 +14,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -21,10 +22,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DeletePopupView extends PopupBuilderView {
 	private static final long serialVersionUID = 1L;
+	@Getter
 	private Button delete;
 
+	/**
+	 * To provide with an eligible execution on click of delete button look at
+	 * {@link #DeletePopupView().show(ui, event)}
+	 */
 	public DeletePopupView() {
-
 		setClosable(true);
 		setResizable(false);
 		VerticalLayout verticalLayout = new VerticalLayout();

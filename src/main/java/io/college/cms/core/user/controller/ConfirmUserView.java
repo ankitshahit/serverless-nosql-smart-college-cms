@@ -14,7 +14,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Composite;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -56,8 +55,8 @@ public class ConfirmUserView extends Composite implements View {
 			// TODO: to allow confirmation of phone, email and other stuff
 			// seperately in future.
 			FactoryResponse fr = userResponseService.confirmUserSignup(
-					Utils.val(this.confirmUserService.getUsername().getOptionalValue()),
-					Utils.val(this.confirmUserService.getConfirmation().getOptionalValue()));
+					Utils.val(this.confirmUserService.getUsernameFld().getOptionalValue()),
+					Utils.val(this.confirmUserService.getConfirmCodeFld().getOptionalValue()));
 			Utils.showFactoryResponseMsg(fr);
 		});
 		setCompositionRoot(this.confirmUserService.getPanel());
@@ -74,12 +73,18 @@ public class ConfirmUserView extends Composite implements View {
 		View.super.beforeLeave(event);
 	}
 
+	/**
+	 * presentation layer for confirmSignup
+	 * 
+	 * @author Ankit
+	 *
+	 */
 	@Data
 	static class ConfirmUserViewService {
 		private Panel panel;
 		private VerticalLayout rootLayout;
-		private TextField username;
-		private TextField confirmation;
+		private TextField usernameFld;
+		private TextField confirmCodeFld;
 		private Button confirmButton;
 
 		ConfirmUserViewService() {
@@ -94,11 +99,11 @@ public class ConfirmUserView extends Composite implements View {
 			this.rootLayout = new VerticalLayout();
 			// initializing and setting attributes using a TextFieldWrapper
 			// builder
-			this.username = TextFieldWrapper.builder().placeholder("username")
+			this.usernameFld = TextFieldWrapper.builder().placeholder("username")
 					.description("username provided during signup").icon(VaadinIcons.USER).build().textField();
 			// initializing confirmation and setting attributes using a
 			// textFieldWrapper builder
-			this.confirmation = TextFieldWrapper.builder().placeholder("confirmation code")
+			this.confirmCodeFld = TextFieldWrapper.builder().placeholder("confirmation code")
 					.description("Provide confirmation code received in email").icon(VaadinIcons.CODE).maxLength(6)
 					.build().textField();
 			this.confirmButton = new Button("Confirm");
@@ -107,34 +112,35 @@ public class ConfirmUserView extends Composite implements View {
 			this.panel.setContent(this.rootLayout);
 			this.panel.setSizeFull();
 			this.rootLayout.setSizeFull();
-			this.username.setSizeFull();
-			this.confirmation.setSizeFull();
+			this.usernameFld.setSizeFull();
+			this.confirmCodeFld.setSizeFull();
 		}
 
 		protected void paint() {
-			this.username.setIcon(VaadinIcons.USER);
-			this.username.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
+			this.usernameFld.setIcon(VaadinIcons.USER);
+			this.usernameFld.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
 					ValoTheme.TEXTFIELD_LARGE);
-			this.confirmation.setIcon(VaadinIcons.CODE);
-			this.confirmation.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
+			this.confirmCodeFld.setIcon(VaadinIcons.CODE);
+			this.confirmCodeFld.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
 					ValoTheme.TEXTFIELD_LARGE);
 			this.confirmButton.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 			// by adding it to root layout, it allows us to show elements on UI.
-			this.rootLayout.addComponents(this.username, this.confirmation, this.confirmButton);
+			this.rootLayout.addComponents(this.usernameFld, this.confirmCodeFld, this.confirmButton);
 			this.rootLayout.setComponentAlignment(this.confirmButton, Alignment.MIDDLE_RIGHT);
 			EmptyFieldListener<String> usernameListener = (EmptyFieldListener<String>) getEmptyFieldListener();
-			usernameListener.setSourceField(this.getUsername());
-			this.getUsername().addValueChangeListener(usernameListener);
+			usernameListener.setSourceField(this.getUsernameFld());
+			this.getUsernameFld().addValueChangeListener(usernameListener);
 
 			EmptyFieldListener<String> confirmListener = (EmptyFieldListener<String>) getEmptyFieldListener();
-			confirmListener.setSourceField(this.getConfirmation());
-			this.getConfirmation().addValueChangeListener(confirmListener);
+			
+			confirmListener.setSourceField(this.getConfirmCodeFld());
+			this.getConfirmCodeFld().addValueChangeListener(confirmListener);
 
 		}
 
 		protected EmptyFieldListener<?> getEmptyFieldListener() {
 			EmptyFieldListener<?> lis = new EmptyFieldListener<>();
-			lis.setMandatoryFields(this.username, this.confirmation);
+			lis.setMandatoryFields(this.usernameFld, this.confirmCodeFld);
 			lis.setTargetBtn(this.confirmButton);
 			return lis;
 		}
