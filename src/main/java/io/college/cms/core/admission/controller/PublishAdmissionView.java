@@ -53,7 +53,6 @@ import lombok.extern.slf4j.Slf4j;
 public class PublishAdmissionView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private CourseResponseService courseResponseService;
-	private List<CourseModel> models;
 	private TextField fees;
 	private RichTextArea additionalDetails;
 	private CheckBox verifyFeesReceipt;
@@ -286,33 +285,45 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		setSpacing(true);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
-		FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
+		try {
+			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
 
-		if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
+			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setIcon(VaadinIcons.STOP);
+				notifi.setCaption("Error");
+				notifi.setDescription("We couldn't load course data");
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				return;
+			}
+			List<CourseModel> models = null;
+			models = (List<CourseModel>) courseResponse.getResponse();
+			if (CollectionUtils.isEmpty(models)) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setIcon(VaadinIcons.STOP);
+				notifi.setCaption("Error");
+				notifi.setDescription("We couldn't load course data");
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				return;
+			}
+			List<String> courseNames = new ArrayList<>();
+			models.forEach(course -> {
+				courseNames.add(course.getCourseName());
+			});
+			this.courses.setItems(courseNames);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
+			notifi.setCaption("Application error");
+			notifi.setIcon(VaadinIcons.STOP_COG);
+			notifi.setDescription(
+					"We were unable to process request for some reason! Please try again later or contact admin");
 			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
 		}
-		this.models = (List<CourseModel>) courseResponse.getResponse();
-		if (CollectionUtils.isEmpty(this.models)) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
-		List<String> courseNames = new ArrayList<>();
-		this.models.forEach(course -> {
-			courseNames.add(course.getCourseName());
-		});
-		this.courses.setItems(courseNames);
 	}
 
 	@Override
