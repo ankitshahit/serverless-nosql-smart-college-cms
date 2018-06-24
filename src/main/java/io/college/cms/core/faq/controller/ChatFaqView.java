@@ -13,9 +13,11 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
@@ -48,8 +50,9 @@ public class ChatFaqView extends VerticalLayout implements View {
 
 	@PostConstruct
 	protected void paint() {
-		RichTextArea richText = new RichTextArea();
-		richText.setReadOnly(true);
+		Label richText = new Label();
+		richText.setContentMode(ContentMode.HTML);
+		
 		send = new Button();
 		typeMessage = new TextField();
 		chatBoxLayout = new Panel();

@@ -7,7 +7,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.h2.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -140,7 +140,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 
 		HorizontalSplitPanel horizontalSplitPanel = new HorizontalSplitPanel();
 		horizontalSplitPanel.addComponents(verticalLayoutFirstPart, verticalLayoutSecondPart);
-		horizontalSplitPanel.setSplitPosition(62.0f);
+		horizontalSplitPanel.setSplitPosition(67.0f);
 		horizontalSplitPanel.setLocked(false);
 
 		firstLayout.addComponent(horizontalSplitPanel);
@@ -158,6 +158,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		this.courses.setRequiredIndicatorVisible(true);
 		this.courses.setVisible(true);
 		this.courses.setEnabled(true);
+		this.courses.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
 
 		verticalLayoutFirstPart.addComponent(courses);
 		semester.setCaption("Select semester");
@@ -165,6 +166,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		semester.setRequiredIndicatorVisible(true);
 		semester.setVisible(true);
 		semester.setEnabled(true);
+		semester.addStyleNames(ValoTheme.COMBOBOX_ALIGN_CENTER);
 		verticalLayoutFirstPart.addComponent(semester);
 
 		this.fees.addStyleNames(ValoTheme.TEXTFIELD_LARGE, ValoTheme.TEXTFIELD_INLINE_ICON);
@@ -226,11 +228,11 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 				}
 				courseSubjectModel.addAll(course.getSubjects());
 			}
-
 			semester.setItems(semesters);
 			if (CollectionUtils.isEmpty(courseSubjectModel)) {
 				return;
-			}
+			} // TODO: WE are not validating the subjects against a semester,
+				// need to validate against semester.
 			courseSubjectModel.forEach(subject -> {
 				subjectNames.add(new StringBuilder().append(subject.getSubjectName())
 						.append(subject.isOptional() ? " (Opt)" : " (Req)").toString());
@@ -247,8 +249,8 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 			} else if (!this.fees.getValue().startsWith("Rs. ")) {
 				this.fees.setValue("Rs. ");
 			}
-			if (!StringUtils
-					.isNumber(this.fees.getValue().substring("Rs. ".length() - 1, this.fees.getValue().length() - 1))) {
+
+			if (!StringUtils.isNumericSpace(this.fees.getValue().substring("Rs. ".length()))) {
 				ElementHelper.addComponentError(this.fees, "Fees has to be in numeric value.");
 				this.fees.setValue("Rs. ");
 			} else {

@@ -30,5 +30,7 @@ public class ViewConstants {
 	public static final String CHAT_FAQ_VIEW = "chatFaq";
 	public static final String CONFIRM_USER_VIEW = "confirmUser";
 	public static final String OPEN_ADMISSIONS_BY_COURSE = "openAdmissionsByCourse";
+	public static final String APPLY_ADMISSIONS_BY_COURSE = "applyAdmissionsByCourse";
 	public static final String CONFIGURE_ADMISSION_PROPERTIES = "configureAdmissions";
+	public static final String LOGIN = "login";
 }

@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.IconGenerator;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
@@ -159,5 +161,52 @@ public class CoreUiService {
 			}
 			subjects.add(subjectModel.getSubjectName());
 		}
+	}
+
+	public List<CourseModel.SubjectModel> getSubjectsModel(String courseName, String semester) {
+		FactoryResponse fr = courseResponseService.findByCourseName(null, courseName);
+		CourseModel course = null;
+		List<CourseModel.SubjectModel> subjects = new ArrayList<>();
+
+		Utils.showFactoryResponseOnlyError(fr);
+		if (Utils.isError(fr)) {
+			return subjects;
+		}
+		course = (CourseModel) fr.getResponse();
+		if (Utils.isNull(course)) {
+			return subjects;
+		}
+
+		if (!(CollectionUtils.isEmpty(course.getSemesters())
+				&& CourseModel.SubjectModel.DEFAULT_SEM.equalsIgnoreCase(semester))) {
+			Utils.showErrorNotification("No such semester available.");
+		}
+		for (CourseModel.SubjectModel subjectModel : course.getSubjects()) {
+			if (!semester.equalsIgnoreCase(subjectModel.getSemester())) {
+				continue;
+			}
+			subjects.add(subjectModel);
+		}
+		return subjects;
+	}
+
+	public Label getLabel() {
+		Label label = new Label();
+		label.setCaptionAsHtml(true);
+		label.setContentMode(ContentMode.HTML);
+		return label;
+	}
+
+	public Label getLabel(String caption, String description) {
+		Label label = getLabel();
+		label.setCaption(caption);
+		label.setDescription(description);
+		return label;
+	}
+
+	public Label getLabel(String caption) {
+		Label label = getLabel();
+		label.setCaption(caption);
+		return label;
 	}
 }

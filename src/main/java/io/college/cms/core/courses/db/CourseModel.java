@@ -88,6 +88,7 @@ public class CourseModel implements Serializable {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@DynamoDBDocument
 	public static class SubjectModel {
+		public static final String DEFAULT_SEM = "Sem 1";
 
 		/**
 		 * @param subjectName
