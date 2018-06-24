@@ -50,6 +50,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.vaadin.touchkit</groupId>
+			<artifactId>touchkit</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>

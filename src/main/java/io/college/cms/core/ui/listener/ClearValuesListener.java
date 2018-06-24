@@ -2,6 +2,7 @@ package io.college.cms.core.ui.listener;
 
 import com.vaadin.ui.AbstractDateField;
 import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.AbstractMultiSelect;
 import com.vaadin.ui.AbstractSingleSelect;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -18,6 +19,7 @@ public class ClearValuesListener<T> implements ClickListener {
 	private AbstractField<?>[] mandatoryFields;
 	private AbstractSingleSelect<?>[] mandatoryListFields;
 	private AbstractDateField[] mandatoryDateFields;
+	private AbstractMultiSelect<?>[] multiSelect;
 
 	public ClearValuesListener() {
 		super();
@@ -29,6 +31,10 @@ public class ClearValuesListener<T> implements ClickListener {
 
 	public void setMandatoryListFields(AbstractSingleSelect<?>... abstractSingleSelects) {
 		this.mandatoryListFields = abstractSingleSelects;
+	}
+
+	public void setMandatoryListFields(AbstractMultiSelect<?>... abstractMultiSelect) {
+		this.multiSelect = abstractMultiSelect;
 	}
 
 	public void setMandatoryDateFields(AbstractDateField... mandatoryDateFields) {
@@ -59,6 +65,12 @@ public class ClearValuesListener<T> implements ClickListener {
 		}
 		if (mandatoryFields != null && mandatoryFields.length > 0) {
 			for (AbstractField<?> element : mandatoryFields) {
+				element.setComponentError(null);
+				element.clear();
+			}
+		}
+		if (this.multiSelect != null && this.multiSelect.length > 0) {
+			for (AbstractMultiSelect<?> element : this.multiSelect) {
 				element.setComponentError(null);
 				element.clear();
 			}

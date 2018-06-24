@@ -35,10 +35,9 @@ public class ListenerUtility {
 	}
 
 	public static void emptyValueListener(AbstractSingleSelect<?> field) {
-		String currentValue = String.valueOf(field.getValue());
-		if (StringUtils.isEmpty(currentValue)) {
-			ElementHelper.addComponentError(field, ListenerUtility.FIELD_EMPTY);
 
+		if (!field.getOptionalValue().isPresent()) {
+			ElementHelper.addComponentError(field, ListenerUtility.FIELD_EMPTY);
 		} else {
 			ElementHelper.removeComponentError(field);
 

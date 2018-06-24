@@ -80,7 +80,7 @@ public class ConfirmUserView extends Composite implements View {
 	 *
 	 */
 	@Data
-	static class ConfirmUserViewService {
+	private static class ConfirmUserViewService {
 		private Panel panel;
 		private VerticalLayout rootLayout;
 		private TextField usernameFld;

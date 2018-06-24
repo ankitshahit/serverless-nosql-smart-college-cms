@@ -29,5 +29,6 @@ public class ViewConstants {
 	public static final String DEAL_WITH_USER = "dealWithUser";
 	public static final String CHAT_FAQ_VIEW = "chatFaq";
 	public static final String CONFIRM_USER_VIEW = "confirmUser";
-	public static final String APPLY_ADMISSION = "applyAdmission";
+	public static final String OPEN_ADMISSIONS_BY_COURSE = "openAdmissionsByCourse";
+	public static final String CONFIGURE_ADMISSION_PROPERTIES = "configureAdmissions";
 }

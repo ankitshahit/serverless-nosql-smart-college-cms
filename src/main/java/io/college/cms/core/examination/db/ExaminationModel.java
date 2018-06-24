@@ -51,7 +51,6 @@ public class ExaminationModel {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@DynamoDBDocument
-
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class ExamSubject {
 		@DynamoDBAttribute(attributeName = CourseController.SUBJECT_NAME)
