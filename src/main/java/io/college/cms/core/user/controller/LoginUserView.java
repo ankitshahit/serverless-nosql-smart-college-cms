@@ -2,22 +2,28 @@ package io.college.cms.core.user.controller;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.Builder;
 import lombok.Data;
 
@@ -29,16 +35,34 @@ public class LoginUserView extends VerticalLayout implements View {
 	 */
 	private static final long serialVersionUID = 1L;
 	private LoginUserViewService loginViewService;
-
-	public LoginUserView() {
+	private ApplicationContext app;
+	@Autowired
+	public LoginUserView(ApplicationContext app) {
 		super();
 		this.loginViewService = new LoginUserViewService();
+		this.app = app;
 	}
 
 	@PostConstruct
 	public void paint() {
+		setWidth("60%");
 		addComponent(loginViewService.getDto().getRootPanel());
-	}	@Override
+		this.loginViewService.dto.confirmAccountBtn.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(),
+					this.loginViewService.dto.confirmAccountBtn)) {
+				return;
+			}
+			ConfirmUserView confirmUser = app.getBean(ConfirmUserView.class);
+			Window window = new Window();
+			window.center();
+			window.setResizable(false);
+			window.setContent(confirmUser);
+			getUI().addWindow(window);
+			confirmUser.enter(null);
+		});
+	}
+
+	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 	}
@@ -62,8 +86,6 @@ public class LoginUserView extends VerticalLayout implements View {
 		protected void ui() {
 			initUI();
 			initUI();
-			initStyle();
-			initSizeAndAlignment();
 			initComponents();
 			initListener();
 		}
@@ -73,43 +95,26 @@ public class LoginUserView extends VerticalLayout implements View {
 		 */
 		protected void initUI() {
 
-			this.dto.usernameField.setPlaceholder("username or email id");
-			this.dto.usernameField.setRequiredIndicatorVisible(true);
-			this.dto.usernameField.setVisible(true);
-			this.dto.usernameField.setEnabled(true);
+			this.dto.usernameField = VaadinWrapper.builder().caption("Username").placeholder("username").build()
+					.textField();
 
-			this.dto.passwordField.setPlaceholder("password");
-			this.dto.passwordField.setRequiredIndicatorVisible(true);
-			this.dto.passwordField.setVisible(true);
-			this.dto.passwordField.setEnabled(true);
-
+			this.dto.passwordField = VaadinWrapper.builder().caption("Password").build().passwordField();
+			this.dto.signupBtn = VaadinWrapper.builder().build().button();
 			this.dto.signupBtn.setCaption("New user?");
-			this.dto.signupBtn.setVisible(true);
-			this.dto.signupBtn.setEnabled(true);
+			this.dto.signupBtn.setStyleName(ValoTheme.BUTTON_QUIET);
 
+			this.dto.forgotPasswordBtn = VaadinWrapper.builder().build().button();
 			this.dto.forgotPasswordBtn.setCaption("Forgot password?");
-			this.dto.forgotPasswordBtn.setVisible(true);
-			this.dto.forgotPasswordBtn.setEnabled(true);
-
+			this.dto.forgotPasswordBtn.setStyleName(ValoTheme.BUTTON_QUIET);
+			this.dto.confirmAccountBtn = VaadinWrapper.builder().build().button();
 			this.dto.confirmAccountBtn.setCaption("Confirm user");
-			this.dto.confirmAccountBtn.setVisible(true);
-			this.dto.confirmAccountBtn.setEnabled(true);
-
+			this.dto.confirmAccountBtn.setStyleName(ValoTheme.BUTTON_QUIET);
+			this.dto.loginBtn = VaadinWrapper.builder().build().button();
 			this.dto.loginBtn.setCaption("Login");
-			this.dto.loginBtn.setVisible(true);
-			this.dto.loginBtn.setEnabled(true);
+			this.dto.loginBtn.setEnabled(false);
+			this.dto.loginBtn.removeStyleName(ValoTheme.BUTTON_FRIENDLY);
+			this.dto.loginBtn.addStyleNames(ValoTheme.BUTTON_PRIMARY, ValoTheme.BUTTON_LARGE);
 
-		}
-
-		protected void initStyle() {
-			this.dto.usernameField.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON);
-			this.dto.passwordField.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON);
-			this.dto.signupBtn.addStyleNames(ValoTheme.BUTTON_QUIET, ValoTheme.BUTTON_LINK);
-			this.dto.forgotPasswordBtn.addStyleNames(ValoTheme.BUTTON_QUIET, ValoTheme.BUTTON_LINK);
-			this.dto.confirmAccountBtn.addStyleNames(ValoTheme.BUTTON_QUIET, ValoTheme.BUTTON_LINK);
-		}
-
-		protected void initSizeAndAlignment() {
 		}
 
 		protected void initComponents() {
@@ -122,6 +127,7 @@ public class LoginUserView extends VerticalLayout implements View {
 					this.dto.confirmAccountBtn);
 
 			this.dto.rootLayout.addComponents(buttonLayout, this.dto.loginBtn);
+			this.dto.rootLayout.setComponentAlignment(this.dto.loginBtn, Alignment.BOTTOM_RIGHT);
 		}
 
 		protected void initListener() {
@@ -135,6 +141,7 @@ public class LoginUserView extends VerticalLayout implements View {
 			passwordFieldListener.setTargetBtn(this.dto.loginBtn);
 			passwordFieldListener.setMandatoryFields(this.dto.usernameField, this.dto.passwordField);
 			this.dto.passwordField.addValueChangeListener(passwordFieldListener);
+
 		}
 	}
 

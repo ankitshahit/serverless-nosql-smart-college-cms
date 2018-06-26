@@ -10,6 +10,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -48,6 +49,51 @@ public class VaadinWrapper {
 	private Button button;
 	private String style;
 	private Label label;
+	private PasswordField passwordField;
+
+	public PasswordField passwordField() {
+		if (this.passwordField == null) {
+			this.passwordField = new PasswordField();
+		}
+		this.passwordField.setVisible(visible);
+		this.passwordField.setEnabled(enabled);
+		if (maxLength > 0) {
+			this.passwordField.setMaxLength(maxLength);
+		}
+		if (StringUtils.isNotEmpty(caption)) {
+			this.passwordField.setCaption(new StringBuilder().append("<p><b>")
+					.append(StringUtils.capitalize(this.caption)).append("</b>: </p>").toString());
+		}
+		if (StringUtils.isNotEmpty(description)) {
+			this.passwordField.setDescription(description, contentMode);
+		}
+		if (icon != null) {
+			this.passwordField.setIcon(icon);
+		}
+		if (StringUtils.isNotEmpty(placeholder)) {
+			this.passwordField.setPlaceholder(StringUtils.capitalize(this.placeholder));
+		}
+		if (StringUtils.isNotEmpty(value)) {
+			this.passwordField.setValue(value);
+		}
+		if (StringUtils.isNotEmpty(height)) {
+			this.passwordField.setHeight(height);
+		}
+		if (StringUtils.isNotEmpty(width)) {
+			this.passwordField.setWidth(width);
+		}
+		if (StringUtils.isNotEmpty(style)) {
+			this.passwordField.setStyleName(style);
+		}
+		this.passwordField.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_INLINE_ICON,
+				ValoTheme.TEXTFIELD_LARGE);
+		this.passwordField.setCaptionAsHtml(captionAsHtml);
+		this.passwordField.setRequiredIndicatorVisible(required);
+		this.passwordField.setReadOnly(readOnly);
+		this.passwordField.setResponsive(true);
+		this.passwordField.setSizeFull();
+		return this.passwordField;
+	}
 
 	public TextField textField() {
 		if (this.field == null) {

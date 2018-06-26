@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableCaching()
 public class Application {
 	public static void main(String[] args) {
-		LOGGER.info("isDebugEnabled = {}", LOGGER.isDebugEnabled());
+		LOGGER.debug("isDebugEnabled = {}", LOGGER.isDebugEnabled());
 		System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
 		SpringApplication.run(Application.class, args);
 	}

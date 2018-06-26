@@ -17,6 +17,7 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -27,6 +28,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.faq.service.FaqBotService;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -51,7 +53,7 @@ public class ChatFaqView extends VerticalLayout implements View {
 	protected void paint() {
 		Label richText = new Label();
 		richText.setContentMode(ContentMode.HTML);
-		
+
 		send = new Button();
 		typeMessage = new TextField();
 		chatBoxLayout = new Panel();
@@ -66,19 +68,36 @@ public class ChatFaqView extends VerticalLayout implements View {
 		horizontalLayout.setComponentAlignment(typeMessage, Alignment.MIDDLE_RIGHT);
 		horizontalLayout.setSizeFull();
 
-		chatBoxLayout.setWidth("50%");
-		chatBoxLayout.setHeight("60%");
+		/*
+		 * chatBoxLayout.setWidth("50%"); chatBoxLayout.setHeight("60%");
+		 */
 		addComponents(chatBoxLayout);
-		setComponentAlignment(chatBoxLayout, Alignment.MIDDLE_CENTER);
-		richText.setResponsive(true);
+
+		// setComponentAlignment(chatBoxLayout, Alignment.MIDDLE_CENTER);
+
 		richText.setValue(" <p><b style=color:red>&nbsp;Bot</b>: Connected to server. Ask queries below :) </p>");
 		richText.setSizeFull();
-
+		typeMessage.setSizeFull();
+		horizontalLayout.setSizeFull();
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.addComponents(richText, horizontalLayout);
-		verticalLayout.setComponentAlignment(richText, Alignment.TOP_CENTER);
-		verticalLayout.setComponentAlignment(horizontalLayout, Alignment.MIDDLE_CENTER);
-		chatBoxLayout.setContent(verticalLayout);
+		// verticalLayout.setComponentAlignment(richText, Alignment.TOP_CENTER);
+		// verticalLayout.setComponentAlignment(horizontalLayout,
+		// Alignment.MIDDLE_CENTER);
+		Label message = VaadinWrapper.builder().build().label();
+		message.setValue("<h2>Bot</h2>");
+
+		verticalLayout.setSizeFull();
+		verticalLayout.setMargin(true);
+		typeMessage.setSizeFull();
+		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(message, verticalLayout);
+		splitPanel.setSplitPosition(30.0f);
+		splitPanel.setSizeFull();
+		VerticalLayout rootLayout = new VerticalLayout();
+		rootLayout.addComponents(splitPanel);
+		rootLayout.setSizeFull();
+		chatBoxLayout.setContent(rootLayout);
+
 		send.addClickListener(click -> {
 
 			if (!typeMessage.getOptionalValue().isPresent()) {

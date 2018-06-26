@@ -112,10 +112,12 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 				window.close();
 			});
 			HorizontalLayout buttonLayout = new HorizontalLayout(cancel, button);
-			layout.addComponents(courseNameLbl, username, radioOption, textArea, buttonLayout);
+
+			layout.addComponents(new Panel(new VerticalLayout(courseNameLbl, username, radioOption, textArea)),
+					buttonLayout);
 			layout.setComponentAlignment(buttonLayout, Alignment.BOTTOM_RIGHT);
 
-			window.setContent(new Panel(layout));
+			window.setContent(layout);
 			getUI().addWindow(window);
 		});
 	}

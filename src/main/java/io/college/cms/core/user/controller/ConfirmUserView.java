@@ -13,7 +13,6 @@ import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Composite;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -31,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class ConfirmUserView extends Composite implements View {
+public class ConfirmUserView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
 	private ConfirmUserViewService confirmUserService;
@@ -59,7 +58,7 @@ public class ConfirmUserView extends Composite implements View {
 					Utils.val(this.confirmUserService.getConfirmCodeFld().getOptionalValue()));
 			Utils.showFactoryResponseMsg(fr);
 		});
-		setCompositionRoot(this.confirmUserService.getPanel());
+		addComponent(this.confirmUserService.getPanel());
 	}
 
 	@Override
@@ -132,7 +131,7 @@ public class ConfirmUserView extends Composite implements View {
 			this.getUsernameFld().addValueChangeListener(usernameListener);
 
 			EmptyFieldListener<String> confirmListener = (EmptyFieldListener<String>) getEmptyFieldListener();
-			
+
 			confirmListener.setSourceField(this.getConfirmCodeFld());
 			this.getConfirmCodeFld().addValueChangeListener(confirmListener);
 

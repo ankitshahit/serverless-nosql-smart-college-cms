@@ -1,6 +1,9 @@
 package io.college.cms.core.ui.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
@@ -12,9 +15,9 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Notification.Type;
 
 import io.college.cms.core.ui.services.MenuManagerService;
 import io.college.cms.core.ui.services.ViewManagerService;
@@ -28,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Slf4j
+@Service()
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class HomePageUI extends UI {
 
 	private static final long serialVersionUID = 1L;
@@ -62,9 +67,7 @@ public class HomePageUI extends UI {
 			menuLayout.setComponentAlignment(panel, Alignment.MIDDLE_RIGHT);
 			menuLayout.setSizeFull();
 			menuLayout.setResponsive(true);
-
 			setContent(menuLayout);
-
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

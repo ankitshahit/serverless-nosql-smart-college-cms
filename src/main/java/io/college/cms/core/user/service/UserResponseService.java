@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserResponseService {
 
 	private IUserService userService;
-
 	@Autowired()
 	public UserResponseService(IUserService userService) {
 		this.userService = userService;
@@ -159,7 +158,8 @@ public class UserResponseService {
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
-			fr = FactoryResponse.builder().response(ex.getMessage()).summaryMessage(SummaryMessageEnum.FAILURE).build();
+			fr = FactoryResponse.builder().response(ex.getLocalizedMessage()).summaryMessage(SummaryMessageEnum.FAILURE)
+					.build();
 		}
 		return fr;
 	}

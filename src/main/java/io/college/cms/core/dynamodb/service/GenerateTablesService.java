@@ -13,6 +13,7 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 
+import io.college.cms.core.admission.model.ApplyAdmissionModel;
 import io.college.cms.core.configuration.AppParams;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.examination.model.ExaminationModel;
@@ -49,6 +50,7 @@ public class GenerateTablesService {
 			create(UserModel.class);
 			create(UploadModel.class);
 			create(StudentResultModel.class);
+			create(ApplyAdmissionModel.class);
 			LOGGER.debug("Successfully created table.");
 		} catch (InterruptedException e) {
 			LOGGER.error("Unable to create table {}", e.getMessage());
