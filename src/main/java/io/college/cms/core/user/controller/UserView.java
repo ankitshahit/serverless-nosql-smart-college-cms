@@ -18,6 +18,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FileResource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -162,8 +163,9 @@ public class UserView extends Composite implements View {
 				this.userViewService.getEmailAddress().setVisible(false);
 				this.userViewService.getValidateUsername().setVisible(true);
 				this.userViewService.getSaveNext().setVisible(false);
+				this.userViewService.getPasswordPolicy().setContentMode(ContentMode.HTML);
 				this.userViewService.getPasswordPolicy().setValue(
-						"Please enter an username, when done click on confirm.\n System will let you know of availability");
+						"Please enter an username, when done click on confirm.<br/>System will let you know of availability");
 				this.userViewService.getValidateUsername().setEnabled(false);
 				this.userViewService.getAccordin().getTab(1).setEnabled(false);
 
@@ -275,9 +277,8 @@ public class UserView extends Composite implements View {
 		protected void initUI() {
 			int tabIndex = 0;
 
-			this.username = VaadinWrapper.builder().required(false).placeholder("Username")
-					.icon(VaadinIcons.NEWSPAPER).description("Select a unique username, to identify throughout.	")
-					.build().textField();
+			this.username = VaadinWrapper.builder().required(false).placeholder("Username").icon(VaadinIcons.NEWSPAPER)
+					.description("Select a unique username, to identify throughout.	").build().textField();
 			this.username.addStyleNames(ValoTheme.TEXTFIELD_HUGE, ValoTheme.TEXTFIELD_INLINE_ICON,
 					ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_BORDERLESS);
 			this.username.setSizeFull();
@@ -430,11 +431,12 @@ public class UserView extends Composite implements View {
 
 			GridLayout grid = new GridLayout();
 			// nameCssLayout, dbAndGender,
-			grid.addComponents(new CssLayout(this.username), new CssLayout(this.emailAddress), this.passwordPolicy,
+			grid.addComponents(this.username, new CssLayout(this.emailAddress), this.passwordPolicy,
 					new CssLayout(this.passwordField), new CssLayout(this.confirmPasswordField), this.validateUsername,
 					buttonCssLayout);
 
 			grid.setSpacing(true);
+			grid.setComponentAlignment(this.username, Alignment.MIDDLE_CENTER);
 			grid.setComponentAlignment(this.validateUsername, Alignment.BOTTOM_RIGHT);
 			grid.setComponentAlignment(buttonCssLayout, Alignment.MIDDLE_RIGHT);
 
@@ -449,16 +451,15 @@ public class UserView extends Composite implements View {
 			gridLayout2.addComponents(profilePictureLayout, nameCssLayout, dbAndGender, this.saveAttributes);
 			gridLayout2.setComponentAlignment(this.saveAttributes, Alignment.BOTTOM_RIGHT);
 			gridLayout2.setSpacing(true);
-			gridLayout2.setSizeFull();
+
 			this.accordin.addTab(grid, "Step 1/2");
+
 			this.accordin.addTab(gridLayout2, "Step 2/2");
 
 			// we need to add accordin to a panel and panel to a vertical layout
 			// to give a proper look and feel
 			this.rootPanel.setContent(this.accordin);
-			this.rootPanel.setSizeFull();
 			this.rootLayout.addComponent(this.rootPanel);
-			this.rootLayout.setSizeFull();
 			this.rootLayout.setComponentAlignment(this.rootPanel, Alignment.MIDDLE_RIGHT);
 		}
 

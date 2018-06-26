@@ -1,4 +1,4 @@
-package io.college.cms.core.examination.controller;
+package io.college.cms.core.attendance.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class SeeResultsView extends VerticalLayout implements View {
-
+public class ViewAttendanceView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private ComboBox<String> selectCourse;
 	private ComboBox<String> selectSubject;
@@ -55,7 +54,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 	 * @param courseResponseService
 	 */
 	@Autowired
-	public SeeResultsView(CourseResponseService courseResponseService) {
+	public ViewAttendanceView(CourseResponseService courseResponseService) {
 		super();
 		this.courseResponseService = courseResponseService;
 	}
@@ -271,5 +270,4 @@ public class SeeResultsView extends VerticalLayout implements View {
 		clearValues.setMandatoryListFields(selectCourse, selectSem, selectSubject);
 		clearValues.buttonClick(null);
 	}
-
 }

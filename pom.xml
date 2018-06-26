@@ -49,6 +49,13 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-rekognition -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-rekognition</artifactId>
+			<version>1.11.354</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.vaadin.touchkit</groupId>
 			<artifactId>touchkit</artifactId>

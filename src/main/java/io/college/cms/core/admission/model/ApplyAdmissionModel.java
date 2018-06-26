@@ -31,6 +31,8 @@ public class ApplyAdmissionModel {
 	@DynamoDBAttribute(attributeName = "fees_verification_receipt_required")
 	private boolean feesVerificationReceiptRequired;
 	@DynamoDBAttribute(attributeName = "pending_requests")
-	@Singular
-	private List<String> users;
+	@Singular(value = "withRoleMember")
+	private List<String> roleMembers;
+	@DynamoDBAttribute(attributeName = "additional_comments")
+	private String comments;
 }

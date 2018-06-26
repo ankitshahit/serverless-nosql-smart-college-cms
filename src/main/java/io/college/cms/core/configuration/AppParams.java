@@ -32,4 +32,6 @@ public class AppParams {
 	private String s3BucketFolder;
 	@Value("${s3.bucket.host:http://bucket}")
 	private String s3Host;
+	@Value("${aws.recognition.collection:test}")
+	private String recognitionCollectionId;
 }

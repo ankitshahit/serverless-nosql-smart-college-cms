@@ -17,14 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 		"io.college.cms.core.application.automation.*", "io.college.cms.core.ui.*",
 		"io.college.cms.core.dynamodbloader.*", "io.college.cms.core.dynamodbloader.service.*",
 		"io.college.cms.core.faq.*", "io.college.cms.core.admission.*", "io.college.cms.core.ui.services.*",
-		"io.college.cms.core.upload.*", "io.college.cms.core.job.*" })
+		"io.college.cms.core.upload.*", "io.college.cms.core.job.*", "io.college.cms.core.attendance.*" })
 @Slf4j
 @EnableCaching()
 public class Application {
 	public static void main(String[] args) {
 		LOGGER.info("isDebugEnabled = {}", LOGGER.isDebugEnabled());
 		System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
-
 		SpringApplication.run(Application.class, args);
 	}
 

@@ -81,7 +81,7 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 
 		VerticalLayout rightSplit = new VerticalLayout(allStudents, or, selectByStudent);
 
-		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(leftSplit, rightSplit);
+		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(new Panel(leftSplit), new Panel(rightSplit));
 		splitPanel.setSplitPosition(62.0f);
 
 		downloadQr.setCaption("Download Qr");

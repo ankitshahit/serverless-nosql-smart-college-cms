@@ -90,41 +90,58 @@ public class VaadinFieldInitializer {
 	}
 
 	public static void addDeclaration(Field field, FieldType fieldType) {
-
-		declarations.add(new StringBuilder().append(fieldType.className()).append(" ").append(field.getName())
-				.append(" = ").append(fieldType.constructor()).append("; ").toString());
+		declarations.add(new StringBuilder().append("private ").append(fieldType.className()).append(" ")
+				.append(field.getName()).append(";").append("\nthis.").append(field.getName()).append(" = ")
+				.append(fieldType.constructor()).append("; ").toString());
 	}
 
 	public static void addMethods(Field field, FieldType fieldType) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.setLength(0);
+		sb.append("this.").append(field.getName()).append(" = ").append("VaadinWrapper.builder()");
 		if (StringUtils.isNotEmpty(field.getCaption())) {
-			sb.append(field.getName()).append(".setCaption(\"").append(field.getCaption()).append("\");");
+			sb.append("").append(".caption(\"").append(field.getCaption()).append("\")");
 		}
 		if (StringUtils.isNotEmpty(field.getPlaceholder())) {
-			sb.append(field.getName()).append(".setPlaceholder(\"").append(field.getPlaceholder()).append("\");");
+			sb.append("").append(".placeholder(\"").append(field.getPlaceholder()).append("\")");
 		}
 		if (StringUtils.isNotEmpty(field.getIcon())) {
-			sb.append(field.getName()).append(".setIcon(").append(field.getIcon()).append(");");
+			sb.append("").append(".icon(").append(field.getIcon()).append(")");
 		}
 		if (StringUtils.isNotEmpty(field.getHeight())) {
-			sb.append(field.getName()).append(".setHeight(\"").append("").append(field.getHeight()).append("\");");
+			sb.append("").append(".height(\"").append("").append(field.getHeight()).append("\")");
 		}
 		if (StringUtils.isNotEmpty(field.getWidth())) {
-			sb.append(field.getName()).append(".setWidth(\"").append("").append(field.getHeight()).append("\");");
+			sb.append("").append(".width(\"").append("").append(field.getHeight()).append("\")");
 		}
 		if (field.isRequired()) {
-			sb.append(field.getName()).append(".setRequiredIndicatorVisible(").append("").append(field.isRequired())
-					.append(");");
+			sb.append("").append(".required(").append("").append(field.isRequired()).append(")");
 		}
-		sb.append(field.getName()).append(".setVisible(").append("").append(field.isVisible()).append(");");
-		sb.append(field.getName()).append(".setEnabled(").append("").append(field.isEnabled()).append(");");
+		sb.append("").append(".visible(").append("").append(field.isVisible()).append(")");
+		sb.append("").append(".enabled(").append("").append(field.isEnabled()).append(")");
 		if (field.getMaxLength() > 0) {
-			sb.append(field.getName()).append(".setMaxLength(").append(field.getMaxLength()).append(");");
+			sb.append("").append(".maxLength(").append(field.getMaxLength()).append(")");
+		}
+		methods.add(sb.append(".build()\n").toString());
+		if (FieldType.TF == fieldType) {
+			methods.add(".textField();");
+		} else if (FieldType.TA == fieldType) {
+			methods.add(".textArea();");
+		} else if (FieldType.RTA == fieldType) {
+			methods.add(".richTextArea();");
+		} else if (FieldType.DF == fieldType) {
+			methods.add(".dateField();");
+		} else if (FieldType.CB == fieldType) {
+			methods.add(".comboBox();");
+		} else if (FieldType.BTN == fieldType) {
+			methods.add(".button();");
+		} else if (FieldType.LB == fieldType) {
+			methods.add(".label();");
+		} else {
+			methods.add(";");
 		}
 
-		methods.add(sb.append("\n").toString());
 	}
 
 	public static void addComponent(Field field, FieldType fieldType) {

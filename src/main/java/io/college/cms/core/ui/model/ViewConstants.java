@@ -13,6 +13,7 @@ public class ViewConstants {
 	public static final String COURSES_UPDATE = "updateCourse";
 	public static final String COURSES_DELETE = "deleteCourse";
 	public static final String COURSES_CREATE = "createCourses";
+	public static final String EXAM_SUBJECT_SCHEDULE_TIME_TABLE = "scheduleSubjectExamTimeTable";
 	public static final String EXAM_CREATE = "createExam";
 	public static final String EXAM_UPDATE = "updateExam";
 	public static final String EXAM_VIEW_ALL = "viewAllExams";
@@ -39,4 +40,9 @@ public class ViewConstants {
 	public static final String PUBLISH_JOB = "publishJob";
 	public static final String CONFIGURE_FEES = "configureFees";
 	public static final String PUBLISH_FEES = "publishFees";
+	public static final String ADD_TO_GROUP = "addToGroup";
+	public static final String TAG_ATTENDANCE = "tagAttendance";
+	public static final String VIEW_ATTENDANCE = "viewAttendance";
+	public static final String APPROVE_REJECT_ADMISSION = "approveRejectAdmissionQueue";
+	public static final String SEE_NOTIFICATIONS = "seeNotifications";
 }

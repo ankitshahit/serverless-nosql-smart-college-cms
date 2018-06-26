@@ -6,8 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -43,7 +45,9 @@ public class VaadinWrapper {
 	private DateField dateField;
 	private RichTextArea richTextArea;
 	private TextArea textArea;
+	private Button button;
 	private String style;
+	private Label label;
 
 	public TextField textField() {
 		if (this.field == null) {
@@ -65,7 +69,7 @@ public class VaadinWrapper {
 			this.field.setIcon(icon);
 		}
 		if (StringUtils.isNotEmpty(placeholder)) {
-			this.field.setPlaceholder(placeholder);
+			this.field.setPlaceholder(StringUtils.capitalize(this.placeholder));
 		}
 		if (StringUtils.isNotEmpty(value)) {
 			this.field.setValue(value);
@@ -85,6 +89,7 @@ public class VaadinWrapper {
 		this.field.setRequiredIndicatorVisible(required);
 		this.field.setReadOnly(readOnly);
 		this.field.setResponsive(true);
+		this.field.setSizeFull();
 		return this.field;
 	}
 
@@ -107,7 +112,7 @@ public class VaadinWrapper {
 			this.comboBox.setIcon(icon);
 		}
 		if (StringUtils.isNotEmpty(this.placeholder)) {
-			this.comboBox.setPlaceholder(placeholder);
+			this.comboBox.setPlaceholder(StringUtils.capitalize(this.placeholder));
 		}
 		if (StringUtils.isNotEmpty(height)) {
 			this.comboBox.setHeight(height);
@@ -123,6 +128,7 @@ public class VaadinWrapper {
 		this.comboBox.setRequiredIndicatorVisible(required);
 		this.comboBox.setReadOnly(readOnly);
 		this.comboBox.setResponsive(true);
+		this.comboBox.setSizeFull();
 		return this.comboBox;
 	}
 
@@ -145,7 +151,7 @@ public class VaadinWrapper {
 			this.dateField.setIcon(icon);
 		}
 		if (StringUtils.isNotEmpty(this.placeholder)) {
-			this.dateField.setPlaceholder(placeholder);
+			this.dateField.setPlaceholder(StringUtils.capitalize(this.placeholder));
 		}
 		if (StringUtils.isNotEmpty(height)) {
 			this.dateField.setHeight(height);
@@ -163,7 +169,75 @@ public class VaadinWrapper {
 		this.dateField.setValue(LocalDate.now());
 		this.dateField.setResponsive(true);
 		this.dateField.setRangeStart(LocalDate.now());
+		this.dateField.setSizeFull();
 		return this.dateField;
+	}
+
+	public Button button() {
+		if (this.button == null) {
+			this.button = new Button();
+		}
+
+		this.button.setVisible(this.visible);
+		this.button.setEnabled(this.enabled);
+
+		if (StringUtils.isNotEmpty(this.caption)) {
+			this.button.setCaption(new StringBuilder().append("<p><b>").append(StringUtils.capitalize(this.caption))
+					.append("</b>: </p>").toString());
+		}
+		if (StringUtils.isNotEmpty(description)) {
+			this.button.setDescription(this.description, contentMode);
+		}
+		if (this.icon != null) {
+			this.button.setIcon(icon);
+		}
+		if (StringUtils.isNotEmpty(height)) {
+			this.button.setHeight(height);
+		}
+		if (StringUtils.isNotEmpty(width)) {
+			this.button.setWidth(width);
+		}
+		if (StringUtils.isNotEmpty(style)) {
+			this.button.setStyleName(style);
+		}
+		this.button.addStyleNames(ValoTheme.BUTTON_FRIENDLY, ValoTheme.BUTTON_LARGE);
+		this.button.setCaptionAsHtml(captionAsHtml);
+		this.button.setResponsive(true);
+
+		return this.button;
+	}
+
+	public Label label() {
+		if (this.label == null) {
+			this.label = new Label();
+		}
+
+		this.label.setVisible(this.visible);
+		this.label.setEnabled(this.enabled);
+
+		if (StringUtils.isNotEmpty(this.caption)) {
+			this.label.setCaption(new StringBuilder().append("<p><b>").append(StringUtils.capitalize(this.caption))
+					.append("</b>: </p>").toString());
+		}
+		if (StringUtils.isNotEmpty(description)) {
+			this.label.setDescription(this.description, contentMode);
+		}
+		if (this.icon != null) {
+			this.label.setIcon(icon);
+		}
+		if (StringUtils.isNotEmpty(height)) {
+			this.label.setHeight(height);
+		}
+		if (StringUtils.isNotEmpty(width)) {
+			this.label.setWidth(width);
+		}
+		if (StringUtils.isNotEmpty(style)) {
+			this.label.setStyleName(style);
+		}
+		this.label.setContentMode(ContentMode.HTML);
+		this.label.setCaptionAsHtml(captionAsHtml);
+		this.label.setResponsive(true);
+		return this.label;
 	}
 
 	public RichTextArea richTextArea() {
@@ -199,6 +273,7 @@ public class VaadinWrapper {
 		this.richTextArea.setRequiredIndicatorVisible(required);
 		this.richTextArea.setReadOnly(readOnly);
 		this.richTextArea.setResponsive(true);
+		this.richTextArea.setSizeFull();
 		return this.richTextArea;
 	}
 
@@ -235,6 +310,7 @@ public class VaadinWrapper {
 		this.textArea.setRequiredIndicatorVisible(required);
 		this.textArea.setReadOnly(readOnly);
 		this.textArea.setResponsive(true);
+		this.textArea.setSizeFull();
 		return this.textArea;
 	}
 

@@ -32,4 +32,10 @@ public class MenuConstants {
 	static final String PUBLISH_JOB = "Publish job";
 	static final String CONFIGURE_FEES = "Configure Fees";
 	static final String PUBLISH_FEES = "Fees details";
+	static final String USER_GROUP = "User Group";
+	static final String ADD_TO_GROUP = "Add to Group";
+	static final String SCHEDULE_TIME_SUBJECTS = "Schedule time for subjects";
+	static final String ATTENDANCE = "Attendance";
+	static final String TAG_ATTENDANCE = "Tag Attendance";
+	static final String VIEW_ATTENDANCE = "View Attendance";
 }
