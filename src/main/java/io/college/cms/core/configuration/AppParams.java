@@ -26,4 +26,10 @@ public class AppParams {
 	private String qnaMakerKey;
 	@Value("${cognito-client-id:no-key}")
 	private String cognitoClientId;
+	@Value("${s3.bucket.name:value}")
+	private String s3BucketName;
+	@Value("${s3.bucket.folder:folder}")
+	private String s3BucketFolder;
+	@Value("${s3.bucket.host:http://bucket}")
+	private String s3Host;
 }

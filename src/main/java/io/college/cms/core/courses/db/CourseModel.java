@@ -12,9 +12,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import io.college.cms.core.dynamodb.constants.Table;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.college.cms.core.dynamodbloader.constants.TableNames;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +26,7 @@ import lombok.Singular;
 
 @Builder
 @Data
-@DynamoDBTable(tableName = TableNames.COURSES_TABLE)
+@DynamoDBTable(tableName = Table.COURSES_TABLE)
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -151,6 +153,23 @@ public class CourseModel implements Serializable {
 		@Builder.Default
 		@DynamoDBAttribute(attributeName = "semester")
 		private String semester = "Sem 1";
+	}
+
+	@Data
+	@Builder
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	@DynamoDBDocument
+	public static class AdmissionMetaModel {
+		private String semester;
+		private boolean requireFeesVerification;
+		private boolean showEnrolledOutOf;
+		private String fees;
+		private String additionalInformation;
+		private boolean admissionClosed;
+		@Singular
+		private List<String> users;
 	}
 
 }

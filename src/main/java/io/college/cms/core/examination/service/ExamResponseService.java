@@ -22,7 +22,7 @@ import io.college.cms.core.courses.controller.constants.SubjectType;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.ICourseDbService;
-import io.college.cms.core.examination.db.ExaminationModel;
+import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionHandler;
 import io.college.cms.core.exception.ExceptionType;

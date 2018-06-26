@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.courses.controller.CourseController;
-import io.college.cms.core.examination.db.ExaminationModel;
-import io.college.cms.core.examination.db.ExaminationModel.ExamSubjectTimeTable;
-import io.college.cms.core.examination.db.ExaminationModel.StudentResult;
+import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.model.ExaminationModel.ExamSubjectTimeTable;
+import io.college.cms.core.examination.model.StudentResultModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.user.controller.UserController;
 import lombok.extern.slf4j.Slf4j;
@@ -50,9 +50,9 @@ public class ExaminationController {
 			@RequestParam(required = false, value = "action_by") String actionByUsername) {
 		ExaminationModel.builder()
 				.withSubject(ExaminationModel.ExamSubject.builder().subjectName(subjectName)
-						.withResult(StudentResult.builder().actionBy(actionByUsername).disableQrLink(true)
+						.withResult(StudentResultModel.builder().actionBy(actionByUsername).disableQrLink(true)
 								.username(studentUsername).updatedOn(LocalDate.now()).build())
-						.withTimeTable(ExamSubjectTimeTable.builder().key(subjectType).build()).build());
+						.withTimeTable(ExamSubjectTimeTable.builder().subject(subjectType).build()).build());
 
 		return null;
 	}

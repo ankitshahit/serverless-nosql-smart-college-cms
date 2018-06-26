@@ -1,10 +1,13 @@
 package io.college.cms.core.ui.builder;
 
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
+
+import io.college.cms.core.ui.util.ListenerUtility;
 
 public class MessagePopupView extends Window {
 
@@ -30,11 +33,13 @@ public class MessagePopupView extends Window {
 
 		this.headerCaption = new Label();
 		this.headerCaption.setCaptionAsHtml(true);
+		this.headerCaption.setContentMode(ContentMode.HTML);
 		this.bodyDescription = new Label();
 		this.bodyDescription.setCaptionAsHtml(true);
+		this.bodyDescription.setContentMode(ContentMode.HTML);
 		this.headerCaption
-				.setCaption(new StringBuilder().append("<p><h2>").append(caption).append("</h2></p>").toString());
-		this.bodyDescription.setCaption(new StringBuilder().append("<p style=word-wrap:break-word>").append(description)
+				.setValue(new StringBuilder().append("<p><h2>").append(caption).append("</h2></p>").toString());
+		this.bodyDescription.setValue(new StringBuilder().append("<p style=word-wrap:break-word>").append(description)
 				.append("</p>").toString());
 		this.headerVerticalLayout.addComponent(this.headerCaption);
 		this.bodyVerticalLayout.addComponent(this.bodyDescription);
@@ -46,5 +51,12 @@ public class MessagePopupView extends Window {
 		VerticalLayout rootLayout = new VerticalLayout();
 		rootLayout.addComponents(splitPanel);
 		setContent(rootLayout);
+
+		addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this)) {
+				return;
+			}
+			close();
+		});
 	}
 }

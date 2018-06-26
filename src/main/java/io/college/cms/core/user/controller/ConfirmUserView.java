@@ -21,7 +21,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.Utils;
-import io.college.cms.core.ui.builder.TextFieldWrapper;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.util.ListenerUtility;
 import io.college.cms.core.user.service.UserResponseService;
@@ -99,11 +99,11 @@ public class ConfirmUserView extends Composite implements View {
 			this.rootLayout = new VerticalLayout();
 			// initializing and setting attributes using a TextFieldWrapper
 			// builder
-			this.usernameFld = TextFieldWrapper.builder().placeholder("username")
+			this.usernameFld = VaadinWrapper.builder().placeholder("username")
 					.description("username provided during signup").icon(VaadinIcons.USER).build().textField();
 			// initializing confirmation and setting attributes using a
 			// textFieldWrapper builder
-			this.confirmCodeFld = TextFieldWrapper.builder().placeholder("confirmation code")
+			this.confirmCodeFld = VaadinWrapper.builder().placeholder("confirmation code")
 					.description("Provide confirmation code received in email").icon(VaadinIcons.CODE).maxLength(6)
 					.build().textField();
 			this.confirmButton = new Button("Confirm");

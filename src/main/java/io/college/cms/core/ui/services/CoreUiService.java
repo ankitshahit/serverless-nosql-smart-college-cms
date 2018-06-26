@@ -17,6 +17,7 @@ import com.vaadin.ui.IconGenerator;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
@@ -24,6 +25,7 @@ import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -208,5 +210,13 @@ public class CoreUiService {
 		Label label = getLabel();
 		label.setCaption(caption);
 		return label;
+	}
+
+	public TextField getFees() {
+		TextField fees = VaadinWrapper.builder().caption("Provide details about fees <br/>to be shown to student.")
+				.build().textField();
+		fees.setValue("Rs. ");
+		fees.removeStyleName(ValoTheme.TEXTFIELD_ALIGN_CENTER);
+		return fees;
 	}
 }

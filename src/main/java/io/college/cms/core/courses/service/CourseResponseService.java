@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.courses.db.CourseModel;
-import io.college.cms.core.dynamodbloader.model.Paginate;
+import io.college.cms.core.dynamodb.model.Paginate;
 import io.college.cms.core.exception.ExceptionType;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;

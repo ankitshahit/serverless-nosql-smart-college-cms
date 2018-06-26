@@ -45,7 +45,7 @@ import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.DeletePopupView;
-import io.college.cms.core.ui.builder.TextFieldWrapper;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.util.ListenerUtility;
 import io.college.cms.core.user.constants.UserAttributes;
@@ -275,7 +275,7 @@ public class UserView extends Composite implements View {
 		protected void initUI() {
 			int tabIndex = 0;
 
-			this.username = TextFieldWrapper.builder().required(false).placeholder("Username")
+			this.username = VaadinWrapper.builder().required(false).placeholder("Username")
 					.icon(VaadinIcons.NEWSPAPER).description("Select a unique username, to identify throughout.	")
 					.build().textField();
 			this.username.addStyleNames(ValoTheme.TEXTFIELD_HUGE, ValoTheme.TEXTFIELD_INLINE_ICON,
@@ -283,15 +283,15 @@ public class UserView extends Composite implements View {
 			this.username.setSizeFull();
 			this.username.setTabIndex(++tabIndex);
 			// setting attributes for first name
-			this.firstName = TextFieldWrapper.builder().placeholder("First name").enabled(true).required(false)
+			this.firstName = VaadinWrapper.builder().placeholder("First name").enabled(true).required(false)
 					.icon(VaadinIcons.USER_STAR).build().textField();
 			this.firstName.setTabIndex(++tabIndex);
 			// setting attributes for second name
-			this.middleName = TextFieldWrapper.builder().placeholder("Middle name").enabled(true).required(false)
+			this.middleName = VaadinWrapper.builder().placeholder("Middle name").enabled(true).required(false)
 					.icon(VaadinIcons.USER_STAR).build().textField();
 			this.middleName.setTabIndex(++tabIndex);
 			// setting attributes for last name
-			this.lastName = TextFieldWrapper.builder().placeholder("Last name").enabled(true).required(false)
+			this.lastName = VaadinWrapper.builder().placeholder("Last name").enabled(true).required(false)
 					.icon(VaadinIcons.USER_STAR).build().textField();
 			this.lastName.setTabIndex(++tabIndex);
 
@@ -313,7 +313,7 @@ public class UserView extends Composite implements View {
 			this.gender.setTabIndex(++tabIndex);
 
 			// setting attributes for email address.
-			this.emailAddress = TextFieldWrapper.builder().enabled(true).required(false).icon(VaadinIcons.USER_STAR)
+			this.emailAddress = VaadinWrapper.builder().enabled(true).required(false).icon(VaadinIcons.USER_STAR)
 					.placeholder("Email Address").build().textField();
 			this.emailAddress.setTabIndex(++tabIndex);
 

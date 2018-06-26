@@ -2,7 +2,7 @@ package io.college.cms.core.examination.service;
 
 import java.util.List;
 
-import io.college.cms.core.examination.db.ExaminationModel;
+import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;

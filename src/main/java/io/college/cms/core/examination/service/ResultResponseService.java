@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.examination.model.ExaminationModel.ExaminationModelBuilder;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionHandler;
 import io.college.cms.core.exception.ValidationException;
 import lombok.extern.slf4j.Slf4j;
-import io.college.cms.core.examination.db.ExaminationModel.ExaminationModelBuilder;
 
 @Service
 @Slf4j

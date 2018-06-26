@@ -44,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
 public class MenuManagerService {
+
 	private Navigator navigator;
 
 	/**
@@ -196,34 +197,39 @@ public class MenuManagerService {
 		tree.addStyleNames(ValoTheme.PANEL_SCROLL_INDICATOR);
 		TreeData<String> treeData = new TreeData<>();
 
-		treeData(treeData, null, "Courses");
-		treeData(treeData, "Courses", "View all courses");
-		treeData(treeData, "Courses", "New course");
-		treeData(treeData, null, "Exams");
-		treeData(treeData, "Exams", "View all exams");
-		treeData(treeData, "Exams", "Schedule Exam");
-		treeData(treeData, "Exams", "View exam timetable");
-		treeData(treeData, "Exams", "Download qr for exams");
-		treeData(treeData, null, "Admission");
-		treeData(treeData, "Admission", "Open Admissions");
-		treeData(treeData, "Admission", "Apply Admissions");
-		treeData(treeData, "Admission", "Configure Admissions");
-		treeData(treeData, "Admission", "Admission request queue");
-		treeData(treeData, "Admission", "Fees");
-		treeData(treeData, "Admission", "fees queue");
-		treeData(treeData, null, "User");
-		treeData(treeData, "User", "View all user");
-		treeData(treeData, "User", "Add user");
-		treeData(treeData, "User", "My profile");
-		treeData(treeData, "User", "My documents");
-		treeData(treeData, "User", "My notifications");
-		treeData(treeData, "User", "Configure Notifications");
-		treeData(treeData, null, "Results");
-		treeData(treeData, "Results", "View results");
+		treeData(treeData, null, COURSES);
+		treeData(treeData, COURSES, "View all courses");
+		treeData(treeData, COURSES, "New course");
+		treeData(treeData, null, EXAMS);
+		treeData(treeData, EXAMS, "View all exams");
+		treeData(treeData, EXAMS, "Schedule Exam");
+		treeData(treeData, EXAMS, "View exam timetable");
+		treeData(treeData, EXAMS, "Download qr for exams");
 
-		treeData(treeData, null, "Announcement");
-		treeData(treeData, "Announcement", "Publish Announcement");
-		treeData(treeData, "Announcement", "View All Announcements");
+		treeData(treeData, null, ADMISSION);
+		treeData(treeData, ADMISSION, "Open Admissions");
+		treeData(treeData, ADMISSION, "Apply Admissions");
+		treeData(treeData, ADMISSION, "Configure Admissions");
+		treeData(treeData, ADMISSION, "Admission request queue");
+		treeData(treeData, ADMISSION, FEES);
+		treeData(treeData, ADMISSION, CONFIGURE_FEES);
+		treeData(treeData, ADMISSION, PUBLISH_FEES);
+
+		treeData(treeData, null, USER);
+		treeData(treeData, USER, "View all user");
+		treeData(treeData, USER, "Add user");
+		treeData(treeData, USER, "My profile");
+		treeData(treeData, USER, "My documents");
+		treeData(treeData, USER, "My notifications");
+		treeData(treeData, USER, "Configure Notifications");
+		treeData(treeData, null, RESULTS);
+		treeData(treeData, RESULTS, "View results");
+
+		treeData(treeData, null, ANNOUNCEMENT);
+		treeData(treeData, ANNOUNCEMENT, "Publish Announcement");
+		treeData(treeData, ANNOUNCEMENT, "View All Announcements");
+		treeData(treeData, null, JOB);
+		treeData(treeData, JOB, "Publish Job");
 		treeData(treeData, null, "FAQ Bot");
 
 		TreeDataProvider<String> dataProvider = new TreeDataProvider<String>(treeData);
@@ -270,6 +276,14 @@ public class MenuManagerService {
 					navigator.navigateTo(ViewConstants.CONFIGURE_NOTIFICATION);
 				} else if (MY_DOCUMENTS.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.MY_DOCUMENTS);
+				} else if (PUBLISH_JOB.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.PUBLISH_JOB);
+				} else if (CONFIGURE_FEES.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.CONFIGURE_FEES);
+				} else if (DOWNLOAD_QR_FOR_EXAMS.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.EXAM_QR_DOWNLOAD);
+				} else if (PUBLISH_FEES.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.PUBLISH_FEES);
 				}
 
 			}

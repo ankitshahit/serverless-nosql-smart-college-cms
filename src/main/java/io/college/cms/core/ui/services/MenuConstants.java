@@ -28,4 +28,8 @@ public class MenuConstants {
 	static final String VIEW_ALL_COURSES = "View all courses";
 	static final String NEW_COURSE = "New course";
 	static final String CONFIGURE_NOTIFICATIONS = "Configure Notifications";
+	static final String JOB = "Jobs";
+	static final String PUBLISH_JOB = "Publish job";
+	static final String CONFIGURE_FEES = "Configure Fees";
+	static final String PUBLISH_FEES = "Fees details";
 }

@@ -6,14 +6,13 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-
 import io.college.cms.core.courses.db.CourseModel;
-import io.college.cms.core.dynamodbloader.model.Paginate;
+import io.college.cms.core.dynamodb.model.Paginate;
+import io.college.cms.core.dynamodb.service.DynamoGenericService;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.NoSuchRecordException;
 import io.college.cms.core.exception.ValidationException;
@@ -23,11 +22,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class CourseDynamoService implements ICourseDbService {
-	private DynamoDBMapper dbMapper;
 
+	private DynamoGenericService<CourseModel, String> dbService;
+
+	/**
+	 * @param dbMapper
+	 * @param dbService
+	 */
 	@Autowired
-	public CourseDynamoService(DynamoDBMapper dbMapper) {
-		this.dbMapper = dbMapper;
+	public CourseDynamoService(DynamoGenericService<CourseModel, String> dbService) {
+		super();
+		this.dbService = dbService;
+		this.dbService.setK(CourseModel.class);
 	}
 
 	@Override
@@ -36,7 +42,7 @@ public class CourseDynamoService implements ICourseDbService {
 			throws NoSuchRecordException, NullPointerException {
 		CourseModel course = null;
 		try {
-			course = dbMapper.load(CourseModel.class, courseName);
+			course = dbService.findBy(courseName);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new NoSuchRecordException(e);
@@ -45,10 +51,10 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	@CacheEvict(value = { "coursesData", "courseName" }, key = "#course.courseName")
+	@CachePut(value = { "coursesData", "courseName" }, key = "#course.courseName")
 	public void saveCourse(@NonNull CourseModel course) throws ValidationException {
 		try {
-			dbMapper.save(course);
+			dbService.save(course);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ValidationException(e);
@@ -60,7 +66,7 @@ public class CourseDynamoService implements ICourseDbService {
 	public void deleteCourse(@NonNull CourseModel course) throws ValidationException, NoSuchRecordException {
 
 		try {
-			dbMapper.delete(course);
+			dbService.delete(course.getCourseName());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			throw new ValidationException(e);
@@ -68,7 +74,6 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-
 	public void deleteCourse(@NonNull String courseName) throws ValidationException, NoSuchRecordException {
 		try {
 			deleteCourse(new CourseModel(courseName));
@@ -84,8 +89,7 @@ public class CourseDynamoService implements ICourseDbService {
 		List<CourseModel> scanResult = new ArrayList<>();
 		try {
 			LOGGER.info("Db hit");
-			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-			scanResult = dbMapper.scan(CourseModel.class, scanExpression);
+			scanResult = dbService.findAll();
 			if (CollectionUtils.isEmpty(scanResult)) {
 				throw new ValidationException("No courses are available.");
 			}

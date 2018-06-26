@@ -9,16 +9,20 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 
 import io.college.cms.core.admission.controller.ApplyAdmissionView;
-import io.college.cms.core.admission.controller.ConfigureAdmissionActionView;
+import io.college.cms.core.admission.controller.ConfigureAdmissionView;
+import io.college.cms.core.admission.controller.ConfigureFeesView;
 import io.college.cms.core.admission.controller.PublishAdmissionView;
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
 import io.college.cms.core.documents.controller.MyDocumentsView;
+import io.college.cms.core.examination.controller.DownloadQrExamView;
 import io.college.cms.core.examination.controller.PublishExamView;
+import io.college.cms.core.examination.controller.PublishFeesView;
 import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
+import io.college.cms.core.job.controller.PublishJobView;
 import io.college.cms.core.notification.controller.ConfigureNotificationView;
 import io.college.cms.core.ui.controller.PublishCourseView;
 import io.college.cms.core.ui.controller.ViewAllCoursesUI;
@@ -63,7 +67,7 @@ public class ViewManagerService {
 	@Autowired
 	private PublishAdmissionView publishAdmission;
 	@Autowired
-	private ConfigureAdmissionActionView configureAdmission;
+	private ConfigureAdmissionView configureAdmission;
 	@Autowired
 	private LoginUserView loginView;
 	@Autowired
@@ -72,6 +76,14 @@ public class ViewManagerService {
 	private MyDocumentsView myDocuments;
 	@Autowired
 	private ConfigureNotificationView configureNotification;
+	@Autowired
+	private PublishJobView publishJob;
+	@Autowired
+	private ConfigureFeesView configureFeesView;
+	@Autowired
+	private DownloadQrExamView downloadQr;
+	@Autowired
+	private PublishFeesView publishFees;
 
 	public void setNavigator(Navigator navigator) {
 		this.navigator = navigator;
@@ -87,6 +99,9 @@ public class ViewManagerService {
 		addView(ViewConstants.COURSES_VIEW_ALL, seeCourses);
 		addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
 		addView(ViewConstants.SEE_ANNOUNCEMENT, seeAnnouncement);
+		addView(ViewConstants.EXAM_QR_DOWNLOAD, downloadQr);
+		addView(ViewConstants.PUBLISH_FEES, publishFees);
+		addView(ViewConstants.CONFIGURE_FEES, configureFeesView);
 		addView(ViewConstants.SEE_RESULTS, seeResults);
 		addView(ViewConstants.EXAM_CREATE, publishExam);
 		addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
@@ -99,6 +114,8 @@ public class ViewManagerService {
 		addView(ViewConstants.LOGIN, loginView);
 		addView(ViewConstants.MY_DOCUMENTS, myDocuments);
 		addView(ViewConstants.CONFIGURE_NOTIFICATION, configureNotification);
+		addView(ViewConstants.PUBLISH_JOB, publishJob);
+
 	}
 
 }

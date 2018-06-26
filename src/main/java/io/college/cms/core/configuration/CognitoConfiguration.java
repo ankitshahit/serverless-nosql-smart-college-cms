@@ -20,18 +20,18 @@ import com.amazonaws.services.cognitoidp.model.SignUpRequest;
 
 @Configuration
 public class CognitoConfiguration {
-	private AppParams appParams;
+	private AppParams params;
 
 	@Autowired
-	public CognitoConfiguration(AppParams appParams) {
-		this.appParams = appParams;
+	public CognitoConfiguration(AppParams params) {
+		this.params = params;
 	}
 
 	@Bean
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminGetUserRequest adminGetUser() {
 		AdminGetUserRequest adminGetUser = new AdminGetUserRequest();
-		adminGetUser.setUserPoolId(appParams.getCognitoUserPoolId());
+		adminGetUser.setUserPoolId(params.getCognitoUserPoolId());
 		return adminGetUser;
 	}
 
@@ -39,7 +39,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminCreateUserRequest adminCreateUser() {
 		AdminCreateUserRequest createUserRequest = new AdminCreateUserRequest();
-		createUserRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		createUserRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return createUserRequest;
 	}
 
@@ -47,7 +47,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminDeleteUserRequest adminDeleteUser() {
 		AdminDeleteUserRequest deleteUserRequest = new AdminDeleteUserRequest();
-		deleteUserRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		deleteUserRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return deleteUserRequest;
 	}
 
@@ -55,7 +55,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminUpdateUserAttributesRequest adminUpdateAttributeUser() {
 		AdminUpdateUserAttributesRequest request = new AdminUpdateUserAttributesRequest();
-		request.setUserPoolId(appParams.getCognitoUserPoolId());
+		request.setUserPoolId(params.getCognitoUserPoolId());
 		return request;
 	}
 
@@ -63,7 +63,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminAddUserToGroupRequest adminAddGroup() {
 		AdminAddUserToGroupRequest userRequest = new AdminAddUserToGroupRequest();
-		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		userRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return userRequest;
 	}
 
@@ -71,7 +71,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminRemoveUserFromGroupRequest adminRemoveGroup() {
 		AdminRemoveUserFromGroupRequest userRequest = new AdminRemoveUserFromGroupRequest();
-		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		userRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return userRequest;
 	}
 
@@ -79,7 +79,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public AdminListGroupsForUserRequest adminListUserGroup() {
 		AdminListGroupsForUserRequest userRequest = new AdminListGroupsForUserRequest();
-		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		userRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return userRequest;
 	}
 
@@ -87,7 +87,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public ListUsersInGroupRequest adminListGroup() {
 		ListUsersInGroupRequest userRequest = new ListUsersInGroupRequest();
-		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		userRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return userRequest;
 	}
 
@@ -95,7 +95,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public ListUsersRequest listUsersGroup() {
 		ListUsersRequest userRequest = new ListUsersRequest();
-		userRequest.setUserPoolId(appParams.getCognitoUserPoolId());
+		userRequest.setUserPoolId(params.getCognitoUserPoolId());
 		return userRequest;
 	}
 
@@ -103,7 +103,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public SignUpRequest signupRequest() {
 		SignUpRequest request = new SignUpRequest();
-		request.setClientId(appParams.getCognitoClientId());
+		request.setClientId(params.getCognitoClientId());
 		return request;
 	}
 
@@ -111,7 +111,7 @@ public class CognitoConfiguration {
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public ConfirmSignUpRequest confirmSignupRequest() {
 		ConfirmSignUpRequest request = new ConfirmSignUpRequest();
-		request.setClientId(appParams.getCognitoClientId());
+		request.setClientId(params.getCognitoClientId());
 		return request;
 	}
 }

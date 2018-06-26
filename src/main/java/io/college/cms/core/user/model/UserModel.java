@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import io.college.cms.core.dynamodbloader.constants.TableNames;
+import io.college.cms.core.dynamodb.constants.Table;
 import io.college.cms.core.user.constants.UserAttributes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +26,7 @@ import lombok.Singular;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamoDBTyped()
-@DynamoDBTable(tableName = TableNames.PROFILE_TABLE)
+@DynamoDBTable(tableName = Table.PROFILE_TABLE)
 @JsonIgnoreProperties
 public class UserModel {
 	@DynamoDBAttribute(attributeName = "first_name")

@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import io.college.cms.core.examination.db.ExaminationModel;
-import io.college.cms.core.examination.db.ExaminationModel.ExamSubject;
+import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.model.ExaminationModel.ExamSubject;
 import io.college.cms.core.exception.ApplicationException;
 
 @Service

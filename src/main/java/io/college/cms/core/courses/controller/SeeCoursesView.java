@@ -22,6 +22,7 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
@@ -50,6 +51,7 @@ public class SeeCoursesView extends VerticalLayout implements View {
 	public void paint() {
 		Panel panel = new Panel();
 		grid = new Grid<>();
+
 		VerticalLayout layout = new VerticalLayout();
 		List<CourseModel> models = new ArrayList<>();
 		models.add(CourseModel.builder().courseName("hello").build());
@@ -69,35 +71,38 @@ public class SeeCoursesView extends VerticalLayout implements View {
 		grid.addColumn(CourseModel::isArchive).setCaption("Archived?");
 		grid.setSizeFull();
 		grid.setSelectionMode(SelectionMode.SINGLE);
-
+		this.grid.addStyleNames(ValoTheme.TABLE_NO_STRIPES);
 		layout.addComponent(grid);
 		layout.setSizeFull();
 		panel.setContent(layout);
 		addComponent(panel);
+		grid.setSizeFull();
+		grid.setFooterVisible(true);
+		grid.addSelectionListener(selection -> {
+			LOGGER.debug("Selection listener fired.");
+			if (selection.getFirstSelectedItem().isPresent()) {
+				CourseModel courseModel = selection.getFirstSelectedItem().get();
+				LOGGER.debug("course name : {}", courseModel.getCourseName());
+				PublishCourseView view = app.getBean(PublishCourseView.class);
+				view.setCourseModel(courseModel);
+				Window window = new Window();
+				window.setContent(view);
+				window.center();
+				window.setResizable(false);
+				window.addCloseListener(close -> {
+
+				});
+				getUI().addWindow(window);
+				view.enter(null);
+			}
+		});
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			grid.addSelectionListener(selection -> {
-				LOGGER.debug("Selection listener fired.");
-				if (selection.getFirstSelectedItem().isPresent()) {
-					CourseModel courseModel = selection.getFirstSelectedItem().get();
-					LOGGER.debug("course name : {}", courseModel.getCourseName());
-					PublishCourseView view = app.getBean(PublishCourseView.class);
-					view.setCourseModel(courseModel);
-					Window window = new Window();
-					window.setContent(view);
-					window.center();
-					window.setResizable(false);
-					window.addCloseListener(close -> {
 
-					});
-					getUI().addWindow(window);
-					view.enter(null);
-				}
-			});
 			LOGGER.debug("request received view : {}", event);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());

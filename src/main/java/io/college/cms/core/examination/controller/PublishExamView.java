@@ -37,7 +37,7 @@ import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
-import io.college.cms.core.examination.db.ExaminationModel;
+import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.util.ElementHelper;

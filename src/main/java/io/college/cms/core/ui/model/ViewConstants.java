@@ -17,6 +17,7 @@ public class ViewConstants {
 	public static final String EXAM_UPDATE = "updateExam";
 	public static final String EXAM_VIEW_ALL = "viewAllExams";
 	public static final String EXAM_DELETE = "deleteExam";
+	public static final String EXAM_QR_DOWNLOAD = "deleteExam";
 	public static final String ATTENDANCE_VIEW_ALL = "viewAllAttendance";
 	public static final String RESULTS_VIEW_ALL = "viewAllResults";
 	public static final String USER_VIEW_ALL = "viewAllUsers";
@@ -35,4 +36,7 @@ public class ViewConstants {
 	public static final String LOGIN = "login";
 	public static final String MY_DOCUMENTS = "myDocuments";
 	public static final String CONFIGURE_NOTIFICATION = "configureNotification";
+	public static final String PUBLISH_JOB = "publishJob";
+	public static final String CONFIGURE_FEES = "configureFees";
+	public static final String PUBLISH_FEES = "publishFees";
 }
