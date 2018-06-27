@@ -20,7 +20,7 @@ import com.vaadin.server.FileResource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
@@ -202,12 +202,25 @@ public class MyDocumentsView extends VerticalLayout implements View {
 			VerticalLayout secondLayout = new VerticalLayout();
 			Label uploadDocumentLbl = coreUI.getLabel();
 			uploadDocumentLbl.setValue("<b>Upload documents </b>&nbsp;&nbsp;");
-			CssLayout hl = new CssLayout();
+			HorizontalLayout hl = new HorizontalLayout();
 			hl.setSizeFull();
-			hl.addComponents(this.tagField, this.tagHelpBtn);
-			firstLayout.addComponents(hl, this.usernameLbl);
+			this.tagField.setSizeFull();
 
-			secondLayout.addComponents(uploadDocumentLbl, this.upload, this.s3Link, this.download);
+			hl.addComponents(this.tagField);
+			this.usernameLbl.setCaption("<b>User</b>:");
+			this.usernameLbl.setValue("File is being uploaded with username: <b>'Ankit'</b>");
+			Label tagHelpLbl = new Label();
+
+			tagHelpLbl.setValue(
+					"<b>Tag</b>: helps define and find file easier, for example tagging a document as <i>HSC</i> <br/>will help other's to look directly and assume it's related to HSC marksheet.");
+			tagHelpLbl.setContentMode(ContentMode.HTML);
+			firstLayout.addComponents(hl, tagHelpLbl, this.usernameLbl);
+			Label helpLbl = new Label();
+			helpLbl.setSizeFull();
+			helpLbl.setValue("<b>Help</b>");
+			helpLbl.setContentMode(ContentMode.HTML);
+			secondLayout.addComponents(new HorizontalLayout(helpLbl, this.tagHelpBtn), uploadDocumentLbl, this.upload,
+					this.s3Link, this.download);
 			HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
 			splitPanel.setSplitPosition(70.0f);
 			splitPanel.addComponents(firstLayout, secondLayout);
