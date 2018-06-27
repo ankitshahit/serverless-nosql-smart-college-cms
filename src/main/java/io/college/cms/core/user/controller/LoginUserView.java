@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -36,6 +37,7 @@ public class LoginUserView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private LoginUserViewService loginViewService;
 	private ApplicationContext app;
+
 	@Autowired
 	public LoginUserView(ApplicationContext app) {
 		super();
@@ -95,23 +97,29 @@ public class LoginUserView extends VerticalLayout implements View {
 		 */
 		protected void initUI() {
 
-			this.dto.usernameField = VaadinWrapper.builder().caption("Username").placeholder("username").build()
-					.textField();
+			this.dto.usernameField = VaadinWrapper.builder().caption("Username").icon(VaadinIcons.USERS)
+					.placeholder("username").build().textField();
 
-			this.dto.passwordField = VaadinWrapper.builder().caption("Password").build().passwordField();
+			this.dto.passwordField = VaadinWrapper.builder().caption("Password").icon(VaadinIcons.PASSWORD).build()
+					.passwordField();
 			this.dto.signupBtn = VaadinWrapper.builder().build().button();
 			this.dto.signupBtn.setCaption("New user?");
+			this.dto.signupBtn.setIcon(VaadinIcons.SIGN_IN);
 			this.dto.signupBtn.setStyleName(ValoTheme.BUTTON_QUIET);
 
 			this.dto.forgotPasswordBtn = VaadinWrapper.builder().build().button();
 			this.dto.forgotPasswordBtn.setCaption("Forgot password?");
 			this.dto.forgotPasswordBtn.setStyleName(ValoTheme.BUTTON_QUIET);
+			this.dto.forgotPasswordBtn.setIcon(VaadinIcons.FORM);
 			this.dto.confirmAccountBtn = VaadinWrapper.builder().build().button();
 			this.dto.confirmAccountBtn.setCaption("Confirm user");
+			this.dto.confirmAccountBtn.setIcon(VaadinIcons.ADD_DOCK);
 			this.dto.confirmAccountBtn.setStyleName(ValoTheme.BUTTON_QUIET);
+			
 			this.dto.loginBtn = VaadinWrapper.builder().build().button();
 			this.dto.loginBtn.setCaption("Login");
 			this.dto.loginBtn.setEnabled(false);
+			this.dto.loginBtn.setIcon(VaadinIcons.SIGN_IN);
 			this.dto.loginBtn.removeStyleName(ValoTheme.BUTTON_FRIENDLY);
 			this.dto.loginBtn.addStyleNames(ValoTheme.BUTTON_PRIMARY, ValoTheme.BUTTON_LARGE);
 
