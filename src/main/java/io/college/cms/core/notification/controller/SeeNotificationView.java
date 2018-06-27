@@ -36,9 +36,15 @@ public class SeeNotificationView extends VerticalLayout implements View {
 			label.setWidth(100.0f, Unit.PERCENTAGE);
 			this.notificationLabels.add(label);
 		}
-		for (int index = 0; index < this.notificationLabels.size(); index++) {
-			this.tabSheet.addTab(this.notificationLabels.get(index), " Tab " + index);
-		}
+		int index = 0;
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Admission");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Announcement");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Course Group");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Exams");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " My documents");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Jobs");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Results");
+		this.tabSheet.addTab(this.notificationLabels.get(index++), " Others");
 
 		Panel panel = new Panel();
 		this.tabSheet.setHeight(100.0f, Unit.PERCENTAGE);

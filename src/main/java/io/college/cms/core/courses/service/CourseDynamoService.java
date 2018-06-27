@@ -33,7 +33,7 @@ public class CourseDynamoService implements ICourseDbService {
 	public CourseDynamoService(DynamoGenericService<CourseModel, String> dbService) {
 		super();
 		this.dbService = dbService;
-		this.dbService.setK(CourseModel.class);
+		this.dbService.setClass(CourseModel.class);
 	}
 
 	@Override
