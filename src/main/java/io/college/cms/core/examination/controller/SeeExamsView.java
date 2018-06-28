@@ -46,6 +46,7 @@ public class SeeExamsView extends VerticalLayout implements View {
 		this.examResponseService = service;
 	}
 
+	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void paint() {
 		Panel panel = new Panel();

@@ -13,6 +13,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.IconGenerator;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -20,21 +21,30 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.announcement.model.AnnouncementModel;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.job.model.JobModel;
+import io.college.cms.core.job.services.JobResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CoreUiService {
 	private CourseResponseService courseResponseService;
+	private JobResponseService jobResponseService;
 
 	@Autowired
 	public void setCourseResponseService(CourseResponseService courseResponseService) {
 		this.courseResponseService = courseResponseService;
+	}
+
+	@Autowired
+	public void setJobResponseService(JobResponseService jobResponseService) {
+		this.jobResponseService = jobResponseService;
 	}
 
 	public ComboBox<String> getCoursesList() {
@@ -190,6 +200,37 @@ public class CoreUiService {
 			subjects.add(subjectModel);
 		}
 		return subjects;
+	}
+
+	public void setItemsJob(Grid<JobModel> grid) {
+		FactoryResponse fr = jobResponseService.findAllJobs();
+		List<JobModel> jobs = null;
+
+		Utils.showFactoryResponseOnlyError(fr);
+		if (Utils.isError(fr)) {
+			return;
+		}
+		jobs = (List<JobModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(jobs)) {
+			return;
+		}
+		grid.setItems(jobs);
+	}
+
+	public void setItemsAnnouncement(Grid<AnnouncementModel> grid) {
+		// TODO: implement response service;
+		FactoryResponse fr = null;
+		List<AnnouncementModel> announcements = null;
+
+		Utils.showFactoryResponseOnlyError(fr);
+		if (Utils.isError(fr)) {
+			return;
+		}
+		announcements = (List<AnnouncementModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(announcements)) {
+			return;
+		}
+		grid.setItems(announcements);
 	}
 
 	public Label getLabel() {

@@ -62,10 +62,6 @@ public class ExamResponseService {
 					ExceptionType.VALIDATION_EXCEPTION);
 			examDbService.deleteExam(examName);
 			fr = FactoryResponse.builder().response(examName).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -105,10 +101,6 @@ public class ExamResponseService {
 					"Exam Start date cannot be greater than exam end date.", ExceptionType.VALIDATION_EXCEPTION);
 			examDbService.saveUpdateExam(model);
 			fr = FactoryResponse.builder().response(model).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -134,10 +126,6 @@ public class ExamResponseService {
 		try {
 			ExaminationModel exam = examDbService.findByExamName(examName);
 			fr = FactoryResponse.builder().response(exam).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -163,10 +151,6 @@ public class ExamResponseService {
 		try {
 			List<ExaminationModel> exams = examDbService.findAllExams();
 			fr = FactoryResponse.builder().response(exams).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -311,10 +295,6 @@ public class ExamResponseService {
 			examDbService.saveUpdateExam(examination);
 			fr = FactoryResponse.builder().response("Successfully saved/updated")
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -344,10 +324,6 @@ public class ExamResponseService {
 			examDbService.deleteExam(examName);
 			fr = FactoryResponse.builder().response("Successfully deleted.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))

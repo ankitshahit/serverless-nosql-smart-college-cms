@@ -18,4 +18,6 @@ public class Table {
 	public static final String NOTIFICATION_TABLE = "t_notification";
 	public static final String APPLY_ADMISSION_TABLE = "t_admission_apply";
 	public static final String RESULTS = "t_result";
+	public static final String JOB_TABLE = "t_jobs";
+	public static final String ANNOUNCEMENT_TABLE = "t_announcement";
 }

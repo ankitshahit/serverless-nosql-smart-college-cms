@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserResponseService {
 
 	private IUserService userService;
+
 	@Autowired()
 	public UserResponseService(IUserService userService) {
 		this.userService = userService;
@@ -51,10 +52,6 @@ public class UserResponseService {
 		try {
 			UserModel user = userService.findByUsername(username);
 			fr = FactoryResponse.builder().response(user).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -80,10 +77,6 @@ public class UserResponseService {
 		try {
 			fr = FactoryResponse.builder().response(userService.findAllUsers(userModel))
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -111,10 +104,6 @@ public class UserResponseService {
 			fr = FactoryResponse.builder()
 					.response("Signup/update successfull. Provide with confirmation code on next step.")
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -140,10 +129,6 @@ public class UserResponseService {
 			userService.confirmSignup(username, confirmation);
 			fr = FactoryResponse.builder().response("Confirmation successfull.")
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -171,10 +156,6 @@ public class UserResponseService {
 			userService.deleteUser(username);
 			fr = FactoryResponse.builder().response("deleted successfully.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))

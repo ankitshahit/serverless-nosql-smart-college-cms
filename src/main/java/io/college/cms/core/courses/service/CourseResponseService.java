@@ -41,7 +41,7 @@ public class CourseResponseService {
 					ExceptionType.VALIDATION_EXCEPTION);
 			dbService.saveCourse(course);
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (ValidationException | IllegalArgumentException e) {
+		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
 			fr = FactoryResponse.builder().response(e.getMessage()).summaryMessage(SummaryMessageEnum.VALIDATION_ERROR)
 					.build();
@@ -59,7 +59,7 @@ public class CourseResponseService {
 			ValidationHandler.throwExceptionIfNull(courseName, null, ExceptionType.VALIDATION_EXCEPTION);
 			CourseModel course = dbService.findByCourseName(courseName);
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (ValidationException | IllegalArgumentException e) {
+		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
 			fr = FactoryResponse.builder().response("No such course exists or invalid course name")
 					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
@@ -78,7 +78,7 @@ public class CourseResponseService {
 			dbService.saveCourse(course);
 			fr = FactoryResponse.builder().response("Saved/updated successfully.")
 					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (ValidationException | IllegalArgumentException e) {
+		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
 			fr = FactoryResponse.builder().response("Course may already exist or invalid validation exception")
 					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
@@ -97,7 +97,7 @@ public class CourseResponseService {
 			dbService.deleteCourse(courseName);
 			fr = FactoryResponse.builder().response("deleted successfully.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();
-		} catch (ValidationException | IllegalArgumentException e) {
+		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
 			fr = FactoryResponse.builder().response("Invalid course or invalid permissions")
 					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
@@ -125,7 +125,7 @@ public class CourseResponseService {
 			paginate.setEndNumber(endRecord);
 			List<CourseModel> course = dbService.loadCourses();
 			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (ValidationException | IllegalArgumentException e) {
+		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
 			fr = FactoryResponse.builder().response("No course exists.")
 					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();

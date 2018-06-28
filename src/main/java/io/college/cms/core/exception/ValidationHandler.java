@@ -33,6 +33,22 @@ public class ValidationHandler {
 		}
 	}
 
+	public static void throwExceptionStringEmpty(String val, String msg, ExceptionType type)
+			throws NoSuchRecordException, ValidationException {
+
+		if (StringUtils.isNotEmpty(val)) {
+			return;
+		}
+		if (StringUtils.isEmpty(msg)) {
+			msg = "Required field is empty..";
+		}
+		if (ExceptionType.NO_RECORD_AVAILABLE == type) {
+			throw new NoSuchRecordException(sourceIfNotNull(msg, "No such record available."));
+		} else if (ExceptionType.VALIDATION_EXCEPTION == type) {
+			throw new ValidationException(sourceIfNotNull(msg, "Resource not found, validation error."));
+		}
+	}
+
 	public static String sourceIfNotNull(String source, String defaultMsg) {
 		return source == null || source.isEmpty() ? defaultMsg : source;
 	}

@@ -27,6 +27,7 @@ import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.job.controller.PublishJobView;
+import io.college.cms.core.job.controller.ViewJobsView;
 import io.college.cms.core.notification.controller.ConfigureNotificationView;
 import io.college.cms.core.notification.controller.SeeNotificationView;
 import io.college.cms.core.ui.controller.PublishCourseView;
@@ -85,6 +86,8 @@ public class ViewManagerService {
 	@Autowired
 	private PublishJobView publishJob;
 	@Autowired
+	private ViewJobsView viewJobs;
+	@Autowired
 	private ConfigureFeesView configureFeesView;
 	@Autowired
 	private DownloadQrExamView downloadQr;
@@ -134,6 +137,7 @@ public class ViewManagerService {
 		addView(ViewConstants.MY_DOCUMENTS, myDocuments);
 		addView(ViewConstants.CONFIGURE_NOTIFICATION, configureNotification);
 		addView(ViewConstants.PUBLISH_JOB, publishJob);
+		addView(ViewConstants.VIEW_ALL_JOB, viewJobs);
 		addView(ViewConstants.ADD_TO_GROUP, addToGroup);
 		addView(ViewConstants.TAG_ATTENDANCE, tagAttendance);
 		addView(ViewConstants.VIEW_ATTENDANCE, viewAttendance);

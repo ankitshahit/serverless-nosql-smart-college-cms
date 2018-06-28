@@ -1,8 +1,6 @@
 package io.college.cms.core.admission.controller;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -34,13 +32,11 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-import io.college.cms.core.application.FactoryResponse;
-import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
-import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.listener.ClearValuesListener;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.Builder;
@@ -55,6 +51,7 @@ public class ConfigureAdmissionView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private CourseResponseService courseResponseService;
 	private ConfigureAdmissionViewService configureAdmissionVewService;
+	private CoreUiService uiService;
 
 	/**
 	 * @param courseResponseService
@@ -67,6 +64,11 @@ public class ConfigureAdmissionView extends VerticalLayout implements View {
 
 	}
 
+	@Autowired
+	public void setUiService(CoreUiService uiService) {
+		this.uiService = uiService;
+	}
+
 	@PostConstruct
 	protected void paint() {
 		addComponents(configureAdmissionVewService.getDto().getRootPanel(), new Label());
@@ -76,31 +78,7 @@ public class ConfigureAdmissionView extends VerticalLayout implements View {
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-
-			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<CourseModel> models = null;
-			models = (List<CourseModel>) courseResponse.getResponse();
-			if (CollectionUtils.isEmpty(models)) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<String> courseNames = new ArrayList<>();
-			models.forEach(course -> {
-				courseNames.add(course.getCourseName());
-			});
-			this.configureAdmissionVewService.getDto().getCoursesList().setItems(courseNames);
+			uiService.setItemsCourseNames(this.configureAdmissionVewService.getDto().getCoursesList());
 		} catch (Exception e) {
 			LOGGER.error(ExceptionUtils.getStackTrace(e));
 			LOGGER.error(e.getMessage());

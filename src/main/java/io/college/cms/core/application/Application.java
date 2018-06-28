@@ -1,5 +1,7 @@
 package io.college.cms.core.application;
 
+import javax.servlet.annotation.WebServlet;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.CacheManager;
@@ -9,6 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.server.VaadinServlet;
+
+import io.college.cms.core.ui.controller.HomePageUI;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication
@@ -25,6 +31,12 @@ public class Application {
 		LOGGER.debug("isDebugEnabled = {}", LOGGER.isDebugEnabled());
 		System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
 		SpringApplication.run(Application.class, args);
+	}
+
+	@WebServlet(urlPatterns = "/*", name = "frontEndApp", asyncSupported = true)
+	@VaadinServletConfiguration(ui = HomePageUI.class, productionMode = false)
+	public static class VaadinApplication extends VaadinServlet {
+		private static final long serialVersionUID = 1L;
 	}
 
 	@Configuration

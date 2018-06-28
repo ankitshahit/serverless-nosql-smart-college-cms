@@ -1,17 +1,16 @@
 package io.college.cms.core.announcement.ui;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationException;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -31,12 +30,17 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.announcement.model.AnnouncementModel;
+import io.college.cms.core.announcement.services.AnnouncementResponseService;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
-import io.college.cms.core.courses.db.CourseModel;
-import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.application.Utils;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.model.ViewConstants;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -45,29 +49,38 @@ import lombok.extern.slf4j.Slf4j;
 public class PublishAnnouncementView extends VerticalLayout implements View {
 	private static final float SPLITTER_POSITION = 65.0F;
 	private static final long serialVersionUID = 1L;
-	private CourseResponseService courseResponseService;
-	private List<CourseModel> models;
+	private Binder<AnnouncementModel> binder;
 	private ComboBox<String> selectCourse;
+	private CheckBox announceToAll;
+	private TextField subject;
+	private DateField scheduledDate;
+	private RichTextArea announcementDescription;
+	private CoreUiService uiService;
+	private AnnouncementResponseService announcementResponseService;
+	@Setter
+	private AnnouncementModel announcementModel;
 
 	@Autowired
-	public PublishAnnouncementView(CourseResponseService courseResponseService) {
-		this.courseResponseService = courseResponseService;
+	public PublishAnnouncementView(CoreUiService uiService, AnnouncementResponseService announcementResponseService) {
+		super();
+		this.uiService = uiService;
+		this.announcementResponseService = announcementResponseService;
 	}
 
 	@PostConstruct
 	public void paint() {
 		Panel panel = new Panel();
 		VerticalLayout rootLayout = new VerticalLayout();
-		CheckBox announceToAll = new CheckBox();
-		selectCourse = new ComboBox<String>();
-		TextField subject = new TextField();
-		DateField scheduledDate = new DateField();
-		RichTextArea announcementDescription = new RichTextArea();
+		this.announceToAll = new CheckBox();
+		this.selectCourse = new ComboBox<String>();
+		this.subject = new TextField();
+		this.scheduledDate = new DateField();
+		this.announcementDescription = new RichTextArea();
 		Button publish = new Button();
 
-		announceToAll.setCaption("Send announcement to all?");
-		announceToAll.setVisible(true);
-		announceToAll.setEnabled(true);
+		this.announceToAll.setCaption("Send announcement to all?");
+		this.announceToAll.setVisible(true);
+		this.announceToAll.setEnabled(true);
 
 		this.selectCourse.setCaption("Select course to send announcement to:");
 		this.selectCourse.setPlaceholder("Type starting letter of course name");
@@ -78,29 +91,22 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		this.selectCourse.addStyleNames(ValoTheme.COMBOBOX_LARGE);
 		// selectCourse.setItems(models);
 
-		subject.setCaption("Title");
-		subject.setPlaceholder("Write 100 characters at max");
-		subject.setRequiredIndicatorVisible(true);
-		subject.setVisible(true);
-		subject.setEnabled(true);
-		subject.setMaxLength(100);
-		subject.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER, ValoTheme.TEXTFIELD_LARGE,
-				ValoTheme.TEXTFIELD_INLINE_ICON);
-		subject.setSizeFull();
+		this.subject = VaadinWrapper.builder().caption("Title").placeholder("Write 100 characters at max")
+				.maxLength(100).build().textField();
 
-		scheduledDate.setCaption("Schedule date for announcement!");
-		scheduledDate.setValue(LocalDate.now());
-		scheduledDate.setRequiredIndicatorVisible(true);
-		scheduledDate.setVisible(true);
-		scheduledDate.setEnabled(true);
-		scheduledDate.addStyleNames(ValoTheme.DATEFIELD_ALIGN_CENTER, ValoTheme.DATEFIELD_LARGE);
-		scheduledDate.setSizeFull();
+		this.scheduledDate = VaadinWrapper.builder().caption("Schedule date for announcement!").build().dateField();
+		this.scheduledDate.setValue(LocalDate.now());
 
-		announcementDescription.setCaption("Description for announcement, keep it simple!");
-		announcementDescription.setRequiredIndicatorVisible(true);
-		announcementDescription.setVisible(true);
-		announcementDescription.setEnabled(true);
-		announcementDescription.setSizeFull();
+		this.announcementDescription = VaadinWrapper.builder().caption("Description for announcement, keep it simple!")
+				.build().richTextArea();
+
+		binder.bind(this.selectCourse, AnnouncementModel::getCourseName, AnnouncementModel::setCourseName);
+		binder.bind(this.subject, AnnouncementModel::getSubject, AnnouncementModel::setSubject);
+		binder.bind(this.announceToAll, AnnouncementModel::isSendToAll, AnnouncementModel::setSendToAll);
+		binder.bind(this.announcementDescription, AnnouncementModel::getDescription, AnnouncementModel::setDescription);
+		binder.bind(this.scheduledDate, AnnouncementModel::getScheduleDate, AnnouncementModel::setScheduleDate);
+		binder.bind(this.subject, AnnouncementModel::getSubject, AnnouncementModel::setSubject);
+
 		publish.setCaption("Publish");
 		publish.setVisible(true);
 		publish.setEnabled(false);
@@ -160,6 +166,25 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 				selectCourse.setEnabled(true);
 			}
 		});
+		publish.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), publish)) {
+				return;
+			}
+			AnnouncementModel model = AnnouncementModel.builder().build();
+			try {
+				this.binder.writeBean(model);
+				FactoryResponse fr = this.announcementResponseService.saveUpdate(model);
+				Utils.showFactoryResponseMsg(fr);
+				if (SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
+					Utils.showFactoryResponseMsg(fr, close -> {
+						getUI().getNavigator().navigateTo(ViewConstants.SEE_ANNOUNCEMENT);
+					});
+				}
+			} catch (ValidationException e) {
+				LOGGER.error(e.getMessage());
+				Utils.showErrorNotification("Unable to post/update");
+			}
+		});
 	}
 
 	@Override
@@ -167,29 +192,13 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		View.super.enter(event);
 
 		try {
-			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			// TODO: implement a security check before entering into view.
+			if (this.announcementModel != null) {
+				this.binder.readBean(announcementModel);
 				return;
 			}
-			this.models = (List<CourseModel>) courseResponse.getResponse();
-			if (CollectionUtils.isEmpty(this.models)) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<String> courseNames = new ArrayList<>();
-			this.models.forEach(course -> {
-				courseNames.add(course.getCourseName());
-			});
-			this.selectCourse.setItems(courseNames);
+			this.uiService.setItemsCourseNames(this.selectCourse);
+
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
@@ -205,6 +214,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 	@Override
 	public void beforeLeave(ViewBeforeLeaveEvent event) {
 		View.super.beforeLeave(event);
+		this.binder.setBean(AnnouncementModel.builder().build());
 	}
 
 }

@@ -62,7 +62,7 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	@CacheEvict(value = "coursesData", key = "#course.courseName")
+	@CacheEvict(value = { "coursesData", "courseName" }, key = "#course.courseName")
 	public void deleteCourse(@NonNull CourseModel course) throws ValidationException, NoSuchRecordException {
 
 		try {

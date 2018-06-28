@@ -11,6 +11,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -29,13 +30,13 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
-import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.listener.ClearValuesListener;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.listener.ShowHideListener;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +51,8 @@ public class SeeResultsView extends VerticalLayout implements View {
 	private ComboBox<String> selectSem;
 	private CourseResponseService courseResponseService;
 	private CourseModel courseModel;
+	private Binder<CourseModel> binder;
+	private CoreUiService uiService;
 
 	/**
 	 * @param courseResponseService
@@ -58,6 +61,12 @@ public class SeeResultsView extends VerticalLayout implements View {
 	public SeeResultsView(CourseResponseService courseResponseService) {
 		super();
 		this.courseResponseService = courseResponseService;
+		this.binder = new Binder<>();
+	}
+
+	@Autowired
+	public void setUiService(CoreUiService uiService) {
+		this.uiService = uiService;
 	}
 
 	@PostConstruct
@@ -229,30 +238,7 @@ public class SeeResultsView extends VerticalLayout implements View {
 		View.super.enter(event);
 		try {
 			LOGGER.debug("request received view : {}", event);
-			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-
-			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<CourseModel> models = (List<CourseModel>) courseResponse.getResponse();
-			if (CollectionUtils.isEmpty(models)) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<String> courseNames = new ArrayList<>();
-			models.forEach(course -> {
-				courseNames.add(course.getCourseName());
-			});
-			this.selectCourse.setItems(courseNames);
+			this.uiService.setItemsCourseNames(this.selectCourse);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

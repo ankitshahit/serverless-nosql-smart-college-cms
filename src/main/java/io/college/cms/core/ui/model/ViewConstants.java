@@ -38,6 +38,7 @@ public class ViewConstants {
 	public static final String MY_DOCUMENTS = "myDocuments";
 	public static final String CONFIGURE_NOTIFICATION = "configureNotification";
 	public static final String PUBLISH_JOB = "publishJob";
+	public static final String VIEW_ALL_JOB = "viewAllJobs";
 	public static final String CONFIGURE_FEES = "configureFees";
 	public static final String PUBLISH_FEES = "publishFees";
 	public static final String ADD_TO_GROUP = "addToGroup";
@@ -45,4 +46,5 @@ public class ViewConstants {
 	public static final String VIEW_ATTENDANCE = "viewAttendance";
 	public static final String APPROVE_REJECT_ADMISSION = "approveRejectAdmissionQueue";
 	public static final String SEE_NOTIFICATIONS = "seeNotifications";
+
 }

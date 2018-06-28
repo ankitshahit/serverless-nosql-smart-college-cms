@@ -70,10 +70,6 @@ public class GroupResponseService {
 
 			fr = FactoryResponse.builder().response("added successfully.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -118,10 +114,6 @@ public class GroupResponseService {
 
 			fr = FactoryResponse.builder().response("removed successfully.").summaryMessage(SummaryMessageEnum.SUCCESS)
 					.build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -150,10 +142,6 @@ public class GroupResponseService {
 			GroupModel users = groupService.listGroupMembers(group);
 			ValidationHandler.throwExceptionIfNull(users, "No users are found", ExceptionType.VALIDATION_EXCEPTION);
 			fr = FactoryResponse.builder().response(users).summaryMessage(SummaryMessageEnum.SUCCESS).build();
-		} catch (IllegalArgumentException ex) {
-			LOGGER.error("One of required fields is empty.");
-			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
-					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -174,7 +162,7 @@ public class GroupResponseService {
 	 * 
 	 * @return
 	 */
-	@Cacheable
+	@Cacheable(cacheNames = "groups")
 	public FactoryResponse getAllGroupNames() {
 		List<String> constants = new ArrayList<String>();
 		Arrays.asList(UserGroups.values()).forEach(attribute -> {

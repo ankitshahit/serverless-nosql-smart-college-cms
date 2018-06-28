@@ -98,10 +98,10 @@ public class MenuManagerService {
 		treeData(treeData, EXAMS, "Download qr for exams");
 
 		treeData(treeData, null, JOB);
-		treeData(treeData, JOB, "Publish Job");
-
+		treeData(treeData, JOB, PUBLISH_JOB);
+		treeData(treeData, JOB, VIEW_ALL_JOBS);
 		treeData(treeData, null, RESULTS);
-		treeData(treeData, RESULTS, "View results");
+		treeData(treeData, RESULTS, VIEW_RESULTS);
 
 		treeData(treeData, null, USER);
 		treeData(treeData, USER, "View all user");
@@ -165,6 +165,8 @@ public class MenuManagerService {
 					navigator.navigateTo(ViewConstants.MY_DOCUMENTS);
 				} else if (PUBLISH_JOB.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.PUBLISH_JOB);
+				} else if (VIEW_ALL_JOBS.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.VIEW_ALL_JOB);
 				} else if (CONFIGURE_FEES.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.CONFIGURE_FEES);
 				} else if (DOWNLOAD_QR_FOR_EXAMS.equalsIgnoreCase(value)) {

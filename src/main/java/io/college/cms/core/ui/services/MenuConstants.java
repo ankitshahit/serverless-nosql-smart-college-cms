@@ -30,6 +30,7 @@ public class MenuConstants {
 	static final String CONFIGURE_NOTIFICATIONS = "Configure Notifications";
 	static final String JOB = "Jobs";
 	static final String PUBLISH_JOB = "Publish job";
+	static final String VIEW_ALL_JOBS = "View Jobs";
 	static final String CONFIGURE_FEES = "Configure Fees";
 	static final String PUBLISH_FEES = "Fees details";
 	static final String USER_GROUP = "User Group";
