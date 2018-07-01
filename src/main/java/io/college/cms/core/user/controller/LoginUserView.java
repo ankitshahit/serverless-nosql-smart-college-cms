@@ -25,6 +25,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.util.ListenerUtility;
 import io.college.cms.core.user.service.SecurityService;
 import lombok.Builder;
@@ -84,8 +85,8 @@ public class LoginUserView extends VerticalLayout implements View {
 			String password = Utils.val(loginViewService.getDto().getPasswordField());
 			try {
 				securityService.authenticate(username, password);
-				
 				mainWindow.close();
+				getUI().getNavigator().navigateTo(ViewConstants.USER_PROFILE_VIEW);
 			} catch (Exception ex) {
 				Utils.showErrorNotification(ex.getLocalizedMessage());
 			}

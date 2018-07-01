@@ -19,6 +19,7 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.college.cms.core.ui.listener.SecurityListener;
 import io.college.cms.core.ui.services.MenuManagerService;
 import io.college.cms.core.ui.services.ViewManagerService;
 import lombok.Data;
@@ -42,6 +43,7 @@ public class HomePageUI extends UI {
 	private VerticalLayout cssContainer;
 	private MenuManagerService menuManager;
 	private ViewManagerService viewManager;
+	private SecurityListener securityListener;
 
 	@Autowired
 	public HomePageUI(ViewManagerService viewManager, MenuManagerService menuManager) {
@@ -52,6 +54,11 @@ public class HomePageUI extends UI {
 		this.viewManager.setNavigator(navigator);
 		this.menuManager.setNavigator(navigator);
 		this.viewManager.registerViews();
+	}
+
+	@Autowired
+	public void setSecurityListener(SecurityListener s) {
+		this.securityListener = s;
 	}
 
 	@Override
@@ -68,6 +75,7 @@ public class HomePageUI extends UI {
 			menuLayout.setSizeFull();
 			menuLayout.setResponsive(true);
 			setContent(menuLayout);
+			this.navigator.addViewChangeListener(securityListener);
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

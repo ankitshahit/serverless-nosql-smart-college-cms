@@ -19,9 +19,11 @@ import com.amazonaws.services.cognitoidp.model.AdminCreateUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminDeleteUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminGetUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminGetUserResult;
+import com.amazonaws.services.cognitoidp.model.AdminListGroupsForUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
 import com.amazonaws.services.cognitoidp.model.AttributeType;
 import com.amazonaws.services.cognitoidp.model.ConfirmSignUpRequest;
+import com.amazonaws.services.cognitoidp.model.GroupType;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersResult;
 import com.amazonaws.services.cognitoidp.model.SignUpRequest;
@@ -33,6 +35,7 @@ import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
 import io.college.cms.core.user.constants.UserAttributes;
+import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.model.UserModel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -118,6 +121,21 @@ public class UserCognitoService implements IUserService {
 		return userBuilder.build();
 	}
 
+	private String getGroupName(String user) {
+		AdminListGroupsForUserRequest adminListRequest = app.getBean(AdminListGroupsForUserRequest.class);
+		adminListRequest.setUsername(user);
+
+		List<GroupType> groups = identityProvider.adminListGroupsForUser(adminListRequest).getGroups();
+		if (CollectionUtils.isEmpty(groups)) {
+			//TODO: REMOVE THIS IMPLEMENTATION AND ADD USER TO STUDENT GROUP BY DEFAULT.
+			return "STAFF";
+		}
+		for (GroupType groupType : groups) {
+			return groupType.getGroupName();
+		}
+		return "";
+	}
+
 	@Override
 	// @Cacheable
 	public UserModel findByUsername(@NonNull String username)
@@ -144,6 +162,7 @@ public class UserCognitoService implements IUserService {
 				}
 
 			}
+			userBuilder.group(UserGroups.valueOf(getGroupName(username)));
 		} catch (com.amazonaws.services.cognitoidp.model.UserNotFoundException ex) {
 			LOGGER.error("User not found{}", username);
 			throw new ValidationException(ex.getMessage());

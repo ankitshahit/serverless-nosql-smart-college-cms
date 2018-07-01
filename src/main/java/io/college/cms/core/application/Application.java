@@ -1,10 +1,12 @@
 package io.college.cms.core.application;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.annotation.WebServlet;
 
+import org.assertj.core.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,6 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
@@ -50,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 		"io.college.cms.core.upload.*", "io.college.cms.core.job.*", "io.college.cms.core.attendance.*" })
 @Slf4j
 @EnableCaching
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 @EnableAsync
 public class Application {
 	public static void main(String[] args) {
@@ -90,14 +93,19 @@ public class Application {
 					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(
 							new StringBuilder().append("/homepage/").append(ViewConstants.LOGIN).toString()))
 					.and().authorizeRequests()
-					.antMatchers( "/homepage/VAADIN/**", "/homepage/PUSH/**", "/homepage/UIDL/**", "/homepage/login/",
+					.antMatchers("/homepage/VAADIN/**", "/homepage/PUSH/**", "/homepage/UIDL/**", "/homepage/login/",
 							"/homepage/login/**", "/homepage/error/**", "/homepage/accessDenied/**",
 							"/homepage/vaadinServlet/**", "/homepage/VAADIN/widgetsets/**", "/homepage/**",
 							"/VAADIN/**", "/vaadinServlet/**", "/HEARTBEAT/**")
 
-					.permitAll().and().antMatcher("/homepage/createExam").authorizeRequests().and().formLogin()
-					.loginProcessingUrl(new StringBuilder().append("/login/").toString()/*.append(ViewConstants.LOGIN).toString()*/)
-					.loginPage(new StringBuilder().append("/login")/*.append(ViewConstants.LOGIN)*/.toString())
+					.permitAll().anyRequest().authenticated().and().formLogin()
+					.loginProcessingUrl(new StringBuilder().append("/login/")
+							.toString()/*
+										 * .append(ViewConstants.LOGIN).
+										 * toString( )
+										 */)
+					.loginPage(new StringBuilder().append("/login")
+							/* .append(ViewConstants.LOGIN) */.toString())
 					.permitAll();
 			;
 		}
@@ -108,12 +116,13 @@ public class Application {
 		private UserDetailService userSecurityService;
 		@Autowired
 		private InitiateAuthRequest authRequest;
+
 		@Autowired(required = true)
 		private AWSCognitoIdentityProvider provider;
 
 		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
+			LOGGER.debug("authentication: {}", authentication);
 			String username = authentication.getName();
 			String password = String.valueOf(authentication.getCredentials());
 
@@ -137,7 +146,10 @@ public class Application {
 			} catch (AWSCognitoIdentityProviderException ex) {
 				throw new BadCredentialsException("Bad credentials");
 			}
-			return new UsernamePasswordAuthenticationToken(username, password);
+			Authentication response = new UsernamePasswordAuthenticationToken(username, password,
+					user.getAuthorities());
+			SecurityContextHolder.getContext().setAuthentication(response);
+			return response;
 		}
 
 		@Override

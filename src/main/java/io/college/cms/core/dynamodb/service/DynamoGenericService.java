@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.Condition;
 
 import io.college.cms.core.exception.ApplicationException;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +90,7 @@ public class DynamoGenericService<K, V extends Object> implements CrudRepository
 	@Override
 	public List<K> findBy(DynamoDBScanExpression scan) throws ApplicationException {
 		try {
-			return 	dbMapper.scan(k, scan);
+			return dbMapper.scan(k, scan);
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			throw new ApplicationException(ex);

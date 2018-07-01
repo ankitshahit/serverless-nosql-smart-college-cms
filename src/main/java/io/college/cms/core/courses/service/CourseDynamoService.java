@@ -37,7 +37,6 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	@Cacheable("courseName")
 	public CourseModel findByCourseName(@NonNull() String courseName)
 			throws NoSuchRecordException, NullPointerException {
 		CourseModel course = null;
@@ -51,7 +50,6 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	@CachePut(value = { "coursesData", "courseName" }, key = "#course.courseName")
 	public void saveCourse(@NonNull CourseModel course) throws ValidationException {
 		try {
 			dbService.save(course);
@@ -62,7 +60,6 @@ public class CourseDynamoService implements ICourseDbService {
 	}
 
 	@Override
-	@CacheEvict(value = { "coursesData", "courseName" }, key = "#course.courseName")
 	public void deleteCourse(@NonNull CourseModel course) throws ValidationException, NoSuchRecordException {
 
 		try {
@@ -84,7 +81,6 @@ public class CourseDynamoService implements ICourseDbService {
 
 	}
 
-	@Cacheable(cacheNames = "coursesData")
 	public List<CourseModel> loadCourses() throws ApplicationException, ValidationException {
 		List<CourseModel> scanResult = new ArrayList<>();
 		try {

@@ -62,14 +62,14 @@ public class JobResponseService {
 		return fr;
 	}
 
-	@CachePut(cacheNames = "listJobs")
+	// @CachePut(cacheNames = "listJobs")
 	private void putSaveUpdateCache(FactoryResponse fr) {
 		// TODO: empty method just to invoke cache update
 		LOGGER.info("saved.");
 
 	}
 
-	@Cacheable(cacheNames = { "listJobs" })
+	// @Cacheable(cacheNames = { "listJobs" })
 	public FactoryResponse findAllJobs() {
 		FactoryResponse fr = FactoryResponse.builder().build();
 		try {

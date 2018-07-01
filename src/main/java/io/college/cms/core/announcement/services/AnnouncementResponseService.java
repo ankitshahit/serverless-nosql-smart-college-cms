@@ -32,7 +32,8 @@ public class AnnouncementResponseService {
 		this.announcementDbService.setClass(AnnouncementModel.class);
 	}
 
-	@CachePut(cacheNames = "listAnnouncements", key = "#model.announcementKey")
+	// @CachePut(cacheNames = "listAnnouncements", key =
+	// "#model.announcementKey")
 	public FactoryResponse saveUpdate(AnnouncementModel model) {
 		FactoryResponse fr = FactoryResponse.builder().build();
 		try {
@@ -60,7 +61,7 @@ public class AnnouncementResponseService {
 		return fr;
 	}
 
-	@Cacheable(cacheNames = "listAnnouncements")
+	// @Cacheable(cacheNames = "listAnnouncements")
 	public FactoryResponse findAllJobs() {
 		FactoryResponse fr = FactoryResponse.builder().build();
 		try {
