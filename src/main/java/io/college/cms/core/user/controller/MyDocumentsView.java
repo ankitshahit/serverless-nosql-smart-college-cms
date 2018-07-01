@@ -100,7 +100,7 @@ public class MyDocumentsView extends VerticalLayout implements View {
 		rootPanel.setContent(this.grid);
 		HorizontalLayout searchLayout = new HorizontalLayout(this.filterByName, this.filterByTag);
 		searchLayout.setSizeFull();
-		rootLayout.addComponents(searchLayout, rootPanel);
+		rootLayout.addComponents(new Panel(new VerticalLayout(searchLayout, rootPanel)));
 
 		Panel designPanel = new Panel();
 		designPanel.setContent(rootLayout);
@@ -123,12 +123,13 @@ public class MyDocumentsView extends VerticalLayout implements View {
 			Label tagLbl = VaadinWrapper.builder().caption("Tag").build().label();
 			tagLbl.setValue(model.getTag());
 			Label s3DownloadLink = VaadinWrapper.builder().caption("Download file").build().label();
-			s3DownloadLink.setValue(model.getS3BucketLink());
+			s3DownloadLink.setValue(new StringBuilder().append("<a href=").append(model.getS3BucketLink()).append(" target=_blank>")
+					.append(model.getFilename()).append("</a>").toString());
 			Label uploadedLbl = VaadinWrapper.builder().caption("Uploaded on").build().label();
 			uploadedLbl.setValue(String.valueOf(model.getUploadedOn()));
 			layout.addComponents(usernameLbl, tagLbl, s3DownloadLink, uploadedLbl);
 
-			layout.setSizeUndefined();
+			
 			window.setSizeUndefined();
 			window.setContent(panel);
 			getUI().addWindow(window);

@@ -259,6 +259,7 @@ public class UploadDocumentsView extends VerticalLayout implements View {
 			imageReceiver.setUsername(securityService.getPrincipal());
 			imageReceiver.setS3Link(this.s3Link);
 			imageReceiver.setViewImage(download);
+			imageReceiver.setSecurityService(securityService);
 			this.upload.setReceiver(imageReceiver);
 			this.upload.addSucceededListener(imageReceiver);
 			this.upload.setEnabled(false);

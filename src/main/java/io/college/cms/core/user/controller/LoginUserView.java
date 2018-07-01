@@ -58,27 +58,24 @@ public class LoginUserView extends VerticalLayout implements View {
 			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.loginViewService.dto.signupBtn)) {
 				return;
 			}
-			FindUsernameView confirmUser = app.getBean(FindUsernameView.class);
 			Window window = new Window();
 			window.center();
 			window.setResizable(false);
-			window.setContent(confirmUser);
+			window.setContent(app.getBean(FindUsernameView.class));
 			getUI().addWindow(window);
-			confirmUser.enter(null);
-
 		});
 		this.loginViewService.dto.confirmAccountBtn.addClickListener(click -> {
 			if (!ListenerUtility.isValidSourceEvent(click.getComponent(),
 					this.loginViewService.dto.confirmAccountBtn)) {
 				return;
 			}
-			ConfirmUserView confirmUser = app.getBean(ConfirmUserView.class);
+
 			Window window = new Window();
 			window.center();
 			window.setResizable(false);
-			window.setContent(confirmUser);
+			window.setContent(app.getBean(ConfirmUserView.class));
 			getUI().addWindow(window);
-			confirmUser.enter(null);
+
 		});
 		this.loginViewService.dto.loginBtn.addClickListener(click -> {
 			String username = Utils.val(loginViewService.getDto().getUsernameField());
@@ -86,6 +83,7 @@ public class LoginUserView extends VerticalLayout implements View {
 			try {
 				securityService.authenticate(username, password);
 				mainWindow.close();
+
 				/*
 				 * for(Window window: getUI().getWindows()){ window.close(); }
 				 */
@@ -117,7 +115,7 @@ public class LoginUserView extends VerticalLayout implements View {
 		mainWindow.setSizeFull();
 		mainWindow.setResizable(false);
 		mainWindow.setClosable(false);
-		
+
 		// mainWindow.setCaption("Protected Resource");
 		event.getNavigator().getUI().addWindow(mainWindow);
 	}

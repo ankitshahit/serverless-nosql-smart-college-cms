@@ -1,9 +1,13 @@
 package io.college.cms.core.user.controller;
 
+import java.util.Collection;
+
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
@@ -38,16 +43,18 @@ public class FindUsernameView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private FindUsernameViewService findUsernameService;
 	private UserResponseService userResponseService;
+	private ApplicationContext app;
 
 	/**
 	 * @param userResponseService
 	 */
 	@Autowired
-	public FindUsernameView(UserResponseService userResponseService) {
+	public FindUsernameView(ApplicationContext app, UserResponseService userResponseService) {
 		super();
 
 		this.userResponseService = userResponseService;
 		this.findUsernameService = new FindUsernameViewService();
+		this.app = app;
 	}
 
 	@Override
@@ -83,13 +90,21 @@ public class FindUsernameView extends VerticalLayout implements View {
 			// TODO: have to compare msg for failure, in-case it says
 			// resource is not found only the would we allow the user to
 			// continue further.
+			boolean firstWindowAdded = false;
 			if (fr != null && SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
 				MessagePopupView message = new MessagePopupView("Username is available",
 						"Username is available to register, click to continue", 40.0f);
+				if (!firstWindowAdded) {
+					getUI().addWindow(message);
+					firstWindowAdded = true;
+				}
+
 				message.addClickListener(success -> {
+					Collection<Window> windows = getUI().getWindows();
 					getUI().getNavigator().navigateTo(ViewConstants.USER_PROFILE_VIEW);
+
 				});
-				getUI().addWindow(message);
+
 			} else {
 
 				this.findUsernameService.getUsernameFld().setCaption("Username is already taken.");

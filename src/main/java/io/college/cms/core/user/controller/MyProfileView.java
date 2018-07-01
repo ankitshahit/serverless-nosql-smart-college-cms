@@ -4,10 +4,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +42,8 @@ import com.vaadin.ui.themes.ValoTheme;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.user.model.UserModel;
+import io.college.cms.core.user.service.IUserService;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
 public class MyProfileView extends VerticalLayout implements View, Receiver, SucceededListener {
-
+	public static final String USERNAME = "username_selected";
 	private static final long serialVersionUID = 1335271694534057987L;
 	private Panel rootPanel;
 	private VerticalLayout rootLayout;
@@ -70,13 +75,33 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 	private Button saveBtn;
 	private Upload uploadPic;
 	private ProgressBar progressBar;
+	private SecurityService securityService;
 	@Setter
 	private UserModel userModel;
 	private Binder<UserModel> binder;
+	private IUserService userService;
+	private ApplicationContext app;
+
+	/***
+	 * 
+	 * @param securityService
+	 */
+	@Autowired
+	public MyProfileView(ApplicationContext app, SecurityService securityService) {
+		super();
+		this.securityService = securityService;
+		this.app = app;
+	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
+		Map<String, String> viewData = event.getParameterMap();
+		try {
+			this.app = app;
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
 		if (userModel != null) {
 			binder.readBean(userModel);
 			usernameLbl.setValue(userModel.getUsername());
