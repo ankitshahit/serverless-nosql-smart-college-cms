@@ -107,7 +107,13 @@ public class MenuManagerService {
 		treeData(treeData, USER, VIEW_ALL_USER);
 		treeData(treeData, USER, "Add user");
 		treeData(treeData, USER, MY_PROFILE);
-		treeData(treeData, USER, MY_DOCUMENTS);
+
+		treeData(treeData, null, "DOCUMENTS");
+		treeData(treeData, "DOCUMENTS", UPLOAD_DOCUMENTS);
+		treeData(treeData, "DOCUMENTS", MY_DOCUMENTS);
+		treeData(treeData, "DOCUMENTS", VIEW_ALL_DOCUMENTS);
+
+	//	treeData(treeData, USER, MY_DOCUMENTS);
 		treeData(treeData, USER, MY_NOTIFICATIONS);
 		treeData(treeData, USER, "Configure Notifications");
 
@@ -163,6 +169,10 @@ public class MenuManagerService {
 					navigator.navigateTo(ViewConstants.CONFIGURE_NOTIFICATION);
 				} else if (MY_DOCUMENTS.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.MY_DOCUMENTS);
+				} else if (UPLOAD_DOCUMENTS.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.UPLOAD_DOCUMENTS);
+				} else if (VIEW_ALL_DOCUMENTS.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.VIEW_ALL_DOCUMENTS);
 				} else if (PUBLISH_JOB.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.PUBLISH_JOB);
 				} else if (VIEW_ALL_JOBS.equalsIgnoreCase(value)) {

@@ -18,7 +18,7 @@ import io.college.cms.core.announcement.ui.SeeAnnouncementView;
 import io.college.cms.core.attendance.controller.TagAttendanceView;
 import io.college.cms.core.attendance.controller.ViewAttendanceView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
-import io.college.cms.core.documents.controller.MyDocumentsView;
+import io.college.cms.core.documents.controller.UploadDocumentsView;
 import io.college.cms.core.examination.controller.DownloadQrExamView;
 import io.college.cms.core.examination.controller.PublishExamView;
 import io.college.cms.core.examination.controller.PublishFeesView;
@@ -37,6 +37,7 @@ import io.college.cms.core.user.controller.AddToGroupsView;
 import io.college.cms.core.user.controller.ConfirmUserView;
 import io.college.cms.core.user.controller.ListUsersView;
 import io.college.cms.core.user.controller.LoginUserView;
+import io.college.cms.core.user.controller.MyDocumentsView;
 import io.college.cms.core.user.controller.MyProfileView;
 import io.college.cms.core.user.controller.UserView;
 
@@ -82,7 +83,7 @@ public class ViewManagerService {
 	@Autowired
 	private ApplyAdmissionView applyAdmission;
 	@Autowired
-	private MyDocumentsView myDocuments;
+	private UploadDocumentsView uploadDocuments;
 	@Autowired
 	private ConfigureNotificationView configureNotification;
 	@Autowired
@@ -111,6 +112,8 @@ public class ViewManagerService {
 	private ListUsersView listUsers;
 	@Autowired
 	private MyProfileView myProfile;
+	@Autowired
+	private MyDocumentsView myDocuments;
 
 	public void setNavigator(Navigator navigator) {
 		this.navigator = navigator;
@@ -142,7 +145,11 @@ public class ViewManagerService {
 		addView(ViewConstants.CONFIGURE_ADMISSION_PROPERTIES, configureAdmission);
 		addView(ViewConstants.APPLY_ADMISSIONS_BY_COURSE, applyAdmission);
 		addView(ViewConstants.LOGIN, loginView);
-		addView(ViewConstants.MY_DOCUMENTS, myDocuments);
+		addView(ViewConstants.UPLOAD_DOCUMENTS, uploadDocuments);
+		addView(ViewConstants.MY_DOCUMENTS, myDocuments); // TODO: VIEW my
+															// documents
+	//	addView(ViewConstants.VIEW_ALL_DOCUMENTS, null); // TODO: VIEW ALL
+															// DOCUMENTS
 		addView(ViewConstants.CONFIGURE_NOTIFICATION, configureNotification);
 		addView(ViewConstants.PUBLISH_JOB, publishJob);
 		addView(ViewConstants.VIEW_ALL_JOB, viewJobs);

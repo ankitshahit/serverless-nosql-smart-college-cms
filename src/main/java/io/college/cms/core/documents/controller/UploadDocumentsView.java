@@ -42,9 +42,11 @@ import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.builder.VaadinWrapper;
+import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
 import io.college.cms.core.upload.services.UploadResponseService;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.Data;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -52,21 +54,26 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class MyDocumentsView extends VerticalLayout implements View {
+public class UploadDocumentsView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
 	private CoreUiService coreUI;
 	private MyDocumentsViewService myDocumentsService;
 	private UploadResponseService uploadResponseService;
+	private SecurityService securityService;
 
 	/**
 	 * @param coreUI
 	 */
-	public MyDocumentsView(CoreUiService coreUI, UploadResponseService uploadResponseService) {
+	public UploadDocumentsView(CoreUiService coreUI, UploadResponseService uploadResponseService,
+			SecurityService securityService) {
 		super();
 		this.coreUI = coreUI;
 		this.uploadResponseService = uploadResponseService;
-		this.myDocumentsService = new MyDocumentsViewService(this.coreUI, this.uploadResponseService);
+		this.securityService = securityService;
+		this.myDocumentsService = new MyDocumentsViewService(this.coreUI, this.uploadResponseService,
+				this.securityService);
+
 	}
 
 	@PostConstruct
@@ -93,6 +100,10 @@ public class MyDocumentsView extends VerticalLayout implements View {
 		View.super.enter(event);
 		try {
 			LOGGER.debug("request received view : {}", event);
+			this.myDocumentsService.usernameLbl
+					.setValue(new StringBuilder().append("File is being uploaded with username: <b>'")
+							.append(securityService.getPrincipal()).append("'</b>").toString());
+			this.myDocumentsService.username = securityService.getPrincipal();
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
@@ -128,11 +139,13 @@ public class MyDocumentsView extends VerticalLayout implements View {
 		TextField filenameFld;
 		Label usernameLbl;
 		Label s3Link;
+		SecurityService securityService;
 
 		/**
 		 * @param coreUI
 		 */
-		public MyDocumentsViewService(CoreUiService coreUI, UploadResponseService uploadResponseService) {
+		public MyDocumentsViewService(CoreUiService coreUI, UploadResponseService uploadResponseService,
+				SecurityService securityService) {
 			super();
 			this.uploadResponseService = uploadResponseService;
 			this.coreUI = coreUI;
@@ -150,6 +163,7 @@ public class MyDocumentsView extends VerticalLayout implements View {
 			this.usernameLbl = coreUI.getLabel();
 			this.filenameFld = VaadinWrapper.builder().build().textField();
 			this.s3Link = coreUI.getLabel();
+			this.securityService = securityService;
 			initUI();
 		}
 
@@ -208,11 +222,12 @@ public class MyDocumentsView extends VerticalLayout implements View {
 
 			hl.addComponents(this.tagField);
 			this.usernameLbl.setCaption("<b>User</b>:");
-			this.usernameLbl.setValue("File is being uploaded with username: <b>'Ankit'</b>");
+			this.usernameLbl.setValue(new StringBuilder().append("File is being uploaded with username: <b>'")
+					.append(securityService.getPrincipal()).append("'</b>").toString());
 			Label tagHelpLbl = new Label();
 
 			tagHelpLbl.setValue(
-					"<b>Tag</b>: helps define and find file easier, for example tagging a document as <i>HSC</i> <br/>will help other's to look directly and assume it's related to HSC marksheet.");
+					"<b>Tag</b>: helps define and find file easier, for example tagging a document as <i>HSC</i> <br/>will help other's to look directly and assume it's related to HSC marksheet.<br/>Any existing tag content <br/>will simply be replaced on server!");
 			tagHelpLbl.setContentMode(ContentMode.HTML);
 			firstLayout.addComponents(hl, tagHelpLbl, this.usernameLbl);
 			Label helpLbl = new Label();
@@ -236,13 +251,17 @@ public class MyDocumentsView extends VerticalLayout implements View {
 				}
 				this.download.setEnabled(this.documentsList.getOptionalValue().isPresent());
 			});
+			this.tagField.addValueChangeListener(value -> {
+				this.upload.setEnabled(this.tagField.getOptionalValue().isPresent());
+			});
 			ImageUploader imageReceiver = new ImageUploader(this.uploadResponseService);
 			imageReceiver.setTag(this.tagField);
-			imageReceiver.setUsername(username);
+			imageReceiver.setUsername(securityService.getPrincipal());
 			imageReceiver.setS3Link(this.s3Link);
 			imageReceiver.setViewImage(download);
 			this.upload.setReceiver(imageReceiver);
 			this.upload.addSucceededListener(imageReceiver);
+			this.upload.setEnabled(false);
 		}
 	}
 
@@ -255,7 +274,7 @@ public class MyDocumentsView extends VerticalLayout implements View {
 		private static final long serialVersionUID = 1L;
 		private File file;
 		private UploadResponseService uploadService;
-		@Setter
+		@Setter@Deprecated
 		private String username;
 		@Setter
 		private TextField tag;
@@ -263,6 +282,9 @@ public class MyDocumentsView extends VerticalLayout implements View {
 		private Label s3Link;
 		@Setter
 		private Button viewImage;
+		@Setter
+		private SecurityService securityService;
+
 		final ByteArrayOutputStream bas = new ByteArrayOutputStream();
 
 		/**
@@ -285,7 +307,7 @@ public class MyDocumentsView extends VerticalLayout implements View {
 		public void uploadSucceeded(SucceededEvent event) {
 
 			this.file = new File(event.getFilename());
-			FactoryResponse fr = this.uploadService.uploadFile(this.file, this.username, this.tag.getValue());
+			FactoryResponse fr = this.uploadService.uploadFile(this.file, securityService.getPrincipal(), this.tag.getValue());
 			Utils.showFactoryResponseMsg(fr, "Unable to upload file", "Successfully uploaded file");
 			if (Utils.isSuccess(fr)) {
 				this.s3Link.setValue(

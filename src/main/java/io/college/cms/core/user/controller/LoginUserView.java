@@ -86,6 +86,9 @@ public class LoginUserView extends VerticalLayout implements View {
 			try {
 				securityService.authenticate(username, password);
 				mainWindow.close();
+				/*
+				 * for(Window window: getUI().getWindows()){ window.close(); }
+				 */
 				getUI().getNavigator().navigateTo(ViewConstants.USER_PROFILE_VIEW);
 			} catch (Exception ex) {
 				Utils.showErrorNotification(ex.getLocalizedMessage());
@@ -114,8 +117,9 @@ public class LoginUserView extends VerticalLayout implements View {
 		mainWindow.setSizeFull();
 		mainWindow.setResizable(false);
 		mainWindow.setClosable(false);
+		
 		// mainWindow.setCaption("Protected Resource");
-		getUI().addWindow(mainWindow);
+		event.getNavigator().getUI().addWindow(mainWindow);
 	}
 
 	@Override

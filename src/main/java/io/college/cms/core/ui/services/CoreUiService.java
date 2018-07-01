@@ -31,7 +31,11 @@ import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.job.model.JobModel;
 import io.college.cms.core.job.services.JobResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
+import io.college.cms.core.upload.model.UploadModel;
+import io.college.cms.core.upload.services.UploadResponseService;
+import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.model.UserModel;
+import io.college.cms.core.user.service.SecurityService;
 import io.college.cms.core.user.service.UserResponseService;
 
 @Service
@@ -41,6 +45,7 @@ public class CoreUiService {
 	private JobResponseService jobResponseService;
 	private AnnouncementResponseService announcementResponseService;
 	private UserResponseService userResponseService;
+	private UploadResponseService uploadResponseService;
 
 	@Autowired
 	public void setCourseResponseService(CourseResponseService courseResponseService) {
@@ -60,6 +65,11 @@ public class CoreUiService {
 	@Autowired
 	public void setUserResponseService(UserResponseService userResponseService) {
 		this.userResponseService = userResponseService;
+	}
+
+	@Autowired
+	public void setUploadResponseService(UploadResponseService uploadResponseService) {
+		this.uploadResponseService = uploadResponseService;
 	}
 
 	public ComboBox<String> getCoursesList() {
@@ -254,6 +264,23 @@ public class CoreUiService {
 			return;
 		}
 		users = (List<UserModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(users)) {
+			return;
+		}
+		grid.setItems(users);
+	}
+
+	public void setItemsUpload(Grid<UploadModel> grid, String username, UserGroups groups) {
+		if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(username)) {
+			return;
+		}
+		FactoryResponse fr = this.uploadResponseService.findAll(username, groups);
+		List<UploadModel> users = null;
+		Utils.showFactoryResponseOnlyError(fr);
+		if (Utils.isError(fr)) {
+			return;
+		}
+		users = (List<UploadModel>) fr.getResponse();
 		if (CollectionUtils.isEmpty(users)) {
 			return;
 		}

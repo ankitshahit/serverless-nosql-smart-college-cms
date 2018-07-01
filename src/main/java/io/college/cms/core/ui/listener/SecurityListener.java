@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.Notification;
 
 import io.college.cms.core.admission.controller.ApproveRejectAdmissionView;
 import io.college.cms.core.admission.controller.ConfigureAdmissionView;
@@ -30,9 +29,9 @@ import io.college.cms.core.user.service.SecurityService;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class SecurityListener implements ViewChangeListener {
-	private static final UserGroups[] ALL_ACCESS = new UserGroups[] { UserGroups.STUDENT, UserGroups.STAFF,
+	public static final UserGroups[] ALL_ACCESS = new UserGroups[] { UserGroups.STUDENT, UserGroups.STAFF,
 			UserGroups.ADMIN };
-	private static final UserGroups[] STAFF_ACCESS = new UserGroups[] { UserGroups.STAFF, UserGroups.ADMIN };
+	public static final UserGroups[] STAFF_ACCESS = new UserGroups[] { UserGroups.STAFF, UserGroups.ADMIN };
 	private static final long serialVersionUID = 1L;
 	private String errorMsg;
 	private SecurityService securityUtils;
@@ -87,8 +86,10 @@ public class SecurityListener implements ViewChangeListener {
 			event.getNewView().enter(event);
 		} catch (Exception ex) {
 			System.out.println(ex);
-			//Notification notifi = Notification.show(ex.getMessage(), Notification.Type.ERROR_MESSAGE);
-			//notifi.addCloseListener(close -> event.getNavigator().navigateTo(ViewConstants.LOGIN));
+			// Notification notifi = Notification.show(ex.getMessage(),
+			// Notification.Type.ERROR_MESSAGE);
+			// notifi.addCloseListener(close ->
+			// event.getNavigator().navigateTo(ViewConstants.LOGIN));
 			event.getNavigator().navigateTo(ViewConstants.LOGIN);
 			return false;
 		}

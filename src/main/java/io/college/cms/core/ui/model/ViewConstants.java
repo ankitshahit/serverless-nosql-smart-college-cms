@@ -35,6 +35,8 @@ public class ViewConstants {
 	public static final String APPLY_ADMISSIONS_BY_COURSE = "applyAdmissionsByCourse";
 	public static final String CONFIGURE_ADMISSION_PROPERTIES = "configureAdmissions";
 	public static final String LOGIN = "login";
+	public static final String UPLOAD_DOCUMENTS = "uploadDocuments";
+	public static final String VIEW_ALL_DOCUMENTS = "viewAllDocuments";
 	public static final String MY_DOCUMENTS = "myDocuments";
 	public static final String CONFIGURE_NOTIFICATION = "configureNotification";
 	public static final String PUBLISH_JOB = "publishJob";
