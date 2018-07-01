@@ -10,7 +10,7 @@ public class MenuConstants {
 	static final String MY_PROFILE = "My profile";
 	static final String UPLOAD_DOCUMENTS = "Upload document";
 	static final String VIEW_ALL_DOCUMENTS = "View User documents";
-	static final String MY_DOCUMENTS = "My documents";
+	static final String MY_DOCUMENTS = "View Documents";
 	static final String MY_NOTIFICATIONS = "My notifications";
 	static final String RESULTS = "Results";
 	static final String VIEW_RESULTS = "View results";

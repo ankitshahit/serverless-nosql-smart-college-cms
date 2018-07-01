@@ -108,10 +108,10 @@ public class MenuManagerService {
 		treeData(treeData, USER, "Add user");
 		treeData(treeData, USER, MY_PROFILE);
 
-		treeData(treeData, null, "DOCUMENTS");
-		treeData(treeData, "DOCUMENTS", UPLOAD_DOCUMENTS);
-		treeData(treeData, "DOCUMENTS", MY_DOCUMENTS);
-		treeData(treeData, "DOCUMENTS", VIEW_ALL_DOCUMENTS);
+		treeData(treeData, null, "Documents");
+		treeData(treeData, "Documents", UPLOAD_DOCUMENTS);
+		treeData(treeData, "Documents", MY_DOCUMENTS);
+		//treeData(treeData, "DOCUMENTS", VIEW_ALL_DOCUMENTS);
 
 	//	treeData(treeData, USER, MY_DOCUMENTS);
 		treeData(treeData, USER, MY_NOTIFICATIONS);

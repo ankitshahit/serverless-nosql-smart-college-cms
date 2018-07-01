@@ -5,10 +5,10 @@ import java.time.LocalDate;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel.DynamoDBAttributeType;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 
+import io.college.cms.core.application.LocalDateConverter;
 import io.college.cms.core.dynamodb.constants.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,8 +29,7 @@ public class UploadModel implements Serializable {
 	@DynamoDBAttribute(attributeName = "tag")
 	private String tag;
 	@Builder.Default
-	@DynamoDBAttribute(attributeName = "uploaded_on")
-	@DynamoDBTyped(DynamoDBAttributeType.S)
+	@DynamoDBTypeConverted(converter = LocalDateConverter.class)
 	private LocalDate uploadedOn = LocalDate.now();
 	@DynamoDBAttribute(attributeName = "filename")
 	private String filename;

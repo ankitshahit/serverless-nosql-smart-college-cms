@@ -85,19 +85,22 @@ public class MyDocumentsView extends VerticalLayout implements View {
 	@PostConstruct
 	protected void paint() {
 		this.grid = new Grid<>();
-		this.filterByName = VaadinWrapper.builder().caption("Filter by username").placeholder("type username").build()
-				.textField();
-		this.filterByTag = VaadinWrapper.builder().caption("Filter by tag").placeholder("type tag").build().textField();
+		this.filterByName = VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
+				.icon(VaadinIcons.SEARCH).build().textField();
+		this.filterByTag = VaadinWrapper.builder().caption("Filter by tag").placeholder("type tag")
+				.icon(VaadinIcons.SEARCH).build().textField();
 
 		this.grid.addColumn(UploadModel::getUsername).setCaption("Username");
 		this.grid.addColumn(UploadModel::getTag).setCaption("Tag");
-		this.grid.addColumn(UploadModel::getUploadedOn).setCaption("username");
+		this.grid.addColumn(UploadModel::getUploadedOn).setCaption("Uploaded on");
 		this.filterByName.addValueChangeListener(this::onUsernameFilterTextChange);
 		this.filterByTag.addValueChangeListener(this::onTagFilterTextChange);
 		VerticalLayout rootLayout = new VerticalLayout();
 		Panel rootPanel = new Panel();
 		rootPanel.setContent(this.grid);
-		rootLayout.addComponents(new HorizontalLayout(this.filterByName, this.filterByTag), rootPanel);
+		HorizontalLayout searchLayout = new HorizontalLayout(this.filterByName, this.filterByTag);
+		searchLayout.setSizeFull();
+		rootLayout.addComponents(searchLayout, rootPanel);
 
 		Panel designPanel = new Panel();
 		designPanel.setContent(rootLayout);
@@ -147,7 +150,8 @@ public class MyDocumentsView extends VerticalLayout implements View {
 	}
 
 	private Boolean caseInsensitiveContains(String where, String what) {
-		return where.toLowerCase().contains(what.toLowerCase());
+		return new StringBuilder().append("").append(where).toString().toLowerCase()
+				.contains(new StringBuilder().append("").append(what).toString().toLowerCase());
 	}
 
 }
