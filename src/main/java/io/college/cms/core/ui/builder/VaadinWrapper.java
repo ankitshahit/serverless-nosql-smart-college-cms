@@ -50,6 +50,7 @@ public class VaadinWrapper {
 	private String style;
 	private Label label;
 	private PasswordField passwordField;
+	private boolean denyDateStartRange;
 
 	public PasswordField passwordField() {
 		if (this.passwordField == null) {
@@ -214,7 +215,9 @@ public class VaadinWrapper {
 		this.dateField.setReadOnly(readOnly);
 		this.dateField.setValue(LocalDate.now());
 		this.dateField.setResponsive(true);
-		this.dateField.setRangeStart(LocalDate.now());
+		if (!denyDateStartRange) {
+			this.dateField.setRangeStart(LocalDate.now());
+		}
 		this.dateField.setSizeFull();
 		return this.dateField;
 	}
@@ -228,8 +231,7 @@ public class VaadinWrapper {
 		this.button.setEnabled(this.enabled);
 
 		if (StringUtils.isNotEmpty(this.caption)) {
-			this.button.setCaption(new StringBuilder().append("<p><b>").append(StringUtils.capitalize(this.caption))
-					.append("</b>: </p>").toString());
+			this.button.setCaption(StringUtils.capitalize(this.caption));
 		}
 		if (StringUtils.isNotEmpty(description)) {
 			this.button.setDescription(this.description, contentMode);

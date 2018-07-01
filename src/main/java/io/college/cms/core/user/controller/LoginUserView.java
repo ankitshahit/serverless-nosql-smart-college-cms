@@ -22,33 +22,50 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.util.ListenerUtility;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.Builder;
 import lombok.Data;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class LoginUserView extends VerticalLayout implements View {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private LoginUserViewService loginViewService;
 	private ApplicationContext app;
+	private Window mainWindow = new Window();
+	private SecurityService securityService;
 
 	@Autowired
 	public LoginUserView(ApplicationContext app) {
 		super();
 		this.loginViewService = new LoginUserViewService();
 		this.app = app;
+		this.securityService = app.getBean(SecurityService.class);
 	}
 
 	@PostConstruct
 	public void paint() {
 		setWidth("60%");
+
 		addComponent(loginViewService.getDto().getRootPanel());
+		this.loginViewService.dto.signupBtn.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.loginViewService.dto.signupBtn)) {
+				return;
+			}
+			FindUsernameView confirmUser = app.getBean(FindUsernameView.class);
+			Window window = new Window();
+			window.center();
+			window.setResizable(false);
+			window.setContent(confirmUser);
+			getUI().addWindow(window);
+			confirmUser.enter(null);
+
+		});
 		this.loginViewService.dto.confirmAccountBtn.addClickListener(click -> {
 			if (!ListenerUtility.isValidSourceEvent(click.getComponent(),
 					this.loginViewService.dto.confirmAccountBtn)) {
@@ -62,11 +79,42 @@ public class LoginUserView extends VerticalLayout implements View {
 			getUI().addWindow(window);
 			confirmUser.enter(null);
 		});
+		this.loginViewService.dto.loginBtn.addClickListener(click -> {
+			String username = Utils.val(loginViewService.getDto().getUsernameField());
+			String password = Utils.val(loginViewService.getDto().getPasswordField());
+			try {
+				securityService.authenticate(username, password);
+				
+				mainWindow.close();
+			} catch (Exception ex) {
+				Utils.showErrorNotification(ex.getLocalizedMessage());
+			}
+
+		});
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
+		VerticalLayout layout = new VerticalLayout();
+		loginViewService.getDto().getRootPanel().setWidth("40%");
+		layout.addComponent(loginViewService.getDto().getRootPanel());
+		layout.setComponentAlignment(loginViewService.getDto().getRootPanel(), Alignment.MIDDLE_CENTER);
+
+		layout.setSizeFull();
+		Panel panel = new Panel();
+		// panel.setWidth("60%");
+		panel.setContent(layout);
+		panel.setCaption("<h2>College CMS</h2>");
+		panel.setCaptionAsHtml(true);
+		mainWindow.setContent(panel);
+
+		mainWindow.center();
+		mainWindow.setSizeFull();
+		mainWindow.setResizable(false);
+		mainWindow.setClosable(false);
+		// mainWindow.setCaption("Protected Resource");
+		getUI().addWindow(mainWindow);
 	}
 
 	@Override
@@ -96,7 +144,8 @@ public class LoginUserView extends VerticalLayout implements View {
 		 * Abstracting setting caption, placeholders and icons
 		 */
 		protected void initUI() {
-
+			this.dto.rootPanel.setCaption("Login!");
+			this.dto.rootPanel.setCaptionAsHtml(true);
 			this.dto.usernameField = VaadinWrapper.builder().caption("Username").icon(VaadinIcons.USERS)
 					.placeholder("username").build().textField();
 
@@ -115,7 +164,7 @@ public class LoginUserView extends VerticalLayout implements View {
 			this.dto.confirmAccountBtn.setCaption("Confirm user");
 			this.dto.confirmAccountBtn.setIcon(VaadinIcons.ADD_DOCK);
 			this.dto.confirmAccountBtn.setStyleName(ValoTheme.BUTTON_QUIET);
-			
+
 			this.dto.loginBtn = VaadinWrapper.builder().build().button();
 			this.dto.loginBtn.setCaption("Login");
 			this.dto.loginBtn.setEnabled(false);

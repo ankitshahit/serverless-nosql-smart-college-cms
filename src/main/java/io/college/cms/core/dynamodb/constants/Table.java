@@ -15,7 +15,8 @@ public class Table {
 	public static final String PROFILE_TABLE = "t_profiles";
 	public static final String EXAMINATION_TABLE = "t_examination";
 	public static final String UPLOAD_TABLE = "t_upload";
-	public static final String NOTIFICATION_TABLE = "t_notification";
+	public static final String MY_NOTIFICATION_TABLE = "t_my_notification";
+	public static final String CONFIGURE_NOTIFICATION = "t_configure_notification";
 	public static final String APPLY_ADMISSION_TABLE = "t_admission_apply";
 	public static final String RESULTS = "t_result";
 	public static final String JOB_TABLE = "t_jobs";

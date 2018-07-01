@@ -1,4 +1,4 @@
-package io.college.cms.core.announcement.ui;
+package io.college.cms.core.user.controller;
 
 import javax.annotation.PostConstruct;
 
@@ -14,78 +14,40 @@ import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Notification.Type;
 
-import io.college.cms.core.announcement.model.AnnouncementModel;
+import io.college.cms.core.job.controller.PublishJobView;
 import io.college.cms.core.ui.services.CoreUiService;
+import io.college.cms.core.user.model.UserModel;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class SeeAnnouncementView extends VerticalLayout implements View {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1542176851569711985L;
-	private Grid<AnnouncementModel> grid;
-	private CoreUiService uiService;
+public class ListUsersView extends VerticalLayout implements View {
+	private static final long serialVersionUID = 1L;
 	private ApplicationContext app;
+	private CoreUiService uiService;
+	private Grid<UserModel> grid;
 
+	/**
+	 * @param uiService
+	 */
 	@Autowired
-	public SeeAnnouncementView(ApplicationContext app) {
+	public ListUsersView(ApplicationContext app, CoreUiService uiService) {
 		super();
 		this.app = app;
-		this.grid = new Grid<>();
-	}
-
-	@Autowired
-	public void setUiService(CoreUiService uiService) {
 		this.uiService = uiService;
-	}
-
-	@PostConstruct
-	public void paint() {
-		VerticalLayout rootLayout = new VerticalLayout();
-		Panel rootPanel = new Panel();
-		rootPanel.setContent(this.grid);
-		rootLayout.addComponents(rootPanel);
-		addComponent(rootLayout);
-		this.grid.addColumn(AnnouncementModel::getSubject).setCaption("Title");
-		this.grid.addColumn(AnnouncementModel::getScheduleDate).setCaption("Scheduled date");
-		this.grid.addColumn(AnnouncementModel::getCourseName);
-		this.grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-		this.grid.addSelectionListener(select -> {
-			if (!select.getFirstSelectedItem().isPresent()) {
-				return;
-			}
-			Window window = new Window();
-			window.center();
-			window.setResizable(false);
-			VerticalLayout layout = new VerticalLayout();
-			PublishAnnouncementView view = app.getBean(PublishAnnouncementView.class);
-			layout.addComponent(view);
-			layout.setSizeUndefined();
-			window.setSizeUndefined();
-			window.setContent(layout);
-			view.setAnnouncementModel(select.getFirstSelectedItem().get());
-			view.enter(null);
-			getUI().addWindow(window);
-		});
-		this.grid.setSizeFull();
-		rootLayout.setSizeFull();
-		rootPanel.setSizeFull();
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			LOGGER.debug("request received view : {}", event);
-			this.uiService.setItemsAnnouncement(this.grid);
+			this.uiService.setItemsUser(this.grid);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
@@ -102,4 +64,39 @@ public class SeeAnnouncementView extends VerticalLayout implements View {
 		View.super.beforeLeave(event);
 	}
 
+	@PostConstruct
+	protected void paint() {
+		this.grid = new Grid<>();
+		this.grid.addColumn(UserModel::getFirstName).setCaption("First name");
+		this.grid.addColumn(UserModel::getLastName).setCaption("Lastname");
+		this.grid.addColumn(UserModel::getUsername).setCaption("username");
+		this.grid.addColumn(UserModel::getEmail).setCaption("email");
+		this.grid.addColumn(UserModel::getGender).setCaption("gender");
+
+		VerticalLayout rootLayout = new VerticalLayout();
+		Panel rootPanel = new Panel();
+		rootPanel.setContent(this.grid);
+		rootLayout.addComponents(rootPanel);
+		addComponent(rootLayout);
+		this.grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+		this.grid.addSelectionListener(select -> {
+			if (!select.getFirstSelectedItem().isPresent()) {
+				return;
+			}
+			Window window = new Window();
+			window.center();
+			window.setResizable(false);
+			VerticalLayout layout = new VerticalLayout();
+			PublishJobView view = app.getBean(PublishJobView.class);
+			layout.addComponent(view);
+			layout.setSizeUndefined();
+			window.setSizeUndefined();
+			window.setContent(layout);
+			view.enter(null);
+			getUI().addWindow(window);
+		});
+		this.grid.setSizeFull();
+		rootLayout.setSizeFull();
+		rootPanel.setSizeFull();
+	}
 }

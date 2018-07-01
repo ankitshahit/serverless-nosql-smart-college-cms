@@ -27,7 +27,7 @@ import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.job.controller.PublishJobView;
-import io.college.cms.core.job.controller.ViewJobsView;
+import io.college.cms.core.job.controller.SeeJobsView;
 import io.college.cms.core.notification.controller.ConfigureNotificationView;
 import io.college.cms.core.notification.controller.SeeNotificationView;
 import io.college.cms.core.ui.controller.PublishCourseView;
@@ -35,7 +35,9 @@ import io.college.cms.core.ui.controller.ViewAllCoursesUI;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.user.controller.AddToGroupsView;
 import io.college.cms.core.user.controller.ConfirmUserView;
+import io.college.cms.core.user.controller.ListUsersView;
 import io.college.cms.core.user.controller.LoginUserView;
+import io.college.cms.core.user.controller.MyProfileView;
 import io.college.cms.core.user.controller.UserView;
 
 /**
@@ -86,7 +88,7 @@ public class ViewManagerService {
 	@Autowired
 	private PublishJobView publishJob;
 	@Autowired
-	private ViewJobsView viewJobs;
+	private SeeJobsView viewJobs;
 	@Autowired
 	private ConfigureFeesView configureFeesView;
 	@Autowired
@@ -105,6 +107,10 @@ public class ViewManagerService {
 	private ApproveRejectAdmissionView approveRejectAdmission;
 	@Autowired
 	private SeeNotificationView seeNotifications;
+	@Autowired
+	private ListUsersView listUsers;
+	@Autowired
+	private MyProfileView myProfile;
 
 	public void setNavigator(Navigator navigator) {
 		this.navigator = navigator;
@@ -129,7 +135,9 @@ public class ViewManagerService {
 		addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
 		addView(ViewConstants.CHAT_FAQ_VIEW, chatFaq);
 		addView(ViewConstants.DEAL_WITH_USER, userView);
+		addView(ViewConstants.USER_VIEW_ALL, listUsers);
 		addView(ViewConstants.CONFIRM_USER_VIEW, confirmUser);
+		addView(ViewConstants.USER_PROFILE_VIEW, myProfile);
 		addView(ViewConstants.OPEN_ADMISSIONS_BY_COURSE, publishAdmission);
 		addView(ViewConstants.CONFIGURE_ADMISSION_PROPERTIES, configureAdmission);
 		addView(ViewConstants.APPLY_ADMISSIONS_BY_COURSE, applyAdmission);

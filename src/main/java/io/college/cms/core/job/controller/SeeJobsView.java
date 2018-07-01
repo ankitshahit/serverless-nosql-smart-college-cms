@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class ViewJobsView extends VerticalLayout implements View {
+public class SeeJobsView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
 	private CoreUiService coreUiService;
@@ -34,7 +34,7 @@ public class ViewJobsView extends VerticalLayout implements View {
 	private ApplicationContext app;
 
 	@Autowired
-	public ViewJobsView(ApplicationContext app, CoreUiService coreUiService) {
+	public SeeJobsView(ApplicationContext app, CoreUiService coreUiService) {
 		super();
 		this.app = app;
 		// this.jobResponseService = jobResponseService;

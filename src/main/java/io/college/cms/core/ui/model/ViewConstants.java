@@ -46,5 +46,5 @@ public class ViewConstants {
 	public static final String VIEW_ATTENDANCE = "viewAttendance";
 	public static final String APPROVE_REJECT_ADMISSION = "approveRejectAdmissionQueue";
 	public static final String SEE_NOTIFICATIONS = "seeNotifications";
-
+	public static final String USER_PROFILE_VIEW = "userProfileView";
 }

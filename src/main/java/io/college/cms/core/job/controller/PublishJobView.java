@@ -81,33 +81,20 @@ public class PublishJobView extends VerticalLayout implements View {
 
 	@PostConstruct
 	public void paint() {
-		Panel panel = new Panel();
-
-		VerticalLayout rightSplit = new VerticalLayout(totalSalary, location, interViewDate, postedBy,
-				contactInformation);
-
-		VerticalLayout rootLayout = new VerticalLayout();
-		VerticalLayout leftSplit = new VerticalLayout(jobTitle, jobDescription, additionalInfo);
-
-		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(leftSplit, rightSplit);
-		splitPanel.setSplitPosition(70.0f);
-		addComponent(panel);
-		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
-		panel.setContent(rootLayout);
 
 		this.jobTitle = VaadinWrapper.builder().caption("Job Title").build().textField();
 		this.jobDescription = VaadinWrapper.builder().caption("Job Description").build().richTextArea();
 		this.location = VaadinWrapper.builder().caption("Location").placeholder("Details about interview location")
 				.build().textField();
-		this.totalSalary = VaadinWrapper.builder().caption("Salary").placeholder("Enter amount").build().textField();
-		this.postedBy = VaadinWrapper.builder().caption("Posted by").placeholder("Posted by details").build()
-				.textArea();
+		this.totalSalary = VaadinWrapper.builder().caption("Salary").placeholder("salary").build().textField();
+		this.postedBy = VaadinWrapper.builder().caption("Posted by").placeholder("posted by").build().textArea();
 		this.interViewDate = VaadinWrapper.builder().caption("Interview date").build().dateField();
 		this.interViewDate.setValue(LocalDate.now());
-		this.jobTitle.focus();
+		this.additionalInfo = VaadinWrapper.builder().caption("Additional information").build().richTextArea();
+
 		this.contactInformation = VaadinWrapper.builder().caption("Contact information")
 				.placeholder("Contact information").build().textArea();
-
+		this.jobTitle.focus();
 		Button disableBtn = new Button("Disable");
 		disableBtn.addStyleNames(ValoTheme.BUTTON_DANGER);
 		disableBtn.addClickListener(click -> {
@@ -122,6 +109,7 @@ public class PublishJobView extends VerticalLayout implements View {
 		binder.bind(interViewDate, JobModel::getInterViewDate, JobModel::setInterViewDate);
 		binder.bind(totalSalary, JobModel::getSalary, JobModel::setSalary);
 		binder.bind(additionalInfo, JobModel::getAdditionalInformation, JobModel::setAdditionalInformation);
+		binder.bind(location, JobModel::getLocation, JobModel::setLocation);
 		Button postBtn = new Button("Post");
 		postBtn.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 		postBtn.addClickListener(click -> {
@@ -139,6 +127,7 @@ public class PublishJobView extends VerticalLayout implements View {
 						// TODO: make sure that the view all jobs screen
 						// redirects us to here?
 						getUI().getNavigator().navigateTo(ViewConstants.VIEW_ALL_JOB);
+						return;
 					});
 				}
 
@@ -147,16 +136,38 @@ public class PublishJobView extends VerticalLayout implements View {
 				Utils.showErrorNotification("Unable to post/update");
 			}
 		});
+
+		VerticalLayout rootLayout = new VerticalLayout();
+		VerticalLayout leftSplit = new VerticalLayout(jobTitle, jobDescription, additionalInfo);
+		VerticalLayout rightSplit = new VerticalLayout(totalSalary, location, interViewDate, postedBy,
+				contactInformation);
+		leftSplit.setSizeFull();
+		rightSplit.setSizeFull();
+
+		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(leftSplit, rightSplit);
+		splitPanel.setSplitPosition(70.0f);
+
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		buttonLayout.addComponents(disableBtn, postBtn);
+
 		VerticalLayout layout2 = new VerticalLayout();
 		layout2.addComponents(splitPanel);
 		layout2.addComponent(buttonLayout);
 		layout2.setComponentAlignment(buttonLayout, Alignment.BOTTOM_RIGHT);
 		Panel panel2 = new Panel();
 		panel2.setContent(layout2);
+		splitPanel.setSizeFull();
+		layout2.setSizeFull();
+		rootLayout.setSizeFull();
+		panel2.setSizeFull();
 		rootLayout.addComponent(panel2);
-
+		VerticalLayout layout = new VerticalLayout();
+		Panel layoutPanel = new Panel();
+		layoutPanel.setContent(rootLayout);
+		layoutPanel.setSizeFull();
+		layout.setSizeFull();
+		layout.addComponents(layoutPanel);
+		addComponent(layout);
 	}
 
 	@Override

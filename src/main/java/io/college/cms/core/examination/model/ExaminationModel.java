@@ -6,13 +6,13 @@ import java.util.List;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel.DynamoDBAttributeType;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.college.cms.core.application.LocalDateConverter;
 import io.college.cms.core.courses.controller.CourseController;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.dynamodb.constants.Table;
@@ -37,10 +37,10 @@ public class ExaminationModel {
 	@DynamoDBAttribute(attributeName = "exam_subjects")
 	@Singular("withSubject")
 	private List<ExamSubject> examSubjects;
-	@DynamoDBTyped(DynamoDBAttributeType.S)
+	@DynamoDBTypeConverted(converter = LocalDateConverter.class)
 	@DynamoDBAttribute(attributeName = "exam_start_Local_date_time")
 	private LocalDate examStartDate;
-	@DynamoDBTyped(DynamoDBAttributeType.S)
+	@DynamoDBTypeConverted(converter = LocalDateConverter.class)
 	@DynamoDBAttribute(attributeName = "exam_end_Local_date_time")
 	private LocalDate examEndDate;
 	@DynamoDBAttribute(attributeName = "is_published")
@@ -79,11 +79,11 @@ public class ExaminationModel {
 		@DynamoDBAttribute(attributeName = "subject")
 		private String subject;
 		@DynamoDBAttribute(attributeName = "start_time")
-		@DynamoDBTyped(DynamoDBAttributeType.S)
+		@DynamoDBTypeConverted(converter = LocalDateConverter.class)
 		@JsonFormat(shape = Shape.STRING)
 		private LocalDate startTime;
-		@DynamoDBAttribute
-		@DynamoDBTyped(DynamoDBAttributeType.S)
+
+		@DynamoDBTypeConverted(converter = LocalDateConverter.class)
 		@JsonFormat(shape = Shape.STRING)
 		private LocalDate endTime;
 		@DynamoDBAttribute

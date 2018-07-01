@@ -19,9 +19,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
+import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.util.ListenerUtility;
 import io.college.cms.core.user.service.UserResponseService;
 import lombok.Data;
@@ -30,25 +33,27 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class ConfirmUserView extends VerticalLayout implements View {
+public class FindUsernameView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
-	private ConfirmUserViewService confirmUserService;
+	private FindUsernameViewService findUsernameService;
 	private UserResponseService userResponseService;
 
-	public ConfirmUserView() {
-		this.confirmUserService = new ConfirmUserViewService();
-	}
-
+	/**
+	 * @param userResponseService
+	 */
 	@Autowired
-	public void setUserResponseService(UserResponseService userResponseService) {
+	public FindUsernameView(UserResponseService userResponseService) {
+		super();
+
 		this.userResponseService = userResponseService;
+		this.findUsernameService = new FindUsernameViewService();
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
-		LOGGER.debug("event triggered");
+
 	}
 
 	@Override
@@ -58,38 +63,62 @@ public class ConfirmUserView extends VerticalLayout implements View {
 
 	@PostConstruct
 	protected void paint() {
-		this.confirmUserService.getConfirmButton().addClickListener(click -> {
-			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.confirmUserService.getConfirmButton())) {
+		addComponent(this.findUsernameService.getPanel());
+		this.findUsernameService.getConfirmButton().addClickListener(click -> {
+
+			FactoryResponse fr = FactoryResponse.builder().build();
+
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(),
+					this.findUsernameService.getConfirmButton())) {
 				return;
 			}
-			// TODO: to allow confirmation of phone, email and other stuff
-			// seperately in future.
-			FactoryResponse fr = userResponseService.confirmUserSignup(
-					Utils.val(this.confirmUserService.getUsernameFld().getOptionalValue()),
-					Utils.val(this.confirmUserService.getConfirmCodeFld().getOptionalValue()));
-			Utils.showFactoryResponseMsg(fr);
+			// if the userModel is null, means event is triggered by user
+			// and not programmatically from select users screen.
+			// we wanna check for field values to validate against. like
+			// username
+			fr = this.userResponseService.getUserByUser(null,
+					Utils.val(this.findUsernameService.getUsernameFld().getOptionalValue()));
+			// if the request is success means we have an existing
+			// username available in database
+			// TODO: have to compare msg for failure, in-case it says
+			// resource is not found only the would we allow the user to
+			// continue further.
+			if (fr != null && SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+				MessagePopupView message = new MessagePopupView("Username is available",
+						"Username is available to register, click to continue", 40.0f);
+				message.addClickListener(success -> {
+					getUI().getNavigator().navigateTo(ViewConstants.USER_PROFILE_VIEW);
+				});
+				getUI().addWindow(message);
+			} else {
+
+				this.findUsernameService.getUsernameFld().setCaption("Username is already taken.");
+				this.findUsernameService.getUsernameFld().setCaptionAsHtml(true);
+				MessagePopupView message = new MessagePopupView("Username exists!",
+						"Username is not available to register!,", 40.0f);
+				getUI().addWindow(message);
+				this.findUsernameService.getUsernameFld().setValue("");
+			}
 		});
-		addComponent(this.confirmUserService.getPanel());
 	}
 
 	/**
-	 * presentation layer for confirmSignup
+	 * presentation layer for findusernameview
 	 * 
 	 * @author Ankit
 	 *
 	 */
 	@Data
-	private static class ConfirmUserViewService {
+	private static class FindUsernameViewService {
 		private Panel panel;
 		private VerticalLayout rootLayout;
 		private TextField usernameFld;
-		private TextField confirmCodeFld;
+
 		private Button confirmButton;
 
-		ConfirmUserViewService() {
+		FindUsernameViewService() {
 			initUI();
 			paint();
-
 		}
 
 		protected void initUI() {
@@ -98,44 +127,37 @@ public class ConfirmUserView extends VerticalLayout implements View {
 			this.rootLayout = new VerticalLayout();
 			// initializing and setting attributes using a TextFieldWrapper
 			// builder
-			this.usernameFld = VaadinWrapper.builder().placeholder("username")
+			this.usernameFld = VaadinWrapper.builder().placeholder("search username")
+					.caption("Enter desired username you would like to register!")
 					.description("username provided during signup").icon(VaadinIcons.USER).build().textField();
-			// initializing confirmation and setting attributes using a
-			// textFieldWrapper builder
-			this.confirmCodeFld = VaadinWrapper.builder().placeholder("confirmation code")
-					.description("Provide confirmation code received in email").icon(VaadinIcons.CODE).maxLength(6)
-					.build().textField();
-			this.confirmButton = new Button("Confirm");
+			this.panel.setCaption("Register user!");
+			this.panel.setCaptionAsHtml(true);
+			this.confirmButton = new Button("Check Availability!");
 			this.confirmButton.setEnabled(false);
 
 			this.panel.setContent(this.rootLayout);
 			this.panel.setSizeFull();
 			this.rootLayout.setSizeFull();
 			this.usernameFld.setSizeFull();
-			this.confirmCodeFld.setSizeFull();
 		}
 
 		protected void paint() {
 			this.usernameFld.setIcon(VaadinIcons.USER);
-			this.confirmCodeFld.setIcon(VaadinIcons.CODE);
+
 			this.confirmButton.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 			// by adding it to root layout, it allows us to show elements on UI.
-			this.rootLayout.addComponents(this.usernameFld, this.confirmCodeFld, this.confirmButton);
+			this.rootLayout.addComponents(this.usernameFld, this.confirmButton);
 			this.rootLayout.setComponentAlignment(this.confirmButton, Alignment.MIDDLE_RIGHT);
 
 			EmptyFieldListener<String> usernameListener = (EmptyFieldListener<String>) getEmptyFieldListener();
 			usernameListener.setSourceField(this.getUsernameFld());
 			this.getUsernameFld().addValueChangeListener(usernameListener);
 
-			EmptyFieldListener<String> confirmListener = (EmptyFieldListener<String>) getEmptyFieldListener();
-			confirmListener.setSourceField(this.getConfirmCodeFld());
-			this.getConfirmCodeFld().addValueChangeListener(confirmListener);
-
 		}
 
 		protected EmptyFieldListener<?> getEmptyFieldListener() {
 			EmptyFieldListener<?> lis = new EmptyFieldListener<>();
-			lis.setMandatoryFields(this.usernameFld, this.confirmCodeFld);
+			lis.setMandatoryFields(this.usernameFld);
 			lis.setTargetBtn(this.confirmButton);
 			return lis;
 		}

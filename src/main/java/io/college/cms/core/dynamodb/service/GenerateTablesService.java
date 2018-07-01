@@ -14,16 +14,20 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 
 import io.college.cms.core.admission.model.ApplyAdmissionModel;
+import io.college.cms.core.announcement.model.AnnouncementModel;
 import io.college.cms.core.configuration.AppParams;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.model.StudentResultModel;
+import io.college.cms.core.job.model.JobModel;
+import io.college.cms.core.notification.model.ConfigureNotificationModel;
+import io.college.cms.core.notification.model.NotificationModel;
 import io.college.cms.core.upload.model.UploadModel;
 import io.college.cms.core.user.model.UserModel;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
+@Slf4j()
 @Order(1000)
 public class GenerateTablesService {
 	private AppParams app;
@@ -51,6 +55,10 @@ public class GenerateTablesService {
 			create(UploadModel.class);
 			create(StudentResultModel.class);
 			create(ApplyAdmissionModel.class);
+			create(JobModel.class);
+			create(AnnouncementModel.class);
+			create(ConfigureNotificationModel.class);
+			create(NotificationModel.class);
 			LOGGER.debug("Successfully created table.");
 		} catch (InterruptedException e) {
 			LOGGER.error("Unable to create table {}", e.getMessage());

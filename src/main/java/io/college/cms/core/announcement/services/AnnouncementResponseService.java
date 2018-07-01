@@ -77,7 +77,7 @@ public class AnnouncementResponseService {
 
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
-			fr = FactoryResponse.builder().response("Unable to publish/update announcement")
+			fr = FactoryResponse.builder().response("Unable to fetch announcements")
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
 		}
 

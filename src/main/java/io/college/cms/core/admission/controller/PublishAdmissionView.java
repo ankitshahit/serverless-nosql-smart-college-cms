@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -34,8 +35,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.admission.model.ApplyAdmissionModel;
 import io.college.cms.core.application.FactoryResponse;
-import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
@@ -43,6 +44,7 @@ import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.builder.DeletePopupView;
 import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -64,10 +66,13 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	private Label maxStudents;
 	private Label totalEnrolled;
 	private Button disableAdmissions;
+	private CoreUiService uiService;
+	private Binder<ApplyAdmissionModel> binder;
 
 	@Autowired
-	public PublishAdmissionView(CourseResponseService courseResponseService) {
-		this.courseResponseService = courseResponseService;
+	public PublishAdmissionView(CoreUiService coreUiService) {
+		this.uiService = coreUiService;
+		this.binder = new Binder<>();
 	}
 
 	@PostConstruct
@@ -205,7 +210,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 			// this.subjects.setItems();
 			semester.setVisible(CollectionUtils.isNotEmpty(select.getAllSelectedItems()));
 			String courseName = select.getFirstSelectedItem().get();
-			courses.setValue(courseName);
+			this.courses.setValue(courseName);
 
 			fr = courseResponseService.findByCourseName(null, courseName);
 			Utils.showFactoryResponseOnlyError(fr);
@@ -292,31 +297,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-
-			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<CourseModel> models = null;
-			models = (List<CourseModel>) courseResponse.getResponse();
-			if (CollectionUtils.isEmpty(models)) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<String> courseNames = new ArrayList<>();
-			models.forEach(course -> {
-				courseNames.add(course.getCourseName());
-			});
-			this.courses.setItems(courseNames);
+			this.uiService.setItemsCourseNames(this.courses);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

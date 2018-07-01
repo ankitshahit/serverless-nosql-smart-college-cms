@@ -65,6 +65,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		super();
 		this.uiService = uiService;
 		this.announcementResponseService = announcementResponseService;
+		this.binder = new Binder<>();
 	}
 
 	@PostConstruct
@@ -81,15 +82,8 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		this.announceToAll.setCaption("Send announcement to all?");
 		this.announceToAll.setVisible(true);
 		this.announceToAll.setEnabled(true);
-
-		this.selectCourse.setCaption("Select course to send announcement to:");
-		this.selectCourse.setPlaceholder("Type starting letter of course name");
-		this.selectCourse.setRequiredIndicatorVisible(true);
-		this.selectCourse.setVisible(true);
-		this.selectCourse.setEnabled(true);
-		this.selectCourse.setSizeFull();
-		this.selectCourse.addStyleNames(ValoTheme.COMBOBOX_LARGE);
-		// selectCourse.setItems(models);
+		
+		this.selectCourse = uiService.getCoursesList();
 
 		this.subject = VaadinWrapper.builder().caption("Title").placeholder("Write 100 characters at max")
 				.maxLength(100).build().textField();
@@ -200,6 +194,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 			this.uiService.setItemsCourseNames(this.selectCourse);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
 			notifi.setCaption("Application error");

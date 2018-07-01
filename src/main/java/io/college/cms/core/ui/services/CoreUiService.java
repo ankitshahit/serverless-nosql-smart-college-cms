@@ -22,6 +22,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.announcement.model.AnnouncementModel;
+import io.college.cms.core.announcement.services.AnnouncementResponseService;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
@@ -30,12 +31,16 @@ import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.job.model.JobModel;
 import io.college.cms.core.job.services.JobResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
+import io.college.cms.core.user.model.UserModel;
+import io.college.cms.core.user.service.UserResponseService;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CoreUiService {
 	private CourseResponseService courseResponseService;
 	private JobResponseService jobResponseService;
+	private AnnouncementResponseService announcementResponseService;
+	private UserResponseService userResponseService;
 
 	@Autowired
 	public void setCourseResponseService(CourseResponseService courseResponseService) {
@@ -45,6 +50,16 @@ public class CoreUiService {
 	@Autowired
 	public void setJobResponseService(JobResponseService jobResponseService) {
 		this.jobResponseService = jobResponseService;
+	}
+
+	@Autowired
+	public void setAnnouncementResponseService(AnnouncementResponseService announcementResponseService) {
+		this.announcementResponseService = announcementResponseService;
+	}
+
+	@Autowired
+	public void setUserResponseService(UserResponseService userResponseService) {
+		this.userResponseService = userResponseService;
 	}
 
 	public ComboBox<String> getCoursesList() {
@@ -218,10 +233,8 @@ public class CoreUiService {
 	}
 
 	public void setItemsAnnouncement(Grid<AnnouncementModel> grid) {
-		// TODO: implement response service;
-		FactoryResponse fr = null;
+		FactoryResponse fr = this.announcementResponseService.findAllJobs();
 		List<AnnouncementModel> announcements = null;
-
 		Utils.showFactoryResponseOnlyError(fr);
 		if (Utils.isError(fr)) {
 			return;
@@ -231,6 +244,20 @@ public class CoreUiService {
 			return;
 		}
 		grid.setItems(announcements);
+	}
+
+	public void setItemsUser(Grid<UserModel> grid) {
+		FactoryResponse fr = this.userResponseService.getUsers(null, UserModel.builder().build());
+		List<UserModel> users = null;
+		Utils.showFactoryResponseOnlyError(fr);
+		if (Utils.isError(fr)) {
+			return;
+		}
+		users = (List<UserModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(users)) {
+			return;
+		}
+		grid.setItems(users);
 	}
 
 	public Label getLabel() {

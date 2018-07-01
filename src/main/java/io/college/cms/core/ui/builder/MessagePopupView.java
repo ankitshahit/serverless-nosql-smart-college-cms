@@ -20,9 +20,9 @@ public class MessagePopupView extends Window {
 	private VerticalLayout bodyVerticalLayout;
 	private Label headerCaption;
 	private Label bodyDescription;
+	private HorizontalSplitPanel splitPanel;
 
-	public MessagePopupView(String caption, String description) {
-		super();
+	protected void initUI(String caption, String description, float splitPosition) {
 		setResizable(false);
 		setClosable(true);
 		center();
@@ -45,8 +45,8 @@ public class MessagePopupView extends Window {
 		this.bodyVerticalLayout.addComponent(this.bodyDescription);
 
 		this.verticalSplitPanel.addComponents(this.headerVerticalLayout, this.bodyVerticalLayout);
-		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(this.headerVerticalLayout, this.bodyVerticalLayout);
-		splitPanel.setSplitPosition(splitPanel.getWidth() - 75.0f);
+		splitPanel = new HorizontalSplitPanel(this.headerVerticalLayout, this.bodyVerticalLayout);
+		splitPanel.setSplitPosition(splitPosition);
 
 		VerticalLayout rootLayout = new VerticalLayout();
 		rootLayout.addComponents(splitPanel);
@@ -59,4 +59,16 @@ public class MessagePopupView extends Window {
 			close();
 		});
 	}
+
+	public MessagePopupView(String caption, String description) {
+		super();
+		this.splitPanel = new HorizontalSplitPanel();
+		initUI(caption, description, splitPanel.getWidth() - 75.0f);
+	}
+
+	public MessagePopupView(String caption, String description, float split) {
+		super();
+		initUI(caption, description, split);
+	}
+
 }

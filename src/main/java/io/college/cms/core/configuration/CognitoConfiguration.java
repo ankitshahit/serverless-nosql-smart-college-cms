@@ -13,7 +13,9 @@ import com.amazonaws.services.cognitoidp.model.AdminGetUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminListGroupsForUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminRemoveUserFromGroupRequest;
 import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
+import com.amazonaws.services.cognitoidp.model.AuthFlowType;
 import com.amazonaws.services.cognitoidp.model.ConfirmSignUpRequest;
+import com.amazonaws.services.cognitoidp.model.InitiateAuthRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersInGroupRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
 import com.amazonaws.services.cognitoidp.model.SignUpRequest;
@@ -113,5 +115,14 @@ public class CognitoConfiguration {
 		ConfirmSignUpRequest request = new ConfirmSignUpRequest();
 		request.setClientId(params.getCognitoClientId());
 		return request;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public InitiateAuthRequest authRequest() {
+		InitiateAuthRequest authRequest = new InitiateAuthRequest();
+		authRequest.setClientId(params.getCognitoClientId());
+		authRequest.setAuthFlow(AuthFlowType.USER_PASSWORD_AUTH);
+		return authRequest;
 	}
 }

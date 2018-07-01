@@ -1,6 +1,7 @@
 package io.college.cms.core.user.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -61,9 +62,35 @@ public class UserCognitoService implements IUserService {
 	 */
 	public static UserModel valueOf(UserType user) {
 		UserModel.UserModelBuilder userBuilder = UserModel.builder();
-		userBuilder.email(user.getUsername()).isActive(user.getEnabled());
+		userBuilder.createdOn(LocalDate.from(user.getUserCreateDate().toInstant()));
+		userBuilder.username(user.getUsername()).isActive(user.getEnabled());
 		userBuilder.attributes(valueOf(user.getAttributes()).getAttributes());
-		return userBuilder.build();
+		return copyAttributes(userBuilder.build());
+	}
+
+	public static UserModel copyAttributes(UserModel user) {
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		for (io.college.cms.core.user.model.UserModel.AttributeType attribute : user.getAttributes()) {
+			if (attribute == null) {
+				continue;
+			}
+			if (UserAttributes.BIRTH_DATE == attribute.getName()) {
+				user.setDateOfBirth(LocalDate.parse(attribute.getValue(), formatter));
+			} else if (UserAttributes.FAMILY_NAME == attribute.getName()) {
+				user.setLastName(attribute.getValue());
+			} else if (UserAttributes.GENDER == attribute.getName()) {
+				user.setGender(attribute.getValue());
+			} else if (UserAttributes.EMAIL == attribute.getName()) {
+				user.setEmail(attribute.getValue());
+			} else if (UserAttributes.PHONE_NUMBER == attribute.getName()) {
+				user.setPhone(attribute.getValue());
+			} else if (UserAttributes.GIVEN_NAME == attribute.getName()) {
+				user.setFirstName(attribute.getValue());
+			}
+		}
+
+		return user;
 	}
 
 	/**
@@ -92,7 +119,7 @@ public class UserCognitoService implements IUserService {
 	}
 
 	@Override
-	@Cacheable
+	// @Cacheable
 	public UserModel findByUsername(@NonNull String username)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		UserModel.UserModelBuilder userBuilder = UserModel.builder();
@@ -168,7 +195,7 @@ public class UserCognitoService implements IUserService {
 		try {
 			ListUsersRequest request = app.getBean(ListUsersRequest.class);
 
-			int limit = 10;
+			int limit = 60;
 			LOGGER.debug("limit : {}", limit);
 			if ((model.getLimit() != null && model.getLimit() <= 0)) {
 				limit = model.getLimit();
@@ -322,7 +349,7 @@ public class UserCognitoService implements IUserService {
 	}
 
 	public enum UserStatus {
-		UNCONFIRMED, CONFIRMED;
+		UNCONFIRMED, CONFIRMED, NEW_PASSWORD_REQUIRED;
 	}
 
 }

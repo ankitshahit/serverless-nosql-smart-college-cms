@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.college.cms.core.dynamodb.constants.Table;
 import io.college.cms.core.user.constants.UserAttributes;
+import io.college.cms.core.user.constants.UserGroups;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,7 +55,7 @@ public class UserModel {
 	@DynamoDBAttribute(attributeName = "deleted_on")
 	@JsonFormat(shape = Shape.STRING)
 	private LocalDate deletedOn;
-
+	private String profileLink;
 	@DynamoDBAttribute(attributeName = "user_metadata")
 	@Singular(value = "withAttribute")
 	private List<AttributeType> attributes;
@@ -62,6 +63,8 @@ public class UserModel {
 	private String paginationToken;
 	@DynamoDBIgnore
 	private String userStatus;
+	private String phone;
+	private UserGroups group;
 
 	@Builder
 	@Data

@@ -121,6 +121,7 @@ public class GroupService implements IGroupService {
 			if (StringUtils.isNotEmpty(token)) {
 				request.setNextToken(token);
 			}
+			request.setGroupName(group.toString());
 			ListUsersInGroupResult result = identity.listUsersInGroup(request);
 			builder.nextToken(result.getNextToken());
 			result.getUsers().forEach(user -> {

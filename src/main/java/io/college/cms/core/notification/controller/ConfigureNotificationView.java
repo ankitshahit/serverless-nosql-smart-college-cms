@@ -2,10 +2,13 @@ package io.college.cms.core.notification.controller;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationException;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -18,11 +21,18 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
+import io.college.cms.core.notification.model.ConfigureNotificationModel;
+import io.college.cms.core.notification.model.NotificationType;
+import io.college.cms.core.notification.services.NotificationResponseService;
+import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.services.CoreUiService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,13 +52,17 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 	private Button reset = new Button();
 	private Button save = new Button();
 	private CoreUiService coreUi;
+	private Binder<ConfigureNotificationModel> binder;
+	private NotificationResponseService notificationResponseService;
 
 	/**
 	 * @param coreUi
 	 */
-	public ConfigureNotificationView(CoreUiService coreUi) {
+	public ConfigureNotificationView(CoreUiService coreUi, NotificationResponseService notificationResponseService) {
 		super();
 		this.coreUi = coreUi;
+		this.notificationResponseService = notificationResponseService;
+		this.binder = new Binder<>();
 	}
 
 	@PostConstruct
@@ -78,7 +92,7 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 
 		sendViaMessageLbl.setCaption("<h3><b>Send communication via</b>: </h3>");
 		sendViaMessageLbl.setCaptionAsHtml(true);
-		communicationPreferencesCb.setItems("Email", "Push notification", "My notification");
+		communicationPreferencesCb.setItems("Email", "My notification");
 
 		VerticalLayout layoutRight2 = new VerticalLayout();
 		layoutRight2.addComponent(communicationPreferencesCb);
@@ -108,6 +122,31 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 
 		rootLayout.addComponent(btnLayout);
 		rootLayout.setComponentAlignment(btnLayout, Alignment.BOTTOM_RIGHT);
+		this.save.addStyleName(ValoTheme.BUTTON_PRIMARY);
+		binder.bind(this.selectCourse, ConfigureNotificationModel::getCourseName,
+				ConfigureNotificationModel::setCourseName);
+
+		this.save.addClickListener(click -> {
+			ConfigureNotificationModel model = ConfigureNotificationModel.builder().build();
+			try {
+				binder.writeBean(model);
+				if (CollectionUtils.isNotEmpty(this.subscribePreferencesCb.getSelectedItems())) {
+					model.setMyNotification(this.subscribePreferencesCb.getSelectedItems()
+							.contains(NotificationType.NotificationMode.MY_NOTIFICATIONS));
+					model.setEmail(this.subscribePreferencesCb.getSelectedItems()
+							.contains(NotificationType.NotificationMode.EMAIL));
+				}
+				FactoryResponse fr = notificationResponseService.saveNotificationConfiguration(model);
+				Utils.showFactoryResponseOnlyError(fr);
+				if (fr != null && SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
+					MessagePopupView message = new MessagePopupView("Success", "Saved configuration!", 30.0f);
+					getUI().addWindow(message);
+				}
+			} catch (ValidationException e) {
+				LOGGER.error(e.getMessage());
+			}
+
+		});
 	}
 
 	@Override

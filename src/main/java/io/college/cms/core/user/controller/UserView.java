@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -64,6 +65,7 @@ public class UserView extends Composite implements View {
 	private UserViewService userViewService;
 	private UserResponseService userResponseService;
 	private UserModel userModel;
+	private Binder<UserModel> binder;
 
 	public UserView() {
 		super();
@@ -73,6 +75,7 @@ public class UserView extends Composite implements View {
 	@Autowired
 	public void setUserResponseService(UserResponseService userResponseService) {
 		this.userResponseService = userResponseService;
+		this.binder = new Binder<>();
 	}
 
 	@PostConstruct()

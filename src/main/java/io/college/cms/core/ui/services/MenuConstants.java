@@ -5,6 +5,7 @@ public class MenuConstants {
 	static final String PUBLISH_ANNOUNCEMENT = "Publish Announcement";
 	static final String VIEW_ALL_ANNOUNCEMENT = "View All Announcements";
 	static final String USER = "User";
+	static final String VIEW_ALL_USER = "View users";
 	static final String ADD_USER = "Add user";
 	static final String MY_PROFILE = "My profile";
 	static final String MY_DOCUMENTS = "My documents";
