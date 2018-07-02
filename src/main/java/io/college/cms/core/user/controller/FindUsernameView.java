@@ -47,6 +47,7 @@ public class FindUsernameView extends VerticalLayout implements View {
 	private ApplicationContext app;
 	private Map<String, String> params;
 	private boolean firstWindowAdded = false;
+
 	public Map<String, String> getParams() {
 		return params;
 	}
@@ -97,7 +98,7 @@ public class FindUsernameView extends VerticalLayout implements View {
 			// TODO: have to compare msg for failure, in-case it says
 			// resource is not found only the would we allow the user to
 			// continue further.
-		
+
 			if (fr != null && SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
 				MessagePopupView message = new MessagePopupView("Username is available",
 						"Username is available to register, click to continue", 40.0f);
@@ -107,10 +108,9 @@ public class FindUsernameView extends VerticalLayout implements View {
 				}
 
 				message.addClickListener(success -> {
-					Collection<Window> windows = getUI().getWindows();
-					params.put("username", this.findUsernameService.getUsernameFld().getOptionalValue().get());
-					
-					getUI().getNavigator().navigateTo(ViewConstants.DEAL_WITH_USER);
+
+					getUI().getNavigator().navigateTo(
+							ViewConstants.USER_PROFILE_VIEW + "/" + findUsernameService.getUsernameFld().getValue());
 
 				});
 

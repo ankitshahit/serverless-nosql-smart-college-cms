@@ -13,6 +13,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import com.vaadin.data.Binder;
 import com.vaadin.navigator.View;
@@ -43,6 +45,7 @@ import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.model.UserModel;
 import io.college.cms.core.user.service.IUserService;
 import io.college.cms.core.user.service.SecurityService;
@@ -85,7 +88,7 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 	private IUserService userService;
 	private ApplicationContext app;
 	private UserResponseService userResponseService;
-	
+
 	@Setter
 	private Map<String, String> params;
 
@@ -104,7 +107,12 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
-		Map<String, String> viewData = event.getParameterMap();
+
+		String findUsername = event.getParameters();
+		if (findUsername != null && findUsername.contains("/")) {
+			findUsername = HtmlUtils.htmlEscape(StringUtils.trimAllWhitespace(findUsername.split("/")[0]));
+		}
+
 		try {
 			if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityService.getPrincipal())) {
 
@@ -113,19 +121,15 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 				panel.setContent(this);
 				panel.setCaption("<h2>College CMS</h2>");
 				panel.setCaptionAsHtml(true);
+				usernameLbl.setValue(findUsername);
+				userStatusLb.setValue("<b>Not registered</b>");
 				Window mainWindow = new Window();
 				mainWindow.setContent(panel);
 				mainWindow.center();
 				mainWindow.setSizeFull();
 				mainWindow.setResizable(false);
 				mainWindow.setClosable(false);
-
-				// mainWindow.setCaption("Protected Resource");
 				event.getNavigator().getUI().addWindow(mainWindow);
-				Window wind = new Window();
-				FindUsernameView findUsername = app.getBean(FindUsernameView.class);
-				wind.setContent(findUsername);
-				event.getNavigator().getUI().addWindow(wind);
 
 			}
 		} catch (Exception e) {
@@ -262,63 +266,55 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		birthDateDfListener.setSourceDateField(birthDateDf);
 		birthDateDfListener.setTargetBtn(saveBtn);
 		birthDateDfListener.setMandatoryDateFields(birthDateDf);
-		birthDateDfListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		birthDateDfListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		birthDateDfListener.setMandatoryListFields(genderCb);
 		birthDateDf.addValueChangeListener(birthDateDfListener);
 		EmptyFieldListener<String> passwordFldListener = new EmptyFieldListener<String>();
 		passwordFldListener.setSourceField(passwordFld);
 		passwordFldListener.setTargetBtn(saveBtn);
-		passwordFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		passwordFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		passwordFldListener.setMandatoryListFields(genderCb);
 		passwordFld.addValueChangeListener(passwordFldListener);
 		EmptyFieldListener<String> firstNameFldListener = new EmptyFieldListener<String>();
 		firstNameFldListener.setSourceField(firstNameFld);
 		firstNameFldListener.setTargetBtn(saveBtn);
-		firstNameFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		firstNameFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		firstNameFldListener.setMandatoryListFields(genderCb);
 		firstNameFld.addValueChangeListener(firstNameFldListener);
 		EmptyFieldListener<String> phoneTldListener = new EmptyFieldListener<String>();
 		phoneTldListener.setSourceField(phoneTld);
 		phoneTldListener.setTargetBtn(saveBtn);
-		phoneTldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		phoneTldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		phoneTldListener.setMandatoryListFields(genderCb);
 		phoneTld.addValueChangeListener(phoneTldListener);
 		EmptyFieldListener<String> genderCbListener = new EmptyFieldListener<String>();
 		genderCbListener.setSourceListField(genderCb);
 		genderCbListener.setTargetBtn(saveBtn);
-		genderCbListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		genderCbListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		genderCbListener.setMandatoryListFields(genderCb);
 		genderCb.addValueChangeListener(genderCbListener);
 		EmptyFieldListener<String> confirmPasswordFldListener = new EmptyFieldListener<String>();
 		confirmPasswordFldListener.setSourceField(confirmPasswordFld);
 		confirmPasswordFldListener.setTargetBtn(saveBtn);
 		confirmPasswordFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld,
-				passwordFld, confirmPasswordFld, phoneTld);
+				phoneTld);
 		confirmPasswordFld.addValueChangeListener(confirmPasswordFldListener);
 		EmptyFieldListener<String> mNameFldListener = new EmptyFieldListener<String>();
 		mNameFldListener.setSourceField(mNameFld);
 		mNameFldListener.setTargetBtn(saveBtn);
-		mNameFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		mNameFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		mNameFldListener.setMandatoryListFields(genderCb);
 		mNameFld.addValueChangeListener(mNameFldListener);
 		EmptyFieldListener<String> lNameFldListener = new EmptyFieldListener<String>();
 		lNameFldListener.setSourceField(lNameFld);
 		lNameFldListener.setTargetBtn(saveBtn);
-		lNameFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		lNameFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		lNameFldListener.setMandatoryListFields(genderCb);
 		lNameFld.addValueChangeListener(lNameFldListener);
 		EmptyFieldListener<String> emailFldListener = new EmptyFieldListener<String>();
 		emailFldListener.setSourceField(emailFld);
 		emailFldListener.setTargetBtn(saveBtn);
-		emailFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, passwordFld,
-				confirmPasswordFld, phoneTld);
+		emailFldListener.setMandatoryFields(firstNameFld, mNameFld, lNameFld, birthDateDf, emailFld, phoneTld);
 		emailFldListener.setMandatoryListFields(genderCb);
 		emailFld.addValueChangeListener(emailFldListener);
 
@@ -329,7 +325,7 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		nameLayout.addComponents(firstNameFld, mNameFld, lNameFld);
 		Button changePassword = new Button("Change password?");
 		changePassword.setStyleName(ValoTheme.BUTTON_LINK);
-		firstLayout.addComponents(nameLayout, genderCb, emailFld, phoneTld, saveBtn);
+		firstLayout.addComponents(nameLayout, genderCb, emailFld, phoneTld, saveBtn, passwordFld);
 		firstLayout.setComponentAlignment(saveBtn, Alignment.BOTTOM_RIGHT);
 		secondLayout.addComponents(viewProfileBtn, this.uploadPic, usernameLbl, userStatusLb, birthDateDf,
 				changePassword);
@@ -351,10 +347,17 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		binder.bind(this.genderCb, UserModel::getGender, UserModel::setGender);
 		binder.bind(this.birthDateDf, UserModel::getDateOfBirth, UserModel::setDateOfBirth);
 		binder.bind(this.phoneTld, UserModel::getPhone, UserModel::setPhone);
+		binder.bind(this.emailFld, UserModel::getEmail, UserModel::setEmail);
 		this.saveBtn.addClickListener(click -> {
 			try {
 				UserModel model = UserModel.builder().build();
+				if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityService.getPrincipal())) {
+					model.setUsername(usernameLbl.getValue());
+					model.setToken(passwordFld.getValue());
+				}
+
 				this.binder.writeBean(model);
+				model.setGroup(UserGroups.STUDENT);
 				FactoryResponse fr = userResponseService.createUpdateUser(null, model);
 				Utils.showFactoryResponseMsg(fr);
 			} catch (Exception ex) {

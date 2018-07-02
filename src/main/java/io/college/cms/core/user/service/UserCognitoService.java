@@ -64,7 +64,7 @@ public class UserCognitoService implements IUserService {
 	 */
 	public static UserModel valueOf(UserType user) {
 		UserModel.UserModelBuilder userBuilder = UserModel.builder();
-		userBuilder.createdOn(LocalDate.from(user.getUserCreateDate().toInstant()));
+		// userBuilder.createdOn(LocalDate.from(user.getUserCreateDate().toInstant()));
 		userBuilder.username(user.getUsername()).isActive(user.getEnabled());
 		userBuilder.attributes(valueOf(user.getAttributes()).getAttributes());
 		return copyAttributes(userBuilder.build());
@@ -77,11 +77,13 @@ public class UserCognitoService implements IUserService {
 			if (attribute == null) {
 				continue;
 			}
-			/*if (UserAttributes.BIRTH_DATE == attribute.getName()) {
-
-				user.setDateOfBirth(
-						LocalDate.parse(attribute.getValue().substring(0, attribute.getValue().charAt(10)), formatter));
-			} else*/ if (UserAttributes.FAMILY_NAME == attribute.getName()) {
+			/*
+			 * if (UserAttributes.BIRTH_DATE == attribute.getName()) {
+			 * 
+			 * user.setDateOfBirth(
+			 * LocalDate.parse(attribute.getValue().substring(0,
+			 * attribute.getValue().charAt(10)), formatter)); } else
+			 */ if (UserAttributes.FAMILY_NAME == attribute.getName()) {
 				user.setLastName(attribute.getValue());
 			} else if (UserAttributes.GENDER == attribute.getName()) {
 				user.setGender(attribute.getValue());
@@ -251,11 +253,26 @@ public class UserCognitoService implements IUserService {
 			ValidationHandler.throwExceptionIfNull(user.getUsername(), "username not provided",
 					ExceptionType.VALIDATION_EXCEPTION);
 
-			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(user.getAttributes()),
-					"User attributes not provided.", ExceptionType.VALIDATION_EXCEPTION);
+			UserModel.UserModelBuilder builder = UserModel.builder();
+
+			builder.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+					.name(UserAttributes.EMAIL).value(user.getEmail()).build())
+					.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+							.name(UserAttributes.MIDDLE_NAME).value(user.getMiddleName()).build())
+					.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+							.name(UserAttributes.FAMILY_NAME).value(user.getLastName()).build())
+					.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+							.name(UserAttributes.GIVEN_NAME).value(user.getFirstName()).build())
+					.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+							.name(UserAttributes.BIRTH_DATE).value(String.valueOf(user.getDateOfBirth())).build())
+					.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+							.name(UserAttributes.PHONE_NUMBER).value(user.getPhone()).build())
+					.withAttribute(io.college.cms.core.user.model.UserModel.AttributeType.builder()
+							.name(UserAttributes.GENDER).value(user.getGender()).build())
+					.username(user.getUsername()).token(user.getToken());
 
 			List<AttributeType> attributes = new ArrayList<AttributeType>();
-			for (io.college.cms.core.user.model.UserModel.AttributeType attr : user.getAttributes()) {
+			for (io.college.cms.core.user.model.UserModel.AttributeType attr : builder.build().getAttributes()) {
 				AttributeType attribute = new AttributeType();
 				attribute.setName(StringUtils.lowerCase(attr.getName().toString()));
 				attribute.setValue(attr.getValue());
@@ -265,10 +282,10 @@ public class UserCognitoService implements IUserService {
 			try {
 				// TODO: we need to fetch the existing details from cognito and
 				// update only those that are really required to.
-				UserModel cognitoUserDetails = findByUsername(user.getUsername());// Note:
-																					// It
-																					// was
-																					// really
+				UserModel cognitoUserDetails = findByUsername(builder.build().getUsername());// Note:
+				// It
+				// was
+				// really
 
 				// required to perform in a
 
@@ -284,7 +301,7 @@ public class UserCognitoService implements IUserService {
 
 			} catch (Exception e) {
 				if (isAdmin) {
-					createRequestAdmin(user, attributes);
+					createRequestAdmin(builder.build(), attributes);
 				} else {
 					ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(user.getToken()), "No password provided",
 							ExceptionType.VALIDATION_EXCEPTION);
@@ -304,6 +321,10 @@ public class UserCognitoService implements IUserService {
 	private void createRequest(UserModel model, Collection<AttributeType> attributes)
 			throws ApplicationException, ValidationException {
 		try {
+			/*
+			 * attributes.clear(); attributes.add(new
+			 * AttributeType().withName("email").withValue(model.getEmail()));
+			 */
 
 			SignUpRequest request = app.getBean(SignUpRequest.class);
 			request.setUsername(model.getUsername());
@@ -322,10 +343,13 @@ public class UserCognitoService implements IUserService {
 	private void createRequestAdmin(UserModel model, Collection<AttributeType> attributes)
 			throws ApplicationException, ValidationException {
 		try {
-			AdminCreateUserRequest request = app.getBean(AdminCreateUserRequest.class);
+			SignUpRequest request = app.getBean(SignUpRequest.class);
 			request.setUsername(model.getUsername());
+			request.setPassword(model.getToken());
 			request.setUserAttributes(attributes);
-			identityProvider.adminCreateUser(request);
+			identityProvider.signUp(request);
+			GroupService groupService = app.getBean(GroupService.class);
+			groupService.addUserToGroup(model.getUsername(), UserGroups.STAFF);
 		} catch (com.amazonaws.services.cognitoidp.model.InvalidParameterException ex) {
 			LOGGER.error(ex.getMessage());
 			throw new ValidationException(ex.getMessage());
