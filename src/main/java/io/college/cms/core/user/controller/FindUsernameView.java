@@ -1,10 +1,11 @@
 package io.college.cms.core.user.controller;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +45,11 @@ public class FindUsernameView extends VerticalLayout implements View {
 	private FindUsernameViewService findUsernameService;
 	private UserResponseService userResponseService;
 	private ApplicationContext app;
+	private Map<String, String> params;
+	private boolean firstWindowAdded = false;
+	public Map<String, String> getParams() {
+		return params;
+	}
 
 	/**
 	 * @param userResponseService
@@ -55,6 +61,7 @@ public class FindUsernameView extends VerticalLayout implements View {
 		this.userResponseService = userResponseService;
 		this.findUsernameService = new FindUsernameViewService();
 		this.app = app;
+		params = new HashMap<>();
 	}
 
 	@Override
@@ -90,7 +97,7 @@ public class FindUsernameView extends VerticalLayout implements View {
 			// TODO: have to compare msg for failure, in-case it says
 			// resource is not found only the would we allow the user to
 			// continue further.
-			boolean firstWindowAdded = false;
+		
 			if (fr != null && SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
 				MessagePopupView message = new MessagePopupView("Username is available",
 						"Username is available to register, click to continue", 40.0f);
@@ -101,7 +108,9 @@ public class FindUsernameView extends VerticalLayout implements View {
 
 				message.addClickListener(success -> {
 					Collection<Window> windows = getUI().getWindows();
-					getUI().getNavigator().navigateTo(ViewConstants.USER_PROFILE_VIEW);
+					params.put("username", this.findUsernameService.getUsernameFld().getOptionalValue().get());
+					
+					getUI().getNavigator().navigateTo(ViewConstants.DEAL_WITH_USER);
 
 				});
 

@@ -155,21 +155,6 @@ public class CourseModel implements Serializable {
 		private String semester = "Sem 1";
 	}
 
-	@Data
-	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@DynamoDBDocument
-	public static class AdmissionMetaModel {
-		private String semester;
-		private boolean requireFeesVerification;
-		private boolean showEnrolledOutOf;
-		private String fees;
-		private String additionalInformation;
-		private boolean admissionClosed;
-		@Singular
-		private List<String> users;
-	}
+	
 
 }

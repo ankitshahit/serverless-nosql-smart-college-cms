@@ -227,6 +227,22 @@ public class CoreUiService {
 		return subjects;
 	}
 
+	public void setItemsUser(ComboBox<String> grid) {
+		FactoryResponse fr = this.userResponseService.getUsers(null, UserModel.builder().build());
+		List<UserModel> users = null;
+		Utils.showFactoryResponseOnlyError(fr);
+		if (Utils.isError(fr)) {
+			return;
+		}
+		users = (List<UserModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(users)) {
+			return;
+		}
+		List<String> names = new ArrayList<>();
+		users.forEach(user -> names.add(user.getUsername()));
+		grid.setItems(names);
+	}
+
 	public void setItemsJob(Grid<JobModel> grid) {
 		FactoryResponse fr = jobResponseService.findAllJobs();
 		List<JobModel> jobs = null;

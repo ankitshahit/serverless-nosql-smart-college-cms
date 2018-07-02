@@ -59,7 +59,8 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 	private AnnouncementResponseService announcementResponseService;
 	@Setter
 	private AnnouncementModel announcementModel;
-
+	@Setter
+	private boolean readOnly;
 	@Autowired
 	public PublishAnnouncementView(CoreUiService uiService, AnnouncementResponseService announcementResponseService) {
 		super();
@@ -144,9 +145,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 		announcementDescriptionListener.setMandatoryFields(subject, announcementDescription);
 		announcementDescription.addValueChangeListener(announcementDescriptionListener);
 		this.selectCourse.addValueChangeListener(value -> {
-			if (!ListenerUtility.isValidSourceEvent(value.getComponent(), this.selectCourse)) {
-				return;
-			}
+
 			announceToAll.setEnabled(!this.selectCourse.getOptionalValue().isPresent());
 		});
 		announceToAll.addValueChangeListener(value -> {
@@ -189,6 +188,7 @@ public class PublishAnnouncementView extends VerticalLayout implements View {
 			// TODO: implement a security check before entering into view.
 			if (this.announcementModel != null) {
 				this.binder.readBean(announcementModel);
+				this.binder.setReadOnly(readOnly);
 				return;
 			}
 			this.uiService.setItemsCourseNames(this.selectCourse);

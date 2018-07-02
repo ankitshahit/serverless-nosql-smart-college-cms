@@ -1,9 +1,12 @@
 package io.college.cms.core.admission.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -26,9 +29,18 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.admission.model.ApplyAdmissionModel;
+import io.college.cms.core.admission.services.AdmissionResponseService;
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
+import io.college.cms.core.courses.db.CourseModel;
+import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
+import io.college.cms.core.user.service.SecurityService;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -41,14 +53,26 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 
 	private Grid<ApplyAdmissionModel> gridAdmissionModel;
 	private ComboBox<String> courseNamesCb;
+	private SecurityService securityService;
+	private CourseResponseService courseResponseService;
+	private AdmissionResponseService admissionResponseService;
+	@Setter
+	private ApplyAdmissionModel applyAdmissionModel;
 
 	/**
 	 * @param coreUi
+	 * @param securityService
+	 * @param courseResponseService
+	 * @param admissionResponseService
 	 */
 	@Autowired
-	public ApproveRejectAdmissionView(CoreUiService coreUi) {
+	public ApproveRejectAdmissionView(CoreUiService coreUi, SecurityService securityService,
+			CourseResponseService courseResponseService, AdmissionResponseService admissionResponseService) {
 		super();
 		this.coreUi = coreUi;
+		this.securityService = securityService;
+		this.courseResponseService = courseResponseService;
+		this.admissionResponseService = admissionResponseService;
 	}
 
 	@PostConstruct
@@ -74,9 +98,7 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 		addComponent(panel);
 		setSizeFull();
 		this.gridAdmissionModel.addItemClickListener(click -> {
-			if (!ListenerUtility.isValidSourceEvent(click.getSource(), this.gridAdmissionModel)) {
-				return;
-			}
+
 			if (click.getItem() == null) {
 				return;
 			}
@@ -96,6 +118,52 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 			RichTextArea textArea = VaadinWrapper.builder().caption("Comments").required(false).build().richTextArea();
 			Button button = VaadinWrapper.builder().enabled(false).build().button();
 			button.setCaption("Save");
+			button.addClickListener(btnClick -> {
+				ApplyAdmissionModel model = click.getItem();
+
+				model.setApproved("approve".equalsIgnoreCase(radioOption.getOptionalValue().get()));
+				model.setRejected(!"approve".equalsIgnoreCase(radioOption.getOptionalValue().get()));
+				model.setComments(Utils.val(textArea));
+				model.setActionBy(securityService.getPrincipal());
+				FactoryResponse fr = admissionResponseService.saveUpdate(model);
+				Utils.showFactoryResponseOnlyError(fr);
+				if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+					return;
+				}
+				if (model.isApproved() && !model.isFeesVerificationReceiptRequired()) {
+					fr = courseResponseService.findByCourseName(null, model.getCourseName());
+					Utils.showFactoryResponseOnlyError(fr);
+					if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+						return;
+					}
+
+					CourseModel course = (CourseModel) fr.getResponse();
+					if (course.getEnrolledStudents() + 1 > course.getMaxStudentsAllowed()) {
+						Utils.showErrorNotification("Course cannot enroll more students, all seats are allocated!");
+						return;
+					} else {
+						course.setEnrolledStudents(course.getEnrolledStudents() + 1);
+					}
+					// TODO: need to add for each and every subject that is
+					// selected by student.
+					List<String> users = course.getUsers();
+					if (CollectionUtils.isEmpty(users)) {
+						users = new ArrayList<>();
+					}
+					users.add(model.getUsername());
+					course.setUsers(users);
+					fr = courseResponseService.saveCourseMetadata(course);
+					Utils.showFactoryResponseMsg(fr);
+					if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+						return;
+					}
+				} else {
+					MessagePopupView message = new MessagePopupView("Success!",
+							"Complete fees payment and verification for confirmation of admission enrollment!", 50.0f);
+					message.center();
+					getUI().addWindow(message);
+				}
+			});
 			radioOption.addValueChangeListener(value -> {
 				if (!ListenerUtility.isValidSourceEvent(value.getComponent(), radioOption)) {
 					return;

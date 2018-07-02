@@ -1,5 +1,7 @@
 package io.college.cms.core.ui.listener;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -23,7 +25,9 @@ import io.college.cms.core.ui.controller.ViewAllCoursesUI;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.controller.AddToGroupsView;
+import io.college.cms.core.user.controller.FindUsernameView;
 import io.college.cms.core.user.controller.ListUsersView;
+import io.college.cms.core.user.controller.MyProfileView;
 import io.college.cms.core.user.service.SecurityService;
 
 @Service
@@ -35,6 +39,7 @@ public class SecurityListener implements ViewChangeListener {
 	private static final long serialVersionUID = 1L;
 	private String errorMsg;
 	private SecurityService securityUtils;
+	private Map<String, String> params;
 
 	@Autowired
 	public void setSecurityUtils(SecurityService securityUtils) {
@@ -43,11 +48,12 @@ public class SecurityListener implements ViewChangeListener {
 
 	@Override
 	public boolean beforeViewChange(ViewChangeListener.ViewChangeEvent event) {
+		
 		return true;
 	}
 
 	@Override
-	public void afterViewChange(ViewChangeEvent event) {
+	public void afterViewChange(ViewChangeEvent event) {		
 		UserGroups[] roles = null;
 		if (event.getNewView() instanceof PublishJobView || event.getNewView() instanceof PublishAnnouncementView
 				|| event.getNewView() instanceof ListUsersView || event.getNewView() instanceof TagAttendanceView
@@ -60,6 +66,8 @@ public class SecurityListener implements ViewChangeListener {
 				|| event.getNewView() instanceof SeeCoursesView || event.getNewView() instanceof PublishCourseView
 				|| event.getNewView() instanceof ViewAllCoursesUI) {
 			roles = STAFF_ACCESS;
+		} else if (event.getNewView() instanceof MyProfileView) {
+			roles = new UserGroups[] {};
 		} else {
 			roles = ALL_ACCESS;
 		}
@@ -82,6 +90,12 @@ public class SecurityListener implements ViewChangeListener {
 
 	private boolean authorizeRequest(ViewChangeEvent event, UserGroups[] roles) {
 		try {
+			// we need to make myprofile free from authentication, as it will be
+			// used by user to validate and create their account.
+			if (event.getNewView() instanceof MyProfileView
+					&& SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityUtils.getPrincipal())) {
+				return true;
+			}
 			securityUtils.authorize(roles);
 			event.getNewView().enter(event);
 		} catch (Exception ex) {

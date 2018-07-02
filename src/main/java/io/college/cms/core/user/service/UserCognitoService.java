@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -73,14 +72,16 @@ public class UserCognitoService implements IUserService {
 
 	public static UserModel copyAttributes(UserModel user) {
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		for (io.college.cms.core.user.model.UserModel.AttributeType attribute : user.getAttributes()) {
 			if (attribute == null) {
 				continue;
 			}
-			if (UserAttributes.BIRTH_DATE == attribute.getName()) {
-				user.setDateOfBirth(LocalDate.parse(attribute.getValue(), formatter));
-			} else if (UserAttributes.FAMILY_NAME == attribute.getName()) {
+			/*if (UserAttributes.BIRTH_DATE == attribute.getName()) {
+
+				user.setDateOfBirth(
+						LocalDate.parse(attribute.getValue().substring(0, attribute.getValue().charAt(10)), formatter));
+			} else*/ if (UserAttributes.FAMILY_NAME == attribute.getName()) {
 				user.setLastName(attribute.getValue());
 			} else if (UserAttributes.GENDER == attribute.getName()) {
 				user.setGender(attribute.getValue());
@@ -127,7 +128,8 @@ public class UserCognitoService implements IUserService {
 
 		List<GroupType> groups = identityProvider.adminListGroupsForUser(adminListRequest).getGroups();
 		if (CollectionUtils.isEmpty(groups)) {
-			//TODO: REMOVE THIS IMPLEMENTATION AND ADD USER TO STUDENT GROUP BY DEFAULT.
+			// TODO: REMOVE THIS IMPLEMENTATION AND ADD USER TO STUDENT GROUP BY
+			// DEFAULT.
 			return "STAFF";
 		}
 		for (GroupType groupType : groups) {

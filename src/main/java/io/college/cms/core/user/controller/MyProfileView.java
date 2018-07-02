@@ -39,11 +39,14 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.user.model.UserModel;
 import io.college.cms.core.user.service.IUserService;
 import io.college.cms.core.user.service.SecurityService;
+import io.college.cms.core.user.service.UserResponseService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,6 +84,10 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 	private Binder<UserModel> binder;
 	private IUserService userService;
 	private ApplicationContext app;
+	private UserResponseService userResponseService;
+	
+	@Setter
+	private Map<String, String> params;
 
 	/***
 	 * 
@@ -91,6 +98,7 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		super();
 		this.securityService = securityService;
 		this.app = app;
+		this.userResponseService = app.getBean(UserResponseService.class);
 	}
 
 	@Override
@@ -98,7 +106,28 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		View.super.enter(event);
 		Map<String, String> viewData = event.getParameterMap();
 		try {
-			this.app = app;
+			if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityService.getPrincipal())) {
+
+				Panel panel = new Panel();
+				// panel.setWidth("60%");
+				panel.setContent(this);
+				panel.setCaption("<h2>College CMS</h2>");
+				panel.setCaptionAsHtml(true);
+				Window mainWindow = new Window();
+				mainWindow.setContent(panel);
+				mainWindow.center();
+				mainWindow.setSizeFull();
+				mainWindow.setResizable(false);
+				mainWindow.setClosable(false);
+
+				// mainWindow.setCaption("Protected Resource");
+				event.getNavigator().getUI().addWindow(mainWindow);
+				Window wind = new Window();
+				FindUsernameView findUsername = app.getBean(FindUsernameView.class);
+				wind.setContent(findUsername);
+				event.getNavigator().getUI().addWindow(wind);
+
+			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
@@ -326,6 +355,8 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 			try {
 				UserModel model = UserModel.builder().build();
 				this.binder.writeBean(model);
+				FactoryResponse fr = userResponseService.createUpdateUser(null, model);
+				Utils.showFactoryResponseMsg(fr);
 			} catch (Exception ex) {
 				LOGGER.error(ex.getMessage());
 			}

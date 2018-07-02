@@ -35,7 +35,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-import io.college.cms.core.admission.model.ApplyAdmissionModel;
+import io.college.cms.core.admission.model.AdmissionMetaModel;
+import io.college.cms.core.admission.services.AdmissionResponseService;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
@@ -47,6 +48,7 @@ import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -67,11 +69,18 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	private Label totalEnrolled;
 	private Button disableAdmissions;
 	private CoreUiService uiService;
-	private Binder<ApplyAdmissionModel> binder;
+	private Binder<AdmissionMetaModel> binder;
+	private ComboBox<String> semester;
+	private AdmissionResponseService admissionService;
+	@Setter
+	private AdmissionMetaModel model;
 
 	@Autowired
-	public PublishAdmissionView(CoreUiService coreUiService) {
+	public PublishAdmissionView(CoreUiService coreUiService, AdmissionResponseService admissionService,
+			CourseResponseService courseResponse) {
 		this.uiService = coreUiService;
+		this.admissionService = admissionService;
+		this.courseResponseService = courseResponse;
 		this.binder = new Binder<>();
 	}
 
@@ -134,7 +143,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		this.subjects.setWidth("100%");
 		this.subjects.setEnabled(false);
 
-		ComboBox<String> semester = new ComboBox<String>();
+		semester = new ComboBox<String>();
 		semester.setSizeFull();
 		DateField courseYear = new DateField();
 		Button addTab = new Button();
@@ -185,6 +194,16 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 		this.fees.setCaptionAsHtml(true);
 		this.fees.setCaption("Provide details about fees <br/>to be shown to student.");
 		this.fees.setSizeFull();
+
+		binder.bind(this.courses, AdmissionMetaModel::getCourseName, AdmissionMetaModel::setCourseName);
+		binder.bind(semester, AdmissionMetaModel::getSemester, AdmissionMetaModel::setSemester);
+		binder.bind(fees, AdmissionMetaModel::getFees, AdmissionMetaModel::setFees);
+		binder.bind(additionalDetails, AdmissionMetaModel::getAdditionalInformation,
+				AdmissionMetaModel::setAdditionalInformation);
+		binder.bind(this.verifyFeesReceipt, AdmissionMetaModel::isRequireFeesVerification,
+				AdmissionMetaModel::setRequireFeesVerification);
+		binder.bind(this.showEnrolledOutOf, AdmissionMetaModel::isShowEnrolledOutOf,
+				AdmissionMetaModel::setShowEnrolledOutOf);
 
 		verticalLayoutFirstPart.addComponents(this.fees, this.additionalDetails);
 		verticalLayoutSecondPart.addComponent(this.subjects);
@@ -270,6 +289,19 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 					"By checking fees checkbox, <br/>CMS requires a verification or payment of fees online whichever is suitable and available <br/>before enrolling into course. ");
 			getUI().addWindow(messageView);
 		});
+		addTab.addClickListener(click -> {
+
+			try {
+				AdmissionMetaModel model = AdmissionMetaModel.builder().build();				
+				binder.writeBean(model);
+				FactoryResponse fr = admissionService.saveUpdate(model);
+				Utils.showFactoryResponseMsg(fr);
+				binder.readBean(AdmissionMetaModel.builder().build());
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+				Utils.showErrorNotification("Error while saving admission details");
+			}
+		});
 		EmptyFieldListener<String> coursesListener = new EmptyFieldListener<String>();
 		coursesListener.setSourceListField(courses);
 		coursesListener.setTargetBtn(addTab);
@@ -297,7 +329,11 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			this.uiService.setItemsCourseNames(this.courses);
+			if (model != null) {
+				binder.readBean(model);
+			} else {
+				this.uiService.setItemsCourseNames(this.courses);
+			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
@@ -312,6 +348,7 @@ public class PublishAdmissionView extends VerticalLayout implements View {
 	@Override
 	public void beforeLeave(ViewBeforeLeaveEvent event) {
 		View.super.beforeLeave(event);
+		//binder.readBean(null);
 	}
 
 }

@@ -1,6 +1,9 @@
 package io.college.cms.core.admission.controller;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -32,6 +36,10 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.admission.model.AdmissionMetaModel;
+import io.college.cms.core.admission.services.AdmissionResponseService;
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.listener.ClearValuesListener;
@@ -39,6 +47,7 @@ import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -49,19 +58,27 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigureAdmissionView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
+	private AdmissionResponseService admissionService;
+	private SecurityService securityService;
 	private CourseResponseService courseResponseService;
-	private ConfigureAdmissionViewService configureAdmissionVewService;
+	private ConfigureAdmissionViewService viewService;
 	private CoreUiService uiService;
 
 	/**
+	 * @param admissionService
+	 * @param securityService
 	 * @param courseResponseService
+	 * @param uiService
 	 */
 	@Autowired
-	public ConfigureAdmissionView(CourseResponseService courseResponseService) {
+	public ConfigureAdmissionView(AdmissionResponseService admissionService, SecurityService securityService,
+			CourseResponseService courseResponseService, CoreUiService uiService) {
 		super();
+		this.admissionService = admissionService;
+		this.securityService = securityService;
 		this.courseResponseService = courseResponseService;
-		this.configureAdmissionVewService = new ConfigureAdmissionViewService();
-
+		this.uiService = uiService;
+		this.viewService = new ConfigureAdmissionViewService();
 	}
 
 	@Autowired
@@ -71,14 +88,32 @@ public class ConfigureAdmissionView extends VerticalLayout implements View {
 
 	@PostConstruct
 	protected void paint() {
-		addComponents(configureAdmissionVewService.getDto().getRootPanel(), new Label());
+		viewService.getDto().saveBtn.addClickListener(click -> {
+			ListDataProvider<String> dataProvider = (ListDataProvider<String>) viewService.dto.coursesList
+					.getDataProvider();
+			Collection<String> users = dataProvider.getItems();
+			String courseName = viewService.getDto().getCoursesList().getValue();
+			FactoryResponse fr = admissionService.findAdmissionMetaDetails(courseName);
+			Utils.showFactoryResponseOnlyError(fr);
+			if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+				return;
+			}
+			AdmissionMetaModel admissionMetaModel = (AdmissionMetaModel) fr.getResponse();
+			List<String> collections = new ArrayList<>();
+			collections.addAll(users);
+			admissionMetaModel.setUsers(collections);
+			fr = admissionService.saveUpdate(admissionMetaModel);
+			Utils.showFactoryResponseMsg(fr);
+		});
+		addComponents(viewService.getDto().getRootPanel(), new Label());
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			uiService.setItemsCourseNames(this.configureAdmissionVewService.getDto().getCoursesList());
+			uiService.setItemsCourseNames(this.viewService.getDto().getCoursesList());
+			uiService.setItemsUser(viewService.getDto().getUsersList());
 		} catch (Exception e) {
 			LOGGER.error(ExceptionUtils.getStackTrace(e));
 			LOGGER.error(e.getMessage());
@@ -95,7 +130,7 @@ public class ConfigureAdmissionView extends VerticalLayout implements View {
 	public void beforeLeave(ViewBeforeLeaveEvent event) {
 		View.super.beforeLeave(event);
 		// we need to clear fields once user leaves the view.
-		configureAdmissionVewService.getClearValuesListener().buttonClick(null);
+		viewService.getClearValuesListener().buttonClick(null);
 	}
 
 	@Data

@@ -70,9 +70,8 @@ public class SeeAnnouncementView extends VerticalLayout implements View {
 			layout.addComponent(view);
 			layout.setSizeUndefined();
 			window.setSizeUndefined();
-			window.setContent(layout);
 			view.setAnnouncementModel(select.getFirstSelectedItem().get());
-			view.enter(null);
+			window.setContent(view);
 			getUI().addWindow(window);
 		});
 		this.grid.setSizeFull();
