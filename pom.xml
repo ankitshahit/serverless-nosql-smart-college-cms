@@ -53,6 +53,10 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-push</artifactId>
+			</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-charts</artifactId>
 			<version>4.1.0.alpha2</version>
 		</dependency>

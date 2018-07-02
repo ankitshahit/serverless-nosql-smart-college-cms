@@ -1,5 +1,6 @@
 package io.college.cms.core.user.controller;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -20,6 +21,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -27,6 +29,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
@@ -43,12 +46,18 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.Utils;
+import io.college.cms.core.attendance.services.AttendanceResponseService;
+import io.college.cms.core.configuration.AppParams;
+import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.model.ViewConstants;
+import io.college.cms.core.upload.services.UploadService;
 import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.model.UserModel;
 import io.college.cms.core.user.service.IUserService;
 import io.college.cms.core.user.service.SecurityService;
+import io.college.cms.core.user.service.UserCognitoService;
 import io.college.cms.core.user.service.UserResponseService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -88,9 +97,11 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 	private IUserService userService;
 	private ApplicationContext app;
 	private UserResponseService userResponseService;
-
+	private String profileLinkStr;
 	@Setter
 	private Map<String, String> params;
+	private Window mainWindow;
+	private Label errorMsgLbl;
 
 	/***
 	 * 
@@ -115,7 +126,18 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 
 		try {
 			if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityService.getPrincipal())) {
-
+				try {
+					UserModel user = app.getBean(UserCognitoService.class).findByUsername(findUsername);
+					if (user != null) {
+						Utils.showErrorNotification("Username is not avaiable.");
+					}
+					getUI().getNavigator().navigateTo(ViewConstants.LOGIN);
+					return;
+				} catch (Exception ex) {
+					LOGGER.info("username dont exist ");
+				}
+				uploadPic.setVisible(true);
+				passwordFld.setVisible(true);
 				Panel panel = new Panel();
 				// panel.setWidth("60%");
 				panel.setContent(this);
@@ -131,6 +153,9 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 				mainWindow.setClosable(false);
 				event.getNavigator().getUI().addWindow(mainWindow);
 
+			} else {
+				passwordFld.setVisible(false);
+				userModel = app.getBean(UserCognitoService.class).findByUsername(securityService.getPrincipal());
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
@@ -139,6 +164,10 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 			binder.readBean(userModel);
 			usernameLbl.setValue(userModel.getUsername());
 			userStatusLb.setValue(userModel.getUserStatus());
+			birthDateDf.setReadOnly(true);
+			genderCb.setReadOnly(true);
+			uploadPic.setVisible(false);
+
 		}
 	}
 
@@ -149,7 +178,17 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 
 	@Override
 	public void uploadSucceeded(SucceededEvent event) {
-
+		UploadService uploadService = app.getBean(UploadService.class);
+		AttendanceResponseService attendanceResponseService = app.getBean(AttendanceResponseService.class);
+		try {
+			StringBuilder profileLink = new StringBuilder().append(app.getBean(AppParams.class).getS3Host())
+					.append(uploadService.upload(new File(event.getFilename()), "profile", usernameLbl.getValue()));
+			profileLinkStr = profileLink.toString();
+			attendanceResponseService.tag(new File(event.getFilename()), usernameLbl.getValue(), this::errorMsg,
+					this::successListener);
+		} catch (ApplicationException e) {
+			LOGGER.error(e.getMessage());
+		}
 	}
 
 	@Override
@@ -160,6 +199,23 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 			LOGGER.error(e.getMessage());
 		}
 		return null;
+	}
+
+	private void successListener() {
+		getUI().access(() -> {
+			progressBar.setVisible(false);
+			mainWindow.close();
+		});
+	}
+
+	private void errorMsg(String value) {
+		getUI().access(() -> {
+			errorMsgLbl.setVisible(true);
+			errorMsgLbl.setValue("<b style=color:red>" + value + "</b>");
+			progressBar.setVisible(false);
+			mainWindow.setClosable(true);
+			saveBtn.setEnabled(false);
+		});
 	}
 
 	private void showComponent(Component embedded, String name) {
@@ -179,9 +235,31 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 	@PostConstruct
 	public void paint() {
 		this.progressBar = new ProgressBar();
-
+		this.errorMsgLbl = VaadinWrapper.builder().caption("Error occurred").visible(false).build().label();
 		this.uploadPic = new Upload();
 		this.uploadPic.setButtonCaption("Upload pic");
+		mainWindow = new Window();
+		this.uploadPic.addStartedListener(start -> {
+			mainWindow.center();
+			mainWindow.setResizable(false);
+
+			VerticalLayout layout = new VerticalLayout();
+			layout.addComponents(errorMsgLbl, this.progressBar);
+			this.progressBar.setVisible(true);
+			this.progressBar.setIndeterminate(true);
+			this.progressBar.setCaption("<b>Uploading</b>");
+			this.progressBar.setCaptionAsHtml(true);
+			layout.setComponentAlignment(this.progressBar, Alignment.MIDDLE_CENTER);
+			layout.setSizeFull();
+			mainWindow.setContent(layout);
+			mainWindow.addCloseListener(close -> {
+				progressBar.setVisible(false);
+				errorMsgLbl.setValue("");
+				errorMsgLbl.setVisible(false);
+			});
+			mainWindow.setSizeFull();
+			getUI().addWindow(mainWindow);
+		});
 		this.rootPanel = new Panel();
 
 		this.rootLayout = new VerticalLayout();
@@ -219,7 +297,6 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		this.phoneTld = new TextField();
 
 		this.saveBtn = new Button();
-
 		this.firstNameFld = VaadinWrapper.builder().caption("First name").placeholder("first name").required(true)
 				.visible(true).enabled(true).build().textField();
 
@@ -325,7 +402,7 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 		nameLayout.addComponents(firstNameFld, mNameFld, lNameFld);
 		Button changePassword = new Button("Change password?");
 		changePassword.setStyleName(ValoTheme.BUTTON_LINK);
-		firstLayout.addComponents(nameLayout, genderCb, emailFld, phoneTld, saveBtn, passwordFld);
+		firstLayout.addComponents(nameLayout, genderCb, emailFld, phoneTld, passwordFld, saveBtn);
 		firstLayout.setComponentAlignment(saveBtn, Alignment.BOTTOM_RIGHT);
 		secondLayout.addComponents(viewProfileBtn, this.uploadPic, usernameLbl, userStatusLb, birthDateDf,
 				changePassword);
@@ -354,16 +431,40 @@ public class MyProfileView extends VerticalLayout implements View, Receiver, Suc
 				if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityService.getPrincipal())) {
 					model.setUsername(usernameLbl.getValue());
 					model.setToken(passwordFld.getValue());
+					model.setGroup(UserGroups.STUDENT);
+					model.setProfileLink(profileLinkStr);
+				} else {
+					model.setUsername(securityService.getPrincipal());
 				}
 
 				this.binder.writeBean(model);
-				model.setGroup(UserGroups.STUDENT);
 				FactoryResponse fr = userResponseService.createUpdateUser(null, model);
 				Utils.showFactoryResponseMsg(fr);
 			} catch (Exception ex) {
 				LOGGER.error(ex.getMessage());
 			}
 
+		});
+
+		changePassword.addClickListener(click -> {
+			Window window = new Window();
+			window.setContent(app.getBean(ForgotPasswordView.class));
+			window.center();
+			window.setResizable(false);
+			window.setCaption("<b>Reset password</b>");
+			window.setCaptionAsHtml(true);
+			getUI().addWindow(window);
+		});
+		viewProfileBtn.addClickListener(click -> {
+			Label linkLbl = VaadinWrapper.builder().caption("link").build().label();
+			linkLbl.setValue(userModel.getProfileLink());
+			VerticalLayout layout = new VerticalLayout();
+			layout.setSizeUndefined();
+
+			Image image = new Image();
+			image.setSource(new ExternalResource(userModel.getProfileLink()));
+			layout.addComponent(image);
+			showComponent(layout, "Profile pic");
 		});
 	}
 

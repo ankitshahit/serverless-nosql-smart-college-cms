@@ -15,6 +15,8 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.rekognition.AmazonRekognition;
+import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
@@ -68,5 +70,13 @@ public class AWSConfiguration {
 		AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
 				.withCredentials(new AWSStaticCredentialsProvider(awsBasicCredentials())).build();
 		return s3Client;
+	}
+
+	@Bean
+	public AmazonRekognition awsRekognition() {
+		return AmazonRekognitionClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(
+						new BasicAWSCredentials(params.getAwsAccessKey(), params.getAwsSecretKey())))
+				.withRegion(Regions.US_EAST_2).build();
 	}
 }

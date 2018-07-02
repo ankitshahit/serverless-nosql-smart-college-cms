@@ -37,7 +37,7 @@ public class UserResponseService {
 	 * 
 	 * @return
 	 */
-	@Cacheable
+
 	public FactoryResponse getAllUserAttributes() {
 		List<String> constants = new ArrayList<String>();
 		Arrays.asList(UserAttributes.values()).forEach(attribute -> {

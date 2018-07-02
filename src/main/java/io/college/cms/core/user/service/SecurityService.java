@@ -58,8 +58,9 @@ public class SecurityService {
 		Authentication authenticated = null;
 		try {
 
-			String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-			if (ANONYMOUS_USER.equalsIgnoreCase(principal) || StringUtils.isEmpty(principal)) {
+			if (SecurityContextHolder.getContext().getAuthentication() == null
+					|| ANONYMOUS_USER.equalsIgnoreCase(SecurityContextHolder.getContext().getAuthentication().getName())
+					|| StringUtils.isEmpty(SecurityContextHolder.getContext().getAuthentication().getName())) {
 				authenticated = getAuthenticationManager().authenticate(getUsernamePasswordToken(username, hash));
 
 				// SecurityContextHolder.getContext().setAuthentication(authenticated);

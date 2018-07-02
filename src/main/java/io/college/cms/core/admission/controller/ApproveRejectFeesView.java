@@ -97,7 +97,7 @@ public class ApproveRejectFeesView extends VerticalLayout implements View {
 		this.gridAdmissionModel = new Grid<>();
 		this.filterByUsernameFld = VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
 				.icon(VaadinIcons.SEARCH).build().textField();
-		this.filterByCourseFld = VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
+		this.filterByCourseFld = VaadinWrapper.builder().caption("Filter by coursename").placeholder("type coursename")
 				.icon(VaadinIcons.SEARCH).build().textField();
 		this.gridAdmissionModel.setItems(
 				ApplyFeesModel.builder().courseName("Sample course").username("Ankit shah it").withRoleMember("Ankit")

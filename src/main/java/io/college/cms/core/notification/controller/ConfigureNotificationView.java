@@ -96,7 +96,8 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 
 		sendViaMessageLbl.setCaption("<h3><b>Send communication via</b>: </h3>");
 		sendViaMessageLbl.setCaptionAsHtml(true);
-		communicationPreferencesCb.setItems("Email", "My notification");
+		communicationPreferencesCb.setItems(NotificationType.NotificationMode.EMAIL.toString(),
+				NotificationType.NotificationMode.MY_NOTIFICATIONS.toString());
 
 		VerticalLayout layoutRight2 = new VerticalLayout();
 		layoutRight2.addComponent(communicationPreferencesCb);
@@ -131,20 +132,22 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 		this.save.addClickListener(click -> {
 			ConfigureNotificationModel model = ConfigureNotificationModel.builder().build();
 			try {
-				binder.writeBean(model);
-				if (CollectionUtils.isNotEmpty(this.subscribePreferencesCb.getSelectedItems())) {
-					model.setMyNotification(this.subscribePreferencesCb.getSelectedItems()
-							.contains(NotificationType.NotificationMode.MY_NOTIFICATIONS));
-					model.setEmail(this.subscribePreferencesCb.getSelectedItems()
-							.contains(NotificationType.NotificationMode.EMAIL));
-				}
+				List<String> checkBoxes = new ArrayList<>();
+				checkBoxes.addAll(this.subscribePreferencesCb.getSelectedItems());
+
+				model.setMyNotification(this.communicationPreferencesCb.getSelectedItems()
+						.contains(NotificationType.NotificationMode.MY_NOTIFICATIONS.toString()));
+				model.setEmail(this.communicationPreferencesCb.getSelectedItems()
+						.contains(NotificationType.NotificationMode.EMAIL.toString()));
+				model.setCheckBoxGroup(checkBoxes);
+				model.setUsername(securityService.getPrincipal());
 				FactoryResponse fr = notificationResponseService.saveNotificationConfiguration(model);
 				Utils.showFactoryResponseOnlyError(fr);
 				if (fr != null && SummaryMessageEnum.SUCCESS == fr.getSummaryMessage()) {
-					MessagePopupView message = new MessagePopupView("Success", "Saved configuration!", 30.0f);
+					MessagePopupView message = new MessagePopupView("Success", "Saved configuration!", 40.0f);
 					getUI().addWindow(message);
 				}
-			} catch (ValidationException e) {
+			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
 
@@ -167,17 +170,31 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 			if (configureNotification == null || StringUtils.isEmpty(configureNotification.getUsername())) {
 				return;
 			}
-			// TODO: ideally it should mean that the checkboxs are checked.
-			this.subscribePreferencesCb
-					.setItemEnabledProvider(item -> configureNotification.getCheckBoxGroup().contains(item));
-			List<String> checkedMultipleItems = new ArrayList<>();
+			if (CollectionUtils.isNotEmpty(configureNotification.getCheckBoxGroup())) {
+				// TODO: ideally it should mean that the checkboxs are checked.
+				String[] array =  configureNotification.getCheckBoxGroup().toArray(new String[0]);
+				this.subscribePreferencesCb
+				.select(array);
+			}
+
+			String[] checkedMultipleItems = new String[2];
 			if (configureNotification.isEmail()) {
-				checkedMultipleItems.add(NotificationType.NotificationMode.EMAIL.toString());
+				checkedMultipleItems[0] = NotificationType.NotificationMode.EMAIL.toString();
 			}
 			if (configureNotification.isMyNotification()) {
-				checkedMultipleItems.add(NotificationType.NotificationMode.MY_NOTIFICATIONS.toString());
+				checkedMultipleItems[1] = NotificationType.NotificationMode.MY_NOTIFICATIONS.toString();
 			}
-			this.communicationPreferencesCb.setItemEnabledProvider(item -> checkedMultipleItems.contains(item));
+			if (checkedMultipleItems.length > 0 && checkedMultipleItems[0] != null) {
+				communicationPreferencesCb.select(checkedMultipleItems);
+			}
+
+			/*
+			 * communicationPreferencesCb
+			 * .select(configureNotification.isEmail() ?
+			 * NotificationType.NotificationMode.EMAIL.toString() : "");
+			 */
+			// this.communicationPreferencesCb.setItemEnabledProvider(item ->
+			// !(checkedMultipleItems.contains(item)));
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

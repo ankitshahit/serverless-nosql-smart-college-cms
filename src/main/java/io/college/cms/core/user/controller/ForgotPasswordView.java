@@ -105,14 +105,14 @@ public class ForgotPasswordView extends VerticalLayout implements View {
 			this.rootLayout = new VerticalLayout();
 			// initializing and setting attributes using a TextFieldWrapper
 			// builder
-			this.usernameFld = VaadinWrapper.builder().placeholder("username")
+			this.usernameFld = VaadinWrapper.builder().placeholder("username").caption("username")
 					.description("username provided during signup").icon(VaadinIcons.USER).build().textField();
 			// initializing confirmation and setting attributes using a
 			// textFieldWrapper builder
-			this.confirmCodeFld = VaadinWrapper.builder().placeholder("confirmation code")
+			this.confirmCodeFld = VaadinWrapper.builder().placeholder("confirmation code").caption("confirmation code")
 					.description("Provide confirmation code received in email").icon(VaadinIcons.CODE).maxLength(6)
 					.build().textField();
-			this.confirmButton = new Button("Confirm");
+			this.confirmButton = new Button("Reset");
 			this.confirmButton.setEnabled(false);
 
 			this.panel.setContent(this.rootLayout);
@@ -128,7 +128,7 @@ public class ForgotPasswordView extends VerticalLayout implements View {
 			this.confirmCodeFld.setIcon(VaadinIcons.CODE);
 			this.confirmButton.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 			// by adding it to root layout, it allows us to show elements on UI.
-			this.rootLayout.addComponents(this.usernameFld, this.confirmCodeFld, this.confirmButton);
+			this.rootLayout.addComponents(this.usernameFld, this.confirmButton);
 			this.rootLayout.setComponentAlignment(this.confirmButton, Alignment.MIDDLE_RIGHT);
 
 			EmptyFieldListener<String> usernameListener = (EmptyFieldListener<String>) getEmptyFieldListener();
@@ -137,13 +137,13 @@ public class ForgotPasswordView extends VerticalLayout implements View {
 
 			EmptyFieldListener<String> confirmListener = (EmptyFieldListener<String>) getEmptyFieldListener();
 			confirmListener.setSourceField(this.getConfirmCodeFld());
-			this.getConfirmCodeFld().addValueChangeListener(confirmListener);
+			// this.getConfirmCodeFld().addValueChangeListener(confirmListener);
 
 		}
 
 		protected EmptyFieldListener<?> getEmptyFieldListener() {
 			EmptyFieldListener<?> lis = new EmptyFieldListener<>();
-			lis.setMandatoryFields(this.usernameFld, this.confirmCodeFld);
+			lis.setMandatoryFields(this.usernameFld);
 			lis.setTargetBtn(this.confirmButton);
 			return lis;
 		}

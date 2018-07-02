@@ -1,15 +1,30 @@
 package io.college.cms.core.attendance.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationException;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewBeforeLeaveEvent;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -18,19 +33,28 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.application.FactoryResponse;
+import io.college.cms.core.application.Utils;
+import io.college.cms.core.attendance.model.AttendanceModel;
+import io.college.cms.core.attendance.services.AttendanceResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class TagAttendanceView extends VerticalLayout implements View {
+public class TagAttendanceView extends VerticalLayout implements View, Upload.Receiver, Upload.SucceededListener {
 	private static final long serialVersionUID = 1L;
 	private Panel rootPanel;
 	private VerticalLayout rootLayout;
@@ -40,17 +64,85 @@ public class TagAttendanceView extends VerticalLayout implements View {
 	private ComboBox<String> semesterCb;
 	private ComboBox<String> subjectNamesCb;
 	private DateField attendance;
-	private Label totalStudentCb;
+	private Label totalStudentLbl;
 	private VerticalLayout secondLayout;
 	private ComboBox<String> usersCb;
 	private Button saveBtn;
 	private Upload upload;
 	private ListSelect<String> studentsUsernameList;
 	private Button removeStudentUsernameBtn;
+	private CoreUiService uiService;
+	private SecurityService securityService;
+	private AttendanceResponseService attendanceResponseService;
+	private ApplicationContext app;
+	private Binder<AttendanceModel> binder;
+	private Window mainWindow;
+	private ProgressBar progress;
+
+	/**
+	 * @param uiService
+	 * @param securityService
+	 * @param attendanceResponseService
+	 * @param app
+	 */
+	@Autowired
+	public TagAttendanceView(CoreUiService uiService, SecurityService securityService,
+			AttendanceResponseService attendanceResponseService, ApplicationContext app) {
+		super();
+		this.uiService = uiService;
+		this.securityService = securityService;
+		this.attendanceResponseService = attendanceResponseService;
+		this.app = app;
+	}
+
+	@Override
+	public void enter(ViewChangeEvent event) {
+		View.super.enter(event);
+		uiService.setItemsCourseNames(courseNamesCb);
+		uiService.setItemsUser(usersCb);
+	}
+
+	@Override
+	public void beforeLeave(ViewBeforeLeaveEvent event) {
+		View.super.beforeLeave(event);
+	}
+
+	private void successListener() {
+		getUI().access(() -> {
+			progress.setVisible(false);
+			mainWindow.close();
+		});
+	}
+
+	private void listSelectUpdate(List<String> items) {
+		getUI().access(() -> {
+			studentsUsernameList.setItems(items);
+			totalStudentLbl.setValue(String.valueOf(CollectionUtils.size(items)));
+		});
+	}
+
+	@Override
+	public void uploadSucceeded(SucceededEvent event) {
+		attendanceResponseService.tag(new FileResource(new File(event.getFilename())), this::listSelectUpdate,
+				this::successListener);
+	}
+
+	@Override
+	public OutputStream receiveUpload(String filename, String mimeType) {
+		try {
+			return new FileOutputStream(filename);
+		} catch (FileNotFoundException e) {
+			LOGGER.error(e.getMessage());
+		}
+		return null;
+	}
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void paint() {
+		mainWindow = new Window();
+		progress = new ProgressBar();
+		binder = new Binder<>();
 		this.rootPanel = new Panel();
 		this.rootLayout = new VerticalLayout();
 		this.splitPanel = new HorizontalSplitPanel();
@@ -61,12 +153,14 @@ public class TagAttendanceView extends VerticalLayout implements View {
 		this.attendance = new DateField();
 		this.secondLayout = new VerticalLayout();
 		this.usersCb = new ComboBox<String>();
-		this.totalStudentCb = new Label();
+		this.totalStudentLbl = new Label();
 		this.saveBtn = new Button();
 		this.upload = new Upload();
 		this.studentsUsernameList = new ListSelect<>("Added students");
 		this.studentsUsernameList.setSizeFull();
 		this.studentsUsernameList.setItems("user 1");
+		progress.setVisible(false);
+
 		this.courseNamesCb = (ComboBox<String>) VaadinWrapper.builder().caption("Course name")
 				.placeholder("search by course").required(true).visible(true).enabled(true).build().comboBox();
 		this.semesterCb = (ComboBox<String>) VaadinWrapper.builder().caption("Semester")
@@ -79,7 +173,7 @@ public class TagAttendanceView extends VerticalLayout implements View {
 		this.usersCb = (ComboBox<String>) VaadinWrapper.builder().caption("Missing student?")
 				.placeholder("search by name").required(false).visible(true).enabled(true).build().comboBox();
 
-		this.totalStudentCb = VaadinWrapper.builder().caption("Total students count").required(true).visible(true)
+		this.totalStudentLbl = VaadinWrapper.builder().caption("Total students count").required(true).visible(true)
 				.enabled(true).build().label();
 
 		this.saveBtn = VaadinWrapper.builder().caption("Save settings").required(true).visible(true).enabled(false)
@@ -92,6 +186,22 @@ public class TagAttendanceView extends VerticalLayout implements View {
 		this.upload.setCaption("Upload image");
 		this.upload.setCaptionAsHtml(true);
 		this.upload.setButtonCaption("select file ...");
+		this.upload.addStartedListener(listener -> {
+			mainWindow.setResizable(false);
+			mainWindow.center();
+			VerticalLayout layout = new VerticalLayout();
+			progress.setVisible(true);
+			progress.setIndeterminate(true);
+			layout.setSizeFull();
+			layout.addComponents(progress);
+			layout.setComponentAlignment(progress, Alignment.MIDDLE_CENTER);
+			mainWindow.setContent(layout);
+			mainWindow.setSizeFull();
+			getUI().addWindow(mainWindow);
+
+		});
+		this.upload.setReceiver(this);
+		this.upload.addSucceededListener(this);
 		this.upload.setImmediateMode(true);
 		this.upload.setSizeFull();
 		this.saveBtn.removeStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -103,11 +213,11 @@ public class TagAttendanceView extends VerticalLayout implements View {
 		firstLayout.addComponent(attendance);
 		Panel firstPanel = new Panel(firstLayout);
 		firstPanel.setSizeFull();
-		splitPanel.addComponent(firstPanel);	
+		splitPanel.addComponent(firstPanel);
 		splitPanel.addComponent(new Panel(secondLayout));
 		splitPanel.setSplitPosition(30.0f);
 
-		secondLayout.addComponents(this.upload, usersCb, totalStudentCb, this.studentsUsernameList,
+		secondLayout.addComponents(this.upload, usersCb, totalStudentLbl, this.studentsUsernameList,
 				this.removeStudentUsernameBtn);
 
 		rootLayout.addComponents(splitPanel, saveBtn);
@@ -119,29 +229,61 @@ public class TagAttendanceView extends VerticalLayout implements View {
 		courseNamesCbListener.setSourceListField(courseNamesCb);
 		courseNamesCbListener.setTargetBtn(saveBtn);
 		courseNamesCbListener.setMandatoryDateFields(attendance);
-		courseNamesCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb, usersCb);
+		courseNamesCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb);
 		courseNamesCb.addValueChangeListener(courseNamesCbListener);
 		EmptyFieldListener<String> subjectNamesCbListener = new EmptyFieldListener<String>();
 		subjectNamesCbListener.setSourceListField(subjectNamesCb);
 		subjectNamesCbListener.setTargetBtn(saveBtn);
-		subjectNamesCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb, usersCb);
+		subjectNamesCbListener.setMandatoryDateFields(attendance);
+		subjectNamesCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb);
 		subjectNamesCb.addValueChangeListener(subjectNamesCbListener);
 		EmptyFieldListener<String> semesterCbListener = new EmptyFieldListener<String>();
 		semesterCbListener.setSourceListField(semesterCb);
 		semesterCbListener.setTargetBtn(saveBtn);
-		semesterCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb, usersCb);
+		semesterCbListener.setMandatoryDateFields(attendance);
+		semesterCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb);
 		semesterCb.addValueChangeListener(semesterCbListener);
-		EmptyFieldListener<String> usersCbListener = new EmptyFieldListener<String>();
-		usersCbListener.setSourceListField(usersCb);
-		usersCbListener.setTargetBtn(saveBtn);
-		usersCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb, usersCb);
-		usersCb.addValueChangeListener(usersCbListener);
+	
 		EmptyFieldListener<LocalDate> attendanceListener = new EmptyFieldListener<LocalDate>();
 		attendanceListener.setSourceDateField(attendance);
 		attendanceListener.setTargetBtn(saveBtn);
 		attendanceListener.setMandatoryDateFields(attendance);
-		attendanceListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb, usersCb);
+		attendanceListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb);
 		attendance.addValueChangeListener(attendanceListener);
+		binder.bind(courseNamesCb, AttendanceModel::getCourseName, AttendanceModel::setCourseName);
+		binder.bind(semesterCb, AttendanceModel::getSemester, AttendanceModel::setSemester);
+		binder.bind(subjectNamesCb, AttendanceModel::getSubjectName, AttendanceModel::setSubjectName);
+		binder.bind(attendance, AttendanceModel::getAttendanceDate, AttendanceModel::setAttendanceDate);
+
+		this.saveBtn.addClickListener(click -> {
+			ListDataProvider<String> dataProvider = (ListDataProvider<String>) studentsUsernameList.getDataProvider();
+			AttendanceModel model = AttendanceModel.builder().build();
+			try {
+				binder.writeBean(model);
+				List<String> users = new ArrayList<>();
+				users.addAll(dataProvider.getItems());
+				model.setUsers(users);
+				model.setActionBy(securityService.getPrincipal());
+				FactoryResponse fr = attendanceResponseService.saveAttendance(model);
+				Utils.showFactoryResponseMsg(fr);
+			} catch (ValidationException e) {
+				Utils.showErrorNotification("Unable to save");
+			}
+		});
+
+		this.courseNamesCb.addSelectionListener(select -> {
+			if (!courseNamesCb.getSelectedItem().isPresent()) {
+				return;
+			}
+			this.uiService.setItemsSemester(semesterCb, courseNamesCb.getOptionalValue().get());
+		});
+		this.semesterCb.addSelectionListener(select -> {
+			if (!courseNamesCb.getSelectedItem().isPresent() && !semesterCb.getSelectedItem().isPresent()) {
+				return;
+			}
+			this.uiService.setItemsSubject(subjectNamesCb, courseNamesCb.getOptionalValue().get(),
+					semesterCb.getOptionalValue().get());
+		});
 		this.studentsUsernameList.addSelectionListener(value -> {
 			if (!ListenerUtility.isValidSourceEvent(value.getComponent(), this.studentsUsernameList)) {
 				return;
@@ -155,11 +297,15 @@ public class TagAttendanceView extends VerticalLayout implements View {
 			if (CollectionUtils.isEmpty(this.studentsUsernameList.getSelectedItems())) {
 				this.removeStudentUsernameBtn.setVisible(false);
 			}
-			// TODO: NEEd to get all of the items made available in listselect
-			// and remove items that are available in select list
-			for (String value : this.studentsUsernameList.getSelectedItems()) {
-				// TODO: remove operation
+			ListDataProvider<String> dataProvider = (ListDataProvider<String>) studentsUsernameList.getDataProvider();
+			Collection<String> users = dataProvider.getItems();
+			if (CollectionUtils.isEmpty(users)) {
+				return;
 			}
+			users.removeAll(studentsUsernameList.getSelectedItems());
+			studentsUsernameList.setItems(users);
+			// TODO: NEEd to get all of the items made available in listselect
+
 		});
 	}
 

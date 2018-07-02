@@ -25,6 +25,7 @@ import io.college.cms.core.job.model.JobModel;
 import io.college.cms.core.notification.model.ConfigureNotificationModel;
 import io.college.cms.core.notification.model.NotificationModel;
 import io.college.cms.core.upload.model.UploadModel;
+import io.college.cms.core.user.model.FaceModel;
 import io.college.cms.core.user.model.UserModel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,6 +64,7 @@ public class GenerateTablesService {
 			create(NotificationModel.class);
 			create(AdmissionMetaModel.class);
 			create(AttendanceModel.class);
+			create(FaceModel.class);
 			LOGGER.debug("Successfully created table.");
 		} catch (InterruptedException e) {
 			LOGGER.error("Unable to create table {}", e.getMessage());

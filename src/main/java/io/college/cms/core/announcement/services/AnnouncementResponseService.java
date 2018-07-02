@@ -26,9 +26,11 @@ public class AnnouncementResponseService {
 	private DynamoGenericService<NotificationModel, String> notificationDbService;
 
 	@Autowired
-	public AnnouncementResponseService(DynamoGenericService<AnnouncementModel, String> announcementDbService) {
+	public AnnouncementResponseService(DynamoGenericService<AnnouncementModel, String> announcementDbService,
+			DynamoGenericService<NotificationModel, String> notificationDbService) {
 		super();
 		this.announcementDbService = announcementDbService;
+		this.notificationDbService = notificationDbService;
 		this.announcementDbService.setClass(AnnouncementModel.class);
 		this.notificationDbService.setClass(NotificationModel.class);
 	}

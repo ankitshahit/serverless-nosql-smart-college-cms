@@ -69,7 +69,9 @@ public class ConfigureFeesView extends VerticalLayout implements View {
 	public ConfigureFeesView(ApplicationContext app) {
 		super();
 		this.app = app;
+		this.uiService = app.getBean(CoreUiService.class);
 		this.viewService = new ViewService();
+		
 	}
 
 	@PostConstruct

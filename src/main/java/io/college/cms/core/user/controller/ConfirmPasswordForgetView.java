@@ -68,6 +68,7 @@ public class ConfirmPasswordForgetView extends VerticalLayout implements View {
 			ConfirmForgotPasswordRequest request = app.getBean(ConfirmForgotPasswordRequest.class);
 			request.setUsername(Utils.val(this.view.getUsernameFld()));
 			request.setPassword(Utils.val(view.getPasswordField()));
+			request.setConfirmationCode(Utils.val(this.view.getConfirmCodeFld()));
 			try {
 				provider.confirmForgotPassword(request);
 				MessagePopupView message = new MessagePopupView("Reset!", "We have reset your password successfully.",
@@ -108,15 +109,16 @@ public class ConfirmPasswordForgetView extends VerticalLayout implements View {
 			this.rootLayout = new VerticalLayout();
 			// initializing and setting attributes using a TextFieldWrapper
 			// builder
-			this.usernameFld = VaadinWrapper.builder().placeholder("username")
+			this.usernameFld = VaadinWrapper.builder().placeholder("username").caption("username")
 					.description("username provided during signup").icon(VaadinIcons.USER).build().textField();
 			// initializing confirmation and setting attributes using a
 			// textFieldWrapper builder
-			this.confirmCodeFld = VaadinWrapper.builder().placeholder("confirmation code")
+			this.confirmCodeFld = VaadinWrapper.builder().caption("Confirmation code").placeholder("confirmation code")
 					.description("Provide confirmation code received in email").icon(VaadinIcons.CODE).maxLength(6)
 					.build().textField();
 			this.confirmButton = new Button("Confirm");
-			this.passwordField = VaadinWrapper.builder().caption("New password").build().passwordField();
+			this.passwordField = VaadinWrapper.builder().caption("New password").placeholder("New password")
+					.icon(VaadinIcons.PASSWORD).build().passwordField();
 			this.confirmButton.setEnabled(false);
 			this.panel.setContent(this.rootLayout);
 			this.panel.setSizeFull();
@@ -132,7 +134,7 @@ public class ConfirmPasswordForgetView extends VerticalLayout implements View {
 			this.confirmButton.addStyleNames(ValoTheme.BUTTON_PRIMARY);
 			// by adding it to root layout, it allows us to show elements on UI.
 			Label passwordGuideLinesLbl = VaadinWrapper.builder().caption("Password Guidelines").build().label();
-			passwordGuideLinesLbl.setValue(new StringBuilder().append("<b>Should be 8 characters</b>")
+			passwordGuideLinesLbl.setValue(new StringBuilder().append("<b>Should be greater than 8 characters</b>")
 					.append("<br/><b>Should have one capital character<br/>Should have one lowercase character<br/>Should have one digit<br/>Should have special character</b>")
 					.toString());
 			this.rootLayout.addComponents(this.usernameFld, this.confirmCodeFld, this.passwordField,

@@ -129,7 +129,9 @@ public class LoginUserView extends VerticalLayout implements View {
 		mainWindow.setSizeFull();
 		mainWindow.setResizable(false);
 		mainWindow.setClosable(false);
-
+		for (Window wind : getUI().getWindows()) {
+			wind.close();
+		}
 		// mainWindow.setCaption("Protected Resource");
 		event.getNavigator().getUI().addWindow(mainWindow);
 	}
@@ -190,6 +192,7 @@ public class LoginUserView extends VerticalLayout implements View {
 			this.dto.loginBtn.addStyleNames(ValoTheme.BUTTON_PRIMARY, ValoTheme.BUTTON_LARGE);
 			this.dto.confirmForgotPasswordBtn = VaadinWrapper.builder().caption("Have password reset code?").build()
 					.button();
+			this.dto.confirmForgotPasswordBtn.setStyleName(ValoTheme.BUTTON_QUIET);
 
 		}
 

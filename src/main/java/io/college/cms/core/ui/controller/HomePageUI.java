@@ -10,6 +10,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
@@ -30,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringUI(path = "/homepage")
 @UIScope
 @PushStateNavigation
-@Push
+@Push(transport=Transport.WEBSOCKET_XHR)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Slf4j

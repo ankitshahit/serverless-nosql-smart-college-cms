@@ -26,4 +26,5 @@ public class Table {
 	public static final String ATTENDANCE_TABLE = "t_attendance";
 	public static final String FEES_META_TABLE = "t_fees_meta_table";
 	public static final String FEES_APPLY_TABLE = "t_fees_apply";
+	public static final String FACE_TABLE = "t_face_id";
 }

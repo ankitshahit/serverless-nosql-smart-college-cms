@@ -65,6 +65,7 @@ public class UserModel {
 	private String userStatus;
 	private String phone;
 	private UserGroups group;
+	private String name;
 
 	@Builder
 	@Data

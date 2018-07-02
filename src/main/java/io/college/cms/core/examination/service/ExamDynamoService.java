@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -47,7 +46,6 @@ public class ExamDynamoService implements IExamDbService {
 	 * java.lang.String)
 	 */
 	@Override
-	@Cacheable
 	public ExaminationModel findByExamName(@NonNull String examName)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		ExaminationModel examData = ExaminationModel.builder().build();
