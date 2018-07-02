@@ -1,12 +1,10 @@
 package io.college.cms.core.application;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.annotation.WebServlet;
 
-import org.assertj.core.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

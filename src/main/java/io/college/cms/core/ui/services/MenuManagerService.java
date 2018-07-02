@@ -1,21 +1,50 @@
 package io.college.cms.core.ui.services;
 
+import static io.college.cms.core.ui.services.MenuConstants.ADD_TO_GROUP;
 import static io.college.cms.core.ui.services.MenuConstants.ADD_USER;
+import static io.college.cms.core.ui.services.MenuConstants.ADMISSION;
+import static io.college.cms.core.ui.services.MenuConstants.ADMISSION_REQUEST_QUEUE;
+import static io.college.cms.core.ui.services.MenuConstants.ANNOUNCEMENT;
 import static io.college.cms.core.ui.services.MenuConstants.APPLY_ADMISSIONS;
+import static io.college.cms.core.ui.services.MenuConstants.ATTENDANCE;
 import static io.college.cms.core.ui.services.MenuConstants.CONFIGURE_ADMISSIONS;
+import static io.college.cms.core.ui.services.MenuConstants.CONFIGURE_FEES;
+import static io.college.cms.core.ui.services.MenuConstants.CONFIGURE_NOTIFICATIONS;
+import static io.college.cms.core.ui.services.MenuConstants.COURSES;
+import static io.college.cms.core.ui.services.MenuConstants.DOWNLOAD_QR_FOR_EXAMS;
+import static io.college.cms.core.ui.services.MenuConstants.EXAMS;
 import static io.college.cms.core.ui.services.MenuConstants.FAQ_BOT;
+import static io.college.cms.core.ui.services.MenuConstants.FEES_QUEUE;
+import static io.college.cms.core.ui.services.MenuConstants.JOB;
+import static io.college.cms.core.ui.services.MenuConstants.MY_DOCUMENTS;
+import static io.college.cms.core.ui.services.MenuConstants.MY_NOTIFICATIONS;
+import static io.college.cms.core.ui.services.MenuConstants.MY_PROFILE;
 import static io.college.cms.core.ui.services.MenuConstants.NEW_COURSE;
 import static io.college.cms.core.ui.services.MenuConstants.OPEN_ADMISSIONS;
 import static io.college.cms.core.ui.services.MenuConstants.PUBLISH_ANNOUNCEMENT;
+import static io.college.cms.core.ui.services.MenuConstants.PUBLISH_FEES;
+import static io.college.cms.core.ui.services.MenuConstants.PUBLISH_JOB;
+import static io.college.cms.core.ui.services.MenuConstants.RESULTS;
 import static io.college.cms.core.ui.services.MenuConstants.SCHEDULE_EXAM;
+import static io.college.cms.core.ui.services.MenuConstants.SCHEDULE_TIME_SUBJECTS;
+import static io.college.cms.core.ui.services.MenuConstants.TAG_ATTENDANCE;
+import static io.college.cms.core.ui.services.MenuConstants.UPDATE_RESULTS;
+import static io.college.cms.core.ui.services.MenuConstants.UPLOAD_DOCUMENTS;
+import static io.college.cms.core.ui.services.MenuConstants.USER;
+import static io.college.cms.core.ui.services.MenuConstants.USER_GROUP;
 import static io.college.cms.core.ui.services.MenuConstants.VIEW_ALL_ANNOUNCEMENT;
 import static io.college.cms.core.ui.services.MenuConstants.VIEW_ALL_COURSES;
+import static io.college.cms.core.ui.services.MenuConstants.VIEW_ALL_DOCUMENTS;
 import static io.college.cms.core.ui.services.MenuConstants.VIEW_ALL_EXAMS;
+import static io.college.cms.core.ui.services.MenuConstants.VIEW_ALL_JOBS;
+import static io.college.cms.core.ui.services.MenuConstants.VIEW_ALL_USER;
+import static io.college.cms.core.ui.services.MenuConstants.VIEW_ATTENDANCE;
 import static io.college.cms.core.ui.services.MenuConstants.VIEW_RESULTS;
-import static io.college.cms.core.ui.services.MenuConstants.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.data.TreeData;
@@ -28,7 +57,9 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.Tree.ItemClick;
 import com.vaadin.ui.Tree.ItemClickListener;
 import com.vaadin.ui.themes.ValoTheme;
+
 import io.college.cms.core.ui.model.ViewConstants;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -37,6 +68,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MenuManagerService {
 
 	private Navigator navigator;
+	private SecurityService securityService;
 
 	/**
 	 * @param navigator
@@ -47,6 +79,11 @@ public class MenuManagerService {
 
 	public void setNavigator(Navigator navigator) {
 		this.navigator = navigator;
+	}
+
+	@Autowired
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
 	}
 
 	public CssLayout menu() {
@@ -123,6 +160,7 @@ public class MenuManagerService {
 		treeData(treeData, USER_GROUP, ADD_TO_GROUP);
 
 		treeData(treeData, null, "FAQ Bot");
+		treeData(treeData, null, "Logout");
 		TreeDataProvider<String> dataProvider = new TreeDataProvider<String>(treeData);
 		tree.setDataProvider(dataProvider);
 		tree.addItemClickListener(manageItemClickListener());
@@ -201,6 +239,9 @@ public class MenuManagerService {
 					navigator.navigateTo(ViewConstants.USER_PROFILE_VIEW);
 				} else if (FEES_QUEUE.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.APPROVE_REJECT_FEES);
+				} else if ("LOGOUT".equalsIgnoreCase(value)) {
+					SecurityContextHolder.getContext().setAuthentication(null);
+					navigator.navigateTo(ViewConstants.LOGIN);
 				}
 			}
 		};
