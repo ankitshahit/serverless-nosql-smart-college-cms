@@ -1,8 +1,12 @@
 package io.college.cms.core.notification.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -16,7 +20,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBoxGroup;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -34,6 +37,7 @@ import io.college.cms.core.notification.model.NotificationType;
 import io.college.cms.core.notification.services.NotificationResponseService;
 import io.college.cms.core.ui.builder.MessagePopupView;
 import io.college.cms.core.ui.services.CoreUiService;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -45,7 +49,7 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private ComboBox<String> selectCourse;
+	// private ComboBox<String> selectCourse;
 	private CheckBoxGroup<String> subscribePreferencesCb;
 	private Label sendViaMessageLbl;
 	private CheckBoxGroup<String> communicationPreferencesCb;
@@ -54,15 +58,18 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 	private CoreUiService coreUi;
 	private Binder<ConfigureNotificationModel> binder;
 	private NotificationResponseService notificationResponseService;
+	private SecurityService securityService;
 
 	/**
 	 * @param coreUi
 	 */
-	public ConfigureNotificationView(CoreUiService coreUi, NotificationResponseService notificationResponseService) {
+	public ConfigureNotificationView(CoreUiService coreUi, NotificationResponseService notificationResponseService,
+			SecurityService securityService) {
 		super();
 		this.coreUi = coreUi;
 		this.notificationResponseService = notificationResponseService;
 		this.binder = new Binder<>();
+		this.securityService = securityService;
 	}
 
 	@PostConstruct
@@ -75,17 +82,14 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 		this.subscribePreferencesCb = new CheckBoxGroup<>();
 		this.communicationPreferencesCb = new CheckBoxGroup<>();
 		this.sendViaMessageLbl = coreUi.getLabel();
-		this.selectCourse = coreUi.getCoursesList();
 
 		this.subscribePreferencesCb.setItems("Admission", "Exam", "Announcement", "Results", "Document update",
 				"Job posting", "Assignment submission");
-		this.selectCourse.setSizeFull();
 		HorizontalLayout itemsList = new HorizontalLayout();
 		itemsList.addComponent(subscribePreferencesCb);
 		Panel panelLeft2 = new Panel();
 		panelLeft2.setContent(itemsList);
 		VerticalLayout layoutLeft = new VerticalLayout();
-		layoutLeft.addComponent(selectCourse);
 		layoutLeft.addComponent(panelLeft2);
 		Panel panelLeft = new Panel();
 		panelLeft.setContent(layoutLeft);
@@ -123,8 +127,6 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 		rootLayout.addComponent(btnLayout);
 		rootLayout.setComponentAlignment(btnLayout, Alignment.BOTTOM_RIGHT);
 		this.save.addStyleName(ValoTheme.BUTTON_PRIMARY);
-		binder.bind(this.selectCourse, ConfigureNotificationModel::getCourseName,
-				ConfigureNotificationModel::setCourseName);
 
 		this.save.addClickListener(click -> {
 			ConfigureNotificationModel model = ConfigureNotificationModel.builder().build();
@@ -153,7 +155,29 @@ public class ConfigureNotificationView extends VerticalLayout implements View {
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			this.coreUi.setItemsCourseNames(this.selectCourse);
+			if (SecurityService.ANONYMOUS_USER.equalsIgnoreCase(securityService.getPrincipal())) {
+				return;
+			}
+			FactoryResponse fr = notificationResponseService
+					.findNotificationConfiguration(securityService.getPrincipal());
+			if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+				return;
+			}
+			ConfigureNotificationModel configureNotification = (ConfigureNotificationModel) fr.getResponse();
+			if (configureNotification == null || StringUtils.isEmpty(configureNotification.getUsername())) {
+				return;
+			}
+			// TODO: ideally it should mean that the checkboxs are checked.
+			this.subscribePreferencesCb
+					.setItemEnabledProvider(item -> configureNotification.getCheckBoxGroup().contains(item));
+			List<String> checkedMultipleItems = new ArrayList<>();
+			if (configureNotification.isEmail()) {
+				checkedMultipleItems.add(NotificationType.NotificationMode.EMAIL.toString());
+			}
+			if (configureNotification.isMyNotification()) {
+				checkedMultipleItems.add(NotificationType.NotificationMode.MY_NOTIFICATIONS.toString());
+			}
+			this.communicationPreferencesCb.setItemEnabledProvider(item -> checkedMultipleItems.contains(item));
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

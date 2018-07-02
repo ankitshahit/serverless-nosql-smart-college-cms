@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class ViewAttendanceView extends VerticalLayout implements View {
+public class SeeAttendanceView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private ComboBox<String> selectCourse;
 	private ComboBox<String> selectSubject;
@@ -54,7 +54,7 @@ public class ViewAttendanceView extends VerticalLayout implements View {
 	 * @param courseResponseService
 	 */
 	@Autowired
-	public ViewAttendanceView(CourseResponseService courseResponseService) {
+	public SeeAttendanceView(CourseResponseService courseResponseService) {
 		super();
 		this.courseResponseService = courseResponseService;
 	}

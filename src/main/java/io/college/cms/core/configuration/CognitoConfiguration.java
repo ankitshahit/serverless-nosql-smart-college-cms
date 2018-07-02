@@ -14,7 +14,9 @@ import com.amazonaws.services.cognitoidp.model.AdminListGroupsForUserRequest;
 import com.amazonaws.services.cognitoidp.model.AdminRemoveUserFromGroupRequest;
 import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
 import com.amazonaws.services.cognitoidp.model.AuthFlowType;
+import com.amazonaws.services.cognitoidp.model.ConfirmForgotPasswordRequest;
 import com.amazonaws.services.cognitoidp.model.ConfirmSignUpRequest;
+import com.amazonaws.services.cognitoidp.model.ForgotPasswordRequest;
 import com.amazonaws.services.cognitoidp.model.InitiateAuthRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersInGroupRequest;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
@@ -117,6 +119,7 @@ public class CognitoConfiguration {
 		return request;
 	}
 
+	// ForgotPasswordRequest
 	@Bean
 	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
 	public InitiateAuthRequest authRequest() {
@@ -125,4 +128,21 @@ public class CognitoConfiguration {
 		authRequest.setAuthFlow(AuthFlowType.USER_PASSWORD_AUTH);
 		return authRequest;
 	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public ForgotPasswordRequest forgotPasswordRequest() {
+		ForgotPasswordRequest authRequest = new ForgotPasswordRequest();
+		authRequest.setClientId(params.getCognitoClientId());
+		return authRequest;
+	}
+
+	@Bean
+	@Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
+	public ConfirmForgotPasswordRequest confirmPasswordRequest() {
+		ConfirmForgotPasswordRequest authRequest = new ConfirmForgotPasswordRequest();
+		authRequest.setClientId(params.getCognitoClientId());
+		return authRequest;
+	}
+
 }

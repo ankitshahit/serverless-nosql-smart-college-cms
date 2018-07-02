@@ -5,29 +5,36 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.HasValue;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.controller.PublishCourseView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +48,7 @@ public class SeeCoursesView extends VerticalLayout implements View {
 	private ApplicationContext app;
 	private CourseResponseService courseResponseService;
 	private Grid<CourseModel> grid;
+	private TextField searchByCourseNameFld;
 
 	@Autowired
 	public SeeCoursesView(CourseResponseService service) {
@@ -51,20 +59,21 @@ public class SeeCoursesView extends VerticalLayout implements View {
 	public void paint() {
 		Panel panel = new Panel();
 		grid = new Grid<>();
-
+		searchByCourseNameFld = VaadinWrapper.builder().caption("search by course").placeholder("type coursename")
+				.build().textField();
+		searchByCourseNameFld.addValueChangeListener(this::onUsernameFilterTextChange);
 		VerticalLayout layout = new VerticalLayout();
 		List<CourseModel> models = new ArrayList<>();
-		models.add(CourseModel.builder().courseName("hello").build());
+
 		FactoryResponse fr = courseResponseService.findAllCourses(null, 0L, 0L);
 		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
+			//Utils.showFactoryResponseOnlyError(fr);
 			return;
 		}
 		models = (List<CourseModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(models)) {
+			models.add(CourseModel.builder().courseName("hello").build());
+		}
 		grid.setItems(models);
 		grid.addColumn(CourseModel::getCourseName).setCaption("Course name");
 		grid.addColumn(CourseModel::getOutOf).setCaption("Enrolled/Out of");
@@ -75,7 +84,7 @@ public class SeeCoursesView extends VerticalLayout implements View {
 		layout.addComponent(grid);
 		layout.setSizeFull();
 		panel.setContent(layout);
-		addComponent(panel);
+
 		grid.setSizeFull();
 		grid.setFooterVisible(true);
 		grid.addSelectionListener(selection -> {
@@ -96,6 +105,14 @@ public class SeeCoursesView extends VerticalLayout implements View {
 				view.enter(null);
 			}
 		});
+		VerticalLayout rootLayout = new VerticalLayout();
+		HorizontalLayout searchLayout = new HorizontalLayout(this.searchByCourseNameFld);
+		searchLayout.setSizeFull();
+		rootLayout.addComponents(new Panel(new VerticalLayout(searchLayout, panel)));
+
+		Panel designPanel = new Panel();
+		designPanel.setContent(rootLayout);
+		addComponent(rootLayout);
 	}
 
 	@Override
@@ -120,4 +137,13 @@ public class SeeCoursesView extends VerticalLayout implements View {
 		View.super.beforeLeave(event);
 	}
 
+	private void onUsernameFilterTextChange(HasValue.ValueChangeEvent<String> event) {
+		ListDataProvider<CourseModel> dataProvider = (ListDataProvider<CourseModel>) grid.getDataProvider();
+		dataProvider.setFilter(CourseModel::getCourseName, s -> caseInsensitiveContains(s, event.getValue()));
+	}
+
+	private Boolean caseInsensitiveContains(String where, String what) {
+		return new StringBuilder().append("").append(where).toString().toLowerCase()
+				.contains(new StringBuilder().append("").append(what).toString().toLowerCase());
+	}
 }

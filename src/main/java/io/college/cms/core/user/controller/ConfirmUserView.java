@@ -115,6 +115,7 @@ public class ConfirmUserView extends VerticalLayout implements View {
 			this.confirmCodeFld.setSizeFull();
 		}
 
+		@SuppressWarnings("unchecked")
 		protected void paint() {
 			this.usernameFld.setIcon(VaadinIcons.USER);
 			this.confirmCodeFld.setIcon(VaadinIcons.CODE);

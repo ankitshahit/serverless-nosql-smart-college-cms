@@ -48,6 +48,7 @@ public class TagAttendanceView extends VerticalLayout implements View {
 	private ListSelect<String> studentsUsernameList;
 	private Button removeStudentUsernameBtn;
 
+	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void paint() {
 		this.rootPanel = new Panel();

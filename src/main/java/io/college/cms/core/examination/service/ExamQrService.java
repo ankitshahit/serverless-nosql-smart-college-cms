@@ -6,18 +6,17 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import io.college.cms.core.application.pdf.factory.IPdfEngine;
 import io.college.cms.core.application.pdf.factory.PDFEngine;
 import io.college.cms.core.application.pdf.factory.PdfFactory;
 import io.college.cms.core.configuration.AppParams;
-import io.college.cms.core.courses.controller.CourseController;
 import io.college.cms.core.courses.controller.constants.SubjectType;
-import io.college.cms.core.examination.controller.ExaminationController;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionHandler;
-import io.college.cms.core.user.controller.UserController;
+import io.college.cms.core.ui.model.ViewConstants;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.glxn.qrgen.QRCode;
@@ -31,6 +30,15 @@ public class ExamQrService {
 		this.app = app;
 	}
 
+	@Async
+	public void asyncFileDownload(String examName, String subjectName, SubjectType type, Runnable progressListener,
+			Runnable successListener) {
+		progressListener.run();
+
+		successListener.run();
+	}
+
+	// we won't accept semester cuz it can be retrieved from exam name
 	public File printForSubject(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType subjectType,
 			@NonNull List<String> usernames) throws IllegalArgumentException, ApplicationException {
 		File outputFile = new File(new StringBuilder().append(examName).append("_").append(subjectName).append("_")
@@ -145,10 +153,8 @@ public class ExamQrService {
 	 */
 	public String createQrAPILink(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType type,
 			@NonNull String username) throws IllegalArgumentException {
-		return new StringBuilder().append(app.getHost()).append("/exams/qr/feed?")
-				.append(ExaminationController.EXAM_NAME).append("=").append(examName).append("&")
-				.append(CourseController.SUBJECT_NAME).append("=").append(subjectName).append("&")
-				.append(ExaminationController.SUBJECT_TYPE).append("=").append(type.toString()).append("&")
-				.append(UserController.USER_NAME).append("=").append(username).toString();
+		return new StringBuilder().append(app.getHost()).append("/").append(ViewConstants.UPDATE_MARKS_RESULTS)
+				.append("/").append(examName).append("/").append(subjectName).append("/").append(type.toString())
+				.append("/").append(username).toString();
 	}
 }

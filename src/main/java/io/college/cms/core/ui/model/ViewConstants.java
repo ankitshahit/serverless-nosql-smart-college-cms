@@ -28,6 +28,7 @@ public class ViewConstants {
 	public static final String PUBLISH_ANNOUNCEMENT = "publishAnnouncement";
 	public static final String SEE_ANNOUNCEMENT = "seeAnnouncement";
 	public static final String SEE_RESULTS = "seeResults";
+	public static final String UPDATE_MARKS_RESULTS = "updateMarksResults";
 	public static final String DEAL_WITH_USER = "dealWithUser";
 	public static final String CHAT_FAQ_VIEW = "chatFaq";
 	public static final String CONFIRM_USER_VIEW = "confirmUser";
@@ -47,6 +48,9 @@ public class ViewConstants {
 	public static final String TAG_ATTENDANCE = "tagAttendance";
 	public static final String VIEW_ATTENDANCE = "viewAttendance";
 	public static final String APPROVE_REJECT_ADMISSION = "approveRejectAdmissionQueue";
+	public static final String APPROVE_REJECT_FEES = "approveRejectFeesQueue";
 	public static final String SEE_NOTIFICATIONS = "seeNotifications";
 	public static final String USER_PROFILE_VIEW = "userProfileView";
+	public static final String FORGOT_PASSWORD = "forgotPassword";
+	public static final String CONFIRM_FORGOT_PASSWORD = "confirmForgotPassword";
 }

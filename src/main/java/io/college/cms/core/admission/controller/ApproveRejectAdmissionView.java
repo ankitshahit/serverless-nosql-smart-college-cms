@@ -12,6 +12,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.HasValue;
+import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -24,11 +27,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.RichTextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.admission.model.ApplyAdmissionModel;
+import io.college.cms.core.admission.model.ApplyFeesModel;
 import io.college.cms.core.admission.services.AdmissionResponseService;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
@@ -58,6 +63,8 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 	private AdmissionResponseService admissionResponseService;
 	@Setter
 	private ApplyAdmissionModel applyAdmissionModel;
+	private TextField filterByUsernameFld;
+	private TextField filterByCourseFld;
 
 	/**
 	 * @param coreUi
@@ -75,14 +82,30 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 		this.admissionResponseService = admissionResponseService;
 	}
 
+	@Override
+	public void enter(ViewChangeEvent event) {
+		View.super.enter(event);
+		coreUi.setItemsCourseNames(this.courseNamesCb);
+	}
+
+	@Override
+	public void beforeLeave(ViewBeforeLeaveEvent event) {
+		View.super.beforeLeave(event);
+	}
+
 	@PostConstruct
 	protected void paint() {
 		this.courseNamesCb = coreUi.getCoursesList();
 		this.gridAdmissionModel = new Grid<>();
+		this.filterByUsernameFld = VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
+				.icon(VaadinIcons.SEARCH).build().textField();
+		this.filterByCourseFld = VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
+				.icon(VaadinIcons.SEARCH).build().textField();
 		this.gridAdmissionModel.setItems(ApplyAdmissionModel.builder().courseName("Sample course")
 				.username("Ankit shah it").withRoleMember("Ankit").rejected(false)
 				.feesVerificationReceiptRequired(false).appliedOn(LocalDate.now()).build());
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getUsername).setCaption("Student username");
+		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getCourseName).setCaption("Course name");
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getAppliedOn).setCaption("Applied on");
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::isFeesVerficationDone)
 				.setCaption("Fees verification done?");
@@ -92,11 +115,6 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::isApproved).setCaption("Approved?");
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getComments).setCaption("Comments");
 		this.gridAdmissionModel.setSizeFull();
-		Panel panel = new Panel();
-		panel.setSizeFull();
-		panel.setContent(this.gridAdmissionModel);
-		addComponent(panel);
-		setSizeFull();
 		this.gridAdmissionModel.addItemClickListener(click -> {
 
 			if (click.getItem() == null) {
@@ -188,17 +206,36 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 			window.setContent(layout);
 			getUI().addWindow(window);
 		});
+
+		this.filterByCourseFld.addValueChangeListener(this::onCourseFilterTextChange);
+		this.filterByUsernameFld.addValueChangeListener(this::onUsernameFilterTextChange);
+		VerticalLayout rootLayout = new VerticalLayout();
+		Panel rootPanel = new Panel();
+		rootPanel.setContent(this.gridAdmissionModel);
+		HorizontalLayout searchLayout = new HorizontalLayout(this.filterByUsernameFld, this.filterByCourseFld);
+		searchLayout.setSizeFull();
+		rootLayout.addComponents(new Panel(new VerticalLayout(searchLayout, rootPanel)));
+
+		Panel designPanel = new Panel();
+		designPanel.setContent(rootLayout);
+		addComponent(rootLayout);
 	}
 
-	@Override
-	public void enter(ViewChangeEvent event) {
-		View.super.enter(event);
-		coreUi.setItemsCourseNames(this.courseNamesCb);
+	private void onUsernameFilterTextChange(HasValue.ValueChangeEvent<String> event) {
+		ListDataProvider<ApplyAdmissionModel> dataProvider = (ListDataProvider<ApplyAdmissionModel>) gridAdmissionModel
+				.getDataProvider();
+		dataProvider.setFilter(ApplyAdmissionModel::getUsername, s -> caseInsensitiveContains(s, event.getValue()));
 	}
 
-	@Override
-	public void beforeLeave(ViewBeforeLeaveEvent event) {
-		View.super.beforeLeave(event);
+	private void onCourseFilterTextChange(HasValue.ValueChangeEvent<String> event) {
+		ListDataProvider<ApplyAdmissionModel> dataProvider = (ListDataProvider<ApplyAdmissionModel>) gridAdmissionModel
+				.getDataProvider();
+		dataProvider.setFilter(ApplyAdmissionModel::getCourseName, s -> caseInsensitiveContains(s, event.getValue()));
+	}
+
+	private Boolean caseInsensitiveContains(String where, String what) {
+		return new StringBuilder().append("").append(where).toString().toLowerCase()
+				.contains(new StringBuilder().append("").append(what).toString().toLowerCase());
 	}
 
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.Binder;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -23,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.Utils;
+import io.college.cms.core.examination.model.FeesModel;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
@@ -47,7 +49,7 @@ public class PublishFeesView extends VerticalLayout implements View {
 	private Button completeVerification;
 	private Button cancelApplication;
 	private CoreUiService coreUi;
-
+	private Binder<FeesModel> binder;
 	/**
 	 * @param coreUi
 	 */

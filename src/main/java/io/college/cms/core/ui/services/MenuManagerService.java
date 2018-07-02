@@ -73,6 +73,7 @@ public class MenuManagerService {
 		treeData(treeData, null, ADMISSION);
 		treeData(treeData, ADMISSION, CONFIGURE_FEES);
 		treeData(treeData, ADMISSION, PUBLISH_FEES);
+		treeData(treeData, ADMISSION, FEES_QUEUE);
 		treeData(treeData, ADMISSION, "Open Admissions");
 		treeData(treeData, ADMISSION, "Apply Admissions");
 		treeData(treeData, ADMISSION, "Configure Admissions");
@@ -102,6 +103,7 @@ public class MenuManagerService {
 		treeData(treeData, JOB, VIEW_ALL_JOBS);
 		treeData(treeData, null, RESULTS);
 		treeData(treeData, RESULTS, VIEW_RESULTS);
+		treeData(treeData, RESULTS, UPDATE_RESULTS);
 
 		treeData(treeData, null, USER);
 		treeData(treeData, USER, VIEW_ALL_USER);
@@ -111,9 +113,9 @@ public class MenuManagerService {
 		treeData(treeData, null, "Documents");
 		treeData(treeData, "Documents", UPLOAD_DOCUMENTS);
 		treeData(treeData, "Documents", MY_DOCUMENTS);
-		//treeData(treeData, "DOCUMENTS", VIEW_ALL_DOCUMENTS);
+		// treeData(treeData, "DOCUMENTS", VIEW_ALL_DOCUMENTS);
 
-	//	treeData(treeData, USER, MY_DOCUMENTS);
+		// treeData(treeData, USER, MY_DOCUMENTS);
 		treeData(treeData, USER, MY_NOTIFICATIONS);
 		treeData(treeData, USER, "Configure Notifications");
 
@@ -159,6 +161,8 @@ public class MenuManagerService {
 					navigator.navigateTo(ViewConstants.EXAM_VIEW_ALL);
 				} else if (VIEW_RESULTS.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.SEE_RESULTS);
+				} else if (UPDATE_RESULTS.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.UPDATE_MARKS_RESULTS);
 				} else if (APPLY_ADMISSIONS.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.APPLY_ADMISSIONS_BY_COURSE);
 				} else if (ADMISSION_REQUEST_QUEUE.equalsIgnoreCase(value)) {
@@ -195,6 +199,8 @@ public class MenuManagerService {
 					navigator.navigateTo(ViewConstants.USER_VIEW_ALL);
 				} else if (MY_PROFILE.equalsIgnoreCase(value)) {
 					navigator.navigateTo(ViewConstants.USER_PROFILE_VIEW);
+				} else if (FEES_QUEUE.equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.APPROVE_REJECT_FEES);
 				}
 			}
 		};

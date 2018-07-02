@@ -10,13 +10,14 @@ import com.vaadin.navigator.View;
 
 import io.college.cms.core.admission.controller.ApplyAdmissionView;
 import io.college.cms.core.admission.controller.ApproveRejectAdmissionView;
+import io.college.cms.core.admission.controller.ApproveRejectFeesView;
 import io.college.cms.core.admission.controller.ConfigureAdmissionView;
 import io.college.cms.core.admission.controller.ConfigureFeesView;
 import io.college.cms.core.admission.controller.PublishAdmissionView;
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
 import io.college.cms.core.attendance.controller.TagAttendanceView;
-import io.college.cms.core.attendance.controller.ViewAttendanceView;
+import io.college.cms.core.attendance.controller.SeeAttendanceView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
 import io.college.cms.core.documents.controller.UploadDocumentsView;
 import io.college.cms.core.examination.controller.DownloadQrExamView;
@@ -25,6 +26,7 @@ import io.college.cms.core.examination.controller.PublishFeesView;
 import io.college.cms.core.examination.controller.ScheduleExamSubjectDateView;
 import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
+import io.college.cms.core.examination.controller.UpdateResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.job.controller.PublishJobView;
 import io.college.cms.core.job.controller.SeeJobsView;
@@ -34,7 +36,9 @@ import io.college.cms.core.ui.controller.PublishCourseView;
 import io.college.cms.core.ui.controller.ViewAllCoursesUI;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.user.controller.AddToGroupsView;
+import io.college.cms.core.user.controller.ConfirmPasswordForgetView;
 import io.college.cms.core.user.controller.ConfirmUserView;
+import io.college.cms.core.user.controller.ForgotPasswordView;
 import io.college.cms.core.user.controller.ListUsersView;
 import io.college.cms.core.user.controller.LoginUserView;
 import io.college.cms.core.user.controller.MyDocumentsView;
@@ -103,7 +107,7 @@ public class ViewManagerService {
 	@Autowired
 	private TagAttendanceView tagAttendance;
 	@Autowired
-	private ViewAttendanceView viewAttendance;
+	private SeeAttendanceView viewAttendance;
 	@Autowired
 	private ApproveRejectAdmissionView approveRejectAdmission;
 	@Autowired
@@ -114,6 +118,14 @@ public class ViewManagerService {
 	private MyProfileView myProfile;
 	@Autowired
 	private MyDocumentsView myDocuments;
+	@Autowired
+	private ForgotPasswordView forgotPassword;
+	@Autowired
+	private ConfirmPasswordForgetView confirmForgotPassword;
+	@Autowired
+	private ApproveRejectFeesView approveRejectApproveFees;
+	@Autowired
+	private UpdateResultsView updateResults;
 
 	public void setNavigator(Navigator navigator) {
 		this.navigator = navigator;
@@ -133,7 +145,9 @@ public class ViewManagerService {
 		addView(ViewConstants.EXAM_SUBJECT_SCHEDULE_TIME_TABLE, scheduleExamSubject);
 		addView(ViewConstants.PUBLISH_FEES, publishFees);
 		addView(ViewConstants.CONFIGURE_FEES, configureFeesView);
+		addView(ViewConstants.APPROVE_REJECT_FEES, approveRejectApproveFees);
 		addView(ViewConstants.SEE_RESULTS, seeResults);
+		addView(ViewConstants.UPDATE_MARKS_RESULTS, updateResults);
 		addView(ViewConstants.EXAM_CREATE, publishExam);
 		addView(ViewConstants.EXAM_VIEW_ALL, seeExam);
 		addView(ViewConstants.CHAT_FAQ_VIEW, chatFaq);
@@ -148,8 +162,8 @@ public class ViewManagerService {
 		addView(ViewConstants.UPLOAD_DOCUMENTS, uploadDocuments);
 		addView(ViewConstants.MY_DOCUMENTS, myDocuments); // TODO: VIEW my
 															// documents
-	//	addView(ViewConstants.VIEW_ALL_DOCUMENTS, null); // TODO: VIEW ALL
-															// DOCUMENTS
+		// addView(ViewConstants.VIEW_ALL_DOCUMENTS, null); // TODO: VIEW ALL
+		// DOCUMENTS
 		addView(ViewConstants.CONFIGURE_NOTIFICATION, configureNotification);
 		addView(ViewConstants.PUBLISH_JOB, publishJob);
 		addView(ViewConstants.VIEW_ALL_JOB, viewJobs);
@@ -158,6 +172,8 @@ public class ViewManagerService {
 		addView(ViewConstants.VIEW_ATTENDANCE, viewAttendance);
 		addView(ViewConstants.APPROVE_REJECT_ADMISSION, approveRejectAdmission);
 		addView(ViewConstants.SEE_NOTIFICATIONS, seeNotifications);
+		addView(ViewConstants.FORGOT_PASSWORD, forgotPassword);
+		addView(ViewConstants.CONFIRM_FORGOT_PASSWORD, confirmForgotPassword);
 	}
 
 }

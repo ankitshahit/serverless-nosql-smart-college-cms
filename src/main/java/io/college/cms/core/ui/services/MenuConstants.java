@@ -14,6 +14,7 @@ public class MenuConstants {
 	static final String MY_NOTIFICATIONS = "My notifications";
 	static final String RESULTS = "Results";
 	static final String VIEW_RESULTS = "View results";
+	static final String UPDATE_RESULTS = "Update Marks";
 	static final String FAQ_BOT = "FAQ Bot";
 	static final String ADMISSION = "Admission";
 	static final String OPEN_ADMISSIONS = "Open Admissions";
@@ -22,6 +23,7 @@ public class MenuConstants {
 	static final String APPLY_ADMISSIONS = "Apply Admissions";
 	static final String FEES = "Fees";
 	static final String FEES_QUEUE = "fees queue";
+	static final String PAY_FEES = "Pay fees";
 	static final String EXAMS = "Exams";
 	static final String VIEW_ALL_EXAMS = "View all exams";
 	static final String SCHEDULE_EXAM = "Schedule Exam";

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
+import io.college.cms.core.notification.services.NotificationResponseService;
+import io.college.cms.core.ui.services.CoreUiService;
+
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class SeeNotificationView extends VerticalLayout implements View {
@@ -23,6 +27,15 @@ public class SeeNotificationView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 1L;
 	private TabSheet tabSheet;
 	private List<Label> notificationLabels;
+	private NotificationResponseService notificationResponseService;
+	private CoreUiService uiService;
+
+	@Autowired
+	public SeeNotificationView(NotificationResponseService notificationResponseService, CoreUiService uiService) {
+		super();
+		this.notificationResponseService = notificationResponseService;
+		this.uiService = uiService;
+	}
 
 	@PostConstruct
 	protected void paint() {

@@ -36,7 +36,7 @@ import lombok.Data;
 public class LoginUserView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = 1L;
-	private LoginUserViewService loginViewService;
+	private LoginUserViewService view;
 	private ApplicationContext app;
 	private Window mainWindow = new Window();
 	private SecurityService securityService;
@@ -44,7 +44,7 @@ public class LoginUserView extends VerticalLayout implements View {
 	@Autowired
 	public LoginUserView(ApplicationContext app) {
 		super();
-		this.loginViewService = new LoginUserViewService();
+		this.view = new LoginUserViewService();
 		this.app = app;
 		this.securityService = app.getBean(SecurityService.class);
 	}
@@ -53,9 +53,9 @@ public class LoginUserView extends VerticalLayout implements View {
 	public void paint() {
 		setWidth("60%");
 
-		addComponent(loginViewService.getDto().getRootPanel());
-		this.loginViewService.dto.signupBtn.addClickListener(click -> {
-			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.loginViewService.dto.signupBtn)) {
+		addComponent(view.getDto().getRootPanel());
+		this.view.dto.signupBtn.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.view.dto.signupBtn)) {
 				return;
 			}
 			Window window = new Window();
@@ -64,9 +64,8 @@ public class LoginUserView extends VerticalLayout implements View {
 			window.setContent(app.getBean(FindUsernameView.class));
 			getUI().addWindow(window);
 		});
-		this.loginViewService.dto.confirmAccountBtn.addClickListener(click -> {
-			if (!ListenerUtility.isValidSourceEvent(click.getComponent(),
-					this.loginViewService.dto.confirmAccountBtn)) {
+		this.view.dto.confirmAccountBtn.addClickListener(click -> {
+			if (!ListenerUtility.isValidSourceEvent(click.getComponent(), this.view.dto.confirmAccountBtn)) {
 				return;
 			}
 
@@ -77,9 +76,9 @@ public class LoginUserView extends VerticalLayout implements View {
 			getUI().addWindow(window);
 
 		});
-		this.loginViewService.dto.loginBtn.addClickListener(click -> {
-			String username = Utils.val(loginViewService.getDto().getUsernameField());
-			String password = Utils.val(loginViewService.getDto().getPasswordField());
+		this.view.dto.loginBtn.addClickListener(click -> {
+			String username = Utils.val(view.getDto().getUsernameField());
+			String password = Utils.val(view.getDto().getPasswordField());
 			try {
 				securityService.authenticate(username, password);
 				mainWindow.close();
@@ -93,15 +92,30 @@ public class LoginUserView extends VerticalLayout implements View {
 			}
 
 		});
+		this.view.dto.forgotPasswordBtn.addClickListener(click -> {
+			Window window = new Window();
+			window.center();
+			window.setResizable(false);
+			window.setContent(app.getBean(ForgotPasswordView.class));
+			getUI().addWindow(window);
+		});
+		this.view.dto.confirmForgotPasswordBtn.addClickListener(click -> {
+			Window window = new Window();
+			window.center();
+			window.setResizable(false);
+			window.setContent(app.getBean(ConfirmPasswordForgetView.class));
+			getUI().addWindow(window);
+		});
+
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		VerticalLayout layout = new VerticalLayout();
-		loginViewService.getDto().getRootPanel().setWidth("40%");
-		layout.addComponent(loginViewService.getDto().getRootPanel());
-		layout.setComponentAlignment(loginViewService.getDto().getRootPanel(), Alignment.MIDDLE_CENTER);
+		view.getDto().getRootPanel().setWidth("40%");
+		layout.addComponent(view.getDto().getRootPanel());
+		layout.setComponentAlignment(view.getDto().getRootPanel(), Alignment.MIDDLE_CENTER);
 
 		layout.setSizeFull();
 		Panel panel = new Panel();
@@ -174,6 +188,8 @@ public class LoginUserView extends VerticalLayout implements View {
 			this.dto.loginBtn.setIcon(VaadinIcons.SIGN_IN);
 			this.dto.loginBtn.removeStyleName(ValoTheme.BUTTON_FRIENDLY);
 			this.dto.loginBtn.addStyleNames(ValoTheme.BUTTON_PRIMARY, ValoTheme.BUTTON_LARGE);
+			this.dto.confirmForgotPasswordBtn = VaadinWrapper.builder().caption("Have password reset code?").build()
+					.button();
 
 		}
 
@@ -183,10 +199,11 @@ public class LoginUserView extends VerticalLayout implements View {
 			this.dto.rootLayout.addComponent(this.dto.usernameField);
 
 			this.dto.rootLayout.addComponent(this.dto.passwordField);
-			HorizontalLayout buttonLayout = new HorizontalLayout(this.dto.signupBtn, this.dto.forgotPasswordBtn,
-					this.dto.confirmAccountBtn);
+			HorizontalLayout buttonLayout = new HorizontalLayout(this.dto.signupBtn, this.dto.confirmAccountBtn);
+			HorizontalLayout forgotPasswordLayout = new HorizontalLayout(this.dto.forgotPasswordBtn,
+					this.dto.confirmForgotPasswordBtn);
 
-			this.dto.rootLayout.addComponents(buttonLayout, this.dto.loginBtn);
+			this.dto.rootLayout.addComponents(buttonLayout, forgotPasswordLayout, this.dto.loginBtn);
 			this.dto.rootLayout.setComponentAlignment(this.dto.loginBtn, Alignment.BOTTOM_RIGHT);
 		}
 
@@ -224,5 +241,6 @@ public class LoginUserView extends VerticalLayout implements View {
 		private Button confirmAccountBtn = new Button();
 		@Builder.Default
 		private Button loginBtn = new Button();
+		private Button confirmForgotPasswordBtn;
 	}
 }

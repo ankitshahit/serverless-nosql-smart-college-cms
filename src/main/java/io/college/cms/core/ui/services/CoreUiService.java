@@ -28,6 +28,8 @@ import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.job.model.JobModel;
 import io.college.cms.core.job.services.JobResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
@@ -46,6 +48,8 @@ public class CoreUiService {
 	private AnnouncementResponseService announcementResponseService;
 	private UserResponseService userResponseService;
 	private UploadResponseService uploadResponseService;
+	@Autowired
+	private ExamResponseService examResponseService;
 
 	@Autowired
 	public void setCourseResponseService(CourseResponseService courseResponseService) {
@@ -87,6 +91,23 @@ public class CoreUiService {
 			}
 		});
 		return courses;
+	}
+
+	public void setExamsName(ComboBox<String> examsName) {
+		FactoryResponse fr = examResponseService.findAllExams();
+		if (Utils.isError(fr)) {
+			return;
+		}
+		List<ExaminationModel> examModels = (List<ExaminationModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(examModels)) {
+			return;
+		}
+		List<String> examNames = new ArrayList<>();
+
+		examModels.forEach(exam -> {
+			examNames.add(exam.getExamName());
+		});
+		examsName.setItems(examNames);
 	}
 
 	public ComboBox<String> getSemesterList() {

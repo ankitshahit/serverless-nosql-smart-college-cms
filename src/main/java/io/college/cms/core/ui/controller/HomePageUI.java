@@ -5,6 +5,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.PushStateNavigation;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringUI(path = "/homepage")
 @UIScope
 @PushStateNavigation
+@Push
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Slf4j

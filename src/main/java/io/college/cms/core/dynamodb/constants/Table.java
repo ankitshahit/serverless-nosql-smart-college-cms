@@ -21,6 +21,9 @@ public class Table {
 	public static final String RESULTS = "t_result";
 	public static final String JOB_TABLE = "t_jobs";
 	public static final String ANNOUNCEMENT_TABLE = "t_announcement";
-	public static final String ADMISSION_TABLE_META = "meta_admission";
+	public static final String ADMISSION_TABLE_META = "t_meta_admission";
 	public static final String ADMISSION_FEES_CONFIG = "t_admission_fees_config";
+	public static final String ATTENDANCE_TABLE = "t_attendance";
+	public static final String FEES_META_TABLE = "t_fees_meta_table";
+	public static final String FEES_APPLY_TABLE = "t_fees_apply";
 }

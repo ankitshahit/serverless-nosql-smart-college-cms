@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,22 +14,30 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
+
+import com.vaadin.server.FileResource;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.controller.constants.SubjectType;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.ICourseDbService;
+import io.college.cms.core.dynamodb.service.DynamoGenericService;
 import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.model.ResultModel;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionHandler;
 import io.college.cms.core.exception.ExceptionType;
 import io.college.cms.core.exception.ResourceDeniedException;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
+import io.college.cms.core.ui.listener.SecurityListener;
+import io.college.cms.core.user.service.SecurityService;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,20 +47,20 @@ public class ExamResponseService {
 	private IExamDbService examDbService;
 	private ExamQrService examQrService;
 	private ICourseDbService courseDbService;
+	private SecurityService securityService;
+	private DynamoGenericService<ResultModel, String> resultDbService;
 
 	@Autowired
-	public void setExamDbService(IExamDbService examDbService) {
+	public ExamResponseService(IExamDbService examDbService, ExamQrService examQrService,
+			ICourseDbService courseDbService, SecurityService securityService,
+			DynamoGenericService<ResultModel, String> resultDbService) {
+		super();
 		this.examDbService = examDbService;
-	}
-
-	@Autowired
-	public void setExamQrService(ExamQrService examQrService) {
 		this.examQrService = examQrService;
-	}
-
-	@Autowired
-	public void setCourseDbService(ICourseDbService courseDbService) {
 		this.courseDbService = courseDbService;
+		this.securityService = securityService;
+		this.resultDbService = resultDbService;
+		this.resultDbService.setClass(ResultModel.class);
 	}
 
 	public FactoryResponse deleteByExamName(String examName) {
@@ -171,7 +180,54 @@ public class ExamResponseService {
 		return fr;
 	}
 
-	@Cacheable("qrForExam")
+	@Async
+	public void qr(String examName, String subjectName, String type, String fileName, String username,
+			Consumer<FileResource> consumer, Runnable progressListener, Runnable successListener) {
+		try {
+			progressListener.run();
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(subjectName), "Subject name is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examName), "Exam name is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+
+			ExaminationModel examData;
+			examData = examDbService.findByExamName(examName);
+
+			CourseModel courseData = courseDbService.findByCourseName(examData.getCourseName());
+
+			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(courseData.getSubjects()),
+					"Course doesn't have any subjects", ExceptionType.VALIDATION_EXCEPTION);
+
+			// lombok var requires an instance of what is to be loaded, it can
+			// never be initialized as a null
+			SubjectModel subjectData = SubjectModel.builder().build();
+			for (SubjectModel subject : courseData.getSubjects()) {
+				if (!subjectName.equalsIgnoreCase(subject.getSubjectName())) {
+					continue;
+				}
+				subjectData = subject;
+			}
+			List<String> users = new ArrayList<>();
+			if (StringUtils.isNotEmpty(username)) {
+				users.add(username);
+			} else {
+				ValidationHandler.throwExceptionIfTrue(
+						subjectData == null || CollectionUtils.isEmpty(subjectData.getStudentUsernames()),
+						"No students are available for mentioned subject & course ",
+						ExceptionType.VALIDATION_EXCEPTION);
+				users.addAll(subjectData.getStudentUsernames());
+			}
+			SubjectType subjectType = SubjectType.findByType(type);
+			File file = examQrService.printForSubject(examName, subjectName, subjectType, users);
+			consumer.accept(new FileResource(file));
+			successListener.run();
+		} catch (IllegalArgumentException | ApplicationException | ResourceDeniedException e) {
+			LOGGER.error(e.getMessage());
+		}
+
+	}
+
 	public void qrForStudentBySubjectNameAndType(HttpServletRequest request, HttpServletResponse response,
 			String examName, String subjectName, String type, String fileName, String username) {
 		try {
@@ -223,7 +279,6 @@ public class ExamResponseService {
 		}
 	}
 
-	@Cacheable()
 	public void qrByExamNameAndSubjectNameAndType(HttpServletRequest request, HttpServletResponse response,
 			String examName, String subjectName, String type, String fileName) {
 
@@ -264,6 +319,7 @@ public class ExamResponseService {
 			if (StringUtils.isEmpty(fileName)) {
 				fileName = file.getName();
 			}
+
 			response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".pdf");
 			IOUtils.copy(inputStream, response.getOutputStream());
 			response.flushBuffer();
@@ -339,6 +395,96 @@ public class ExamResponseService {
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response("Application dont feel so good!")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse findAllExams() {
+		FactoryResponse fr = null;
+		try {
+			List<ExaminationModel> exams = examDbService.findAllExams();
+			if (CollectionUtils.isEmpty(exams)) {
+				exams = new ArrayList<>();
+			}
+			fr = FactoryResponse.builder().response(exams).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ResourceDeniedException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.ACCESS_DENIED).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Unable to fetch exams.").summaryMessage(SummaryMessageEnum.FAILURE)
+					.build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse updateMarks(ResultModel model) {
+		FactoryResponse fr = null;
+		try {
+			ValidationHandler.throwExceptionIfTrue(Utils.isNull(model), "request is null",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getCourseName()), "course is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getSubjectName()), "subject name is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getSubjectType()), "subject type is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getUsername()), "username is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getExamName()), "exam name is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(model.getMarks()), "marks is empty",
+					ExceptionType.VALIDATION_EXCEPTION);
+			model.setActionBy(securityService.getPrincipal());
+			securityService.authorize(SecurityListener.STAFF_ACCESS);
+			resultDbService.save(model);
+			fr = FactoryResponse.builder().response("Successfully saved.").summaryMessage(SummaryMessageEnum.SUCCESS)
+					.build();
+		} catch (ValidationException | AuthenticationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Unable to update marks.")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse findAllResult() {
+		FactoryResponse fr = null;
+		try {
+			List<ResultModel> results = this.resultDbService.findAll();
+			if (CollectionUtils.isEmpty(results)) {
+				results = new ArrayList<>();
+			}
+			fr = FactoryResponse.builder().response(results).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (ValidationException | AuthenticationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Unable to update marks.")
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
 		}
 		return fr;

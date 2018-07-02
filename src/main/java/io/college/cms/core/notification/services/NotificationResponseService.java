@@ -15,6 +15,7 @@ import com.amazonaws.services.dynamodbv2.model.Condition;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.dynamodb.service.DynamoGenericService;
 import io.college.cms.core.exception.ExceptionType;
 import io.college.cms.core.exception.ValidationException;
@@ -76,12 +77,17 @@ public class NotificationResponseService {
 			condition.setComparisonOperator(ComparisonOperator.EQ);
 			condition.withAttributeValueList(new AttributeValue().withS(username));
 			scan.addFilterCondition("username", condition);
-			List<ConfigureNotificationModel> config = configNotificationDb.findBy(scan);
-			if (CollectionUtils.isEmpty(config) || config.get(0) == null) {
-				fr.response(ConfigureNotificationModel.builder().build());
-			} else {
-				fr.response(config.get(0));
+			ConfigureNotificationModel config = null;
+			try {
+				config = configNotificationDb.findBy(username);
+				if (Utils.isNull(config)) {
+					config = ConfigureNotificationModel.builder().build();
+				}
+			} catch (Exception ex) {
+				// TODO: WE DO NOT WANT TO THROW THIS EXCEPTION BECAUSE THE USER
+				// HASN'T STORED ANYTHING IN CONFIGURE NOTIFICATION.
 			}
+			fr.response(config);
 			fr.summaryMessage(SummaryMessageEnum.SUCCESS);
 		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());

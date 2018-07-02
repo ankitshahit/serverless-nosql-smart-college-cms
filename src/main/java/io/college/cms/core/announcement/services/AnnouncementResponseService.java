@@ -5,8 +5,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +15,7 @@ import io.college.cms.core.dynamodb.service.DynamoGenericService;
 import io.college.cms.core.exception.ExceptionType;
 import io.college.cms.core.exception.ValidationException;
 import io.college.cms.core.exception.ValidationHandler;
+import io.college.cms.core.notification.model.NotificationModel;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -24,12 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnnouncementResponseService {
 	private DynamoGenericService<AnnouncementModel, String> announcementDbService;
+	private DynamoGenericService<NotificationModel, String> notificationDbService;
 
 	@Autowired
 	public AnnouncementResponseService(DynamoGenericService<AnnouncementModel, String> announcementDbService) {
 		super();
 		this.announcementDbService = announcementDbService;
 		this.announcementDbService.setClass(AnnouncementModel.class);
+		this.notificationDbService.setClass(NotificationModel.class);
 	}
 
 	// @CachePut(cacheNames = "listAnnouncements", key =
