@@ -129,7 +129,7 @@ public class MenuManagerService {
 		Tree<String> tree = new Tree<>();
 		tree.addStyleNames(ValoTheme.PANEL_SCROLL_INDICATOR);
 		TreeData<String> treeData = new TreeData<>();
-		
+
 		treeData(treeData, null, ADMISSION);
 		treeData(treeData, ADMISSION, "Apply Admissions");
 
@@ -158,14 +158,14 @@ public class MenuManagerService {
 		// treeData(treeData, "DOCUMENTS", VIEW_ALL_DOCUMENTS);
 
 		// treeData(treeData, USER, MY_DOCUMENTS);
-		treeData(treeData, USER, MY_NOTIFICATIONS);
-	//	treeData(treeData, USER, "Configure Notifications");
+		//treeData(treeData, USER, MY_NOTIFICATIONS);
+		// treeData(treeData, USER, "Configure Notifications");
 
 		treeData(treeData, null, USER_GROUP);
 		treeData(treeData, USER_GROUP, ADD_TO_GROUP);
 		onlyAdminTree(treeData);
 		treeData(treeData, null, "FAQ Bot");
-		
+
 		treeData(treeData, null, "Logout");
 
 		TreeDataProvider<String> dataProvider = new TreeDataProvider<String>(treeData);
@@ -249,6 +249,8 @@ public class MenuManagerService {
 				} else if ("LOGOUT".equalsIgnoreCase(value)) {
 					SecurityContextHolder.getContext().setAuthentication(null);
 					navigator.navigateTo(ViewConstants.LOGIN);
+				} else if ("View exam timetable".equalsIgnoreCase(value)) {
+					navigator.navigateTo(ViewConstants.SUBJECT_VIEW_TIME_TABLE);
 				}
 			}
 		};

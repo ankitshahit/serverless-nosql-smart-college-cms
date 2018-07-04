@@ -16,8 +16,8 @@ import io.college.cms.core.admission.controller.ConfigureFeesView;
 import io.college.cms.core.admission.controller.PublishAdmissionView;
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
 import io.college.cms.core.announcement.ui.SeeAnnouncementView;
-import io.college.cms.core.attendance.controller.TagAttendanceView;
 import io.college.cms.core.attendance.controller.SeeAttendanceView;
+import io.college.cms.core.attendance.controller.TagAttendanceView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
 import io.college.cms.core.documents.controller.UploadDocumentsView;
 import io.college.cms.core.examination.controller.DownloadQrExamView;
@@ -26,6 +26,7 @@ import io.college.cms.core.examination.controller.PublishFeesView;
 import io.college.cms.core.examination.controller.ScheduleExamSubjectView;
 import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
+import io.college.cms.core.examination.controller.SeeSubjectScheduleView;
 import io.college.cms.core.examination.controller.UpdateResultsView;
 import io.college.cms.core.faq.controller.ChatFaqView;
 import io.college.cms.core.job.controller.PublishJobView;
@@ -126,7 +127,8 @@ public class ViewManagerService {
 	private ApproveRejectFeesView approveRejectApproveFees;
 	@Autowired
 	private UpdateResultsView updateResults;
-
+	@Autowired
+	private SeeSubjectScheduleView seeSubject;
 	public void setNavigator(Navigator navigator) {
 		this.navigator = navigator;
 	}
@@ -141,6 +143,7 @@ public class ViewManagerService {
 		addView(ViewConstants.COURSES_VIEW_ALL, seeCourses);
 		addView(ViewConstants.PUBLISH_ANNOUNCEMENT, publishAnnouncement);
 		addView(ViewConstants.SEE_ANNOUNCEMENT, seeAnnouncement);
+		addView(ViewConstants.SUBJECT_VIEW_TIME_TABLE, seeSubject);
 		addView(ViewConstants.EXAM_QR_DOWNLOAD, downloadQr);
 		addView(ViewConstants.EXAM_SUBJECT_SCHEDULE_TIME_TABLE, scheduleExamSubject);
 		addView(ViewConstants.PUBLISH_FEES, publishFees);

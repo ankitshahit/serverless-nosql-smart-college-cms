@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import com.vaadin.navigator.ViewChangeListener;
 
 import io.college.cms.core.admission.controller.ApproveRejectAdmissionView;
+import io.college.cms.core.admission.controller.ApproveRejectFeesView;
 import io.college.cms.core.admission.controller.ConfigureAdmissionView;
 import io.college.cms.core.admission.controller.ConfigureFeesView;
 import io.college.cms.core.announcement.ui.PublishAnnouncementView;
-import io.college.cms.core.attendance.controller.TagAttendanceView;
 import io.college.cms.core.attendance.controller.SeeAttendanceView;
+import io.college.cms.core.attendance.controller.TagAttendanceView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
-import io.college.cms.core.examination.controller.DownloadQrExamView;
 import io.college.cms.core.examination.controller.PublishExamView;
 import io.college.cms.core.examination.controller.ScheduleExamSubjectView;
 import io.college.cms.core.job.controller.PublishJobView;
@@ -25,7 +25,6 @@ import io.college.cms.core.ui.controller.ViewAllCoursesUI;
 import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.user.constants.UserGroups;
 import io.college.cms.core.user.controller.AddToGroupsView;
-import io.college.cms.core.user.controller.FindUsernameView;
 import io.college.cms.core.user.controller.ListUsersView;
 import io.college.cms.core.user.controller.MyProfileView;
 import io.college.cms.core.user.service.SecurityService;
@@ -63,7 +62,9 @@ public class SecurityListener implements ViewChangeListener {
 				|| event.getNewView() instanceof AddToGroupsView || event.getNewView() instanceof ConfigureFeesView
 				|| event.getNewView() instanceof ConfigureAdmissionView || event.getNewView() instanceof PublishExamView
 				|| event.getNewView() instanceof SeeCoursesView || event.getNewView() instanceof PublishCourseView
-				|| event.getNewView() instanceof ViewAllCoursesUI) {
+				|| event.getNewView() instanceof ViewAllCoursesUI
+				|| event.getNewView() instanceof ApproveRejectAdmissionView
+				|| event.getNewView() instanceof ApproveRejectFeesView) {
 			roles = STAFF_ACCESS;
 		} else if (event.getNewView() instanceof MyProfileView) {
 			roles = new UserGroups[] {};

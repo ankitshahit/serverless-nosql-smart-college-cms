@@ -44,4 +44,5 @@ public class MenuConstants {
 	static final String ATTENDANCE = "Attendance";
 	static final String TAG_ATTENDANCE = "Tag Attendance";
 	static final String VIEW_ATTENDANCE = "View Attendance";
+	static final String GRAPH_ATTENDANCE = "Graph Attendance";
 }

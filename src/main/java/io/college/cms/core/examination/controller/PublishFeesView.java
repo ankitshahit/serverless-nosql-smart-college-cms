@@ -2,6 +2,7 @@ package io.college.cms.core.examination.controller;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
@@ -23,9 +25,12 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.admission.services.AdmissionResponseService;
+import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.examination.model.FeesModel;
 import io.college.cms.core.ui.builder.VaadinWrapper;
+import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -50,10 +55,13 @@ public class PublishFeesView extends VerticalLayout implements View {
 	private Button cancelApplication;
 	private CoreUiService coreUi;
 	private Binder<FeesModel> binder;
+	private AdmissionResponseService responseService;
+
 	/**
 	 * @param coreUi
 	 */
-	public PublishFeesView(CoreUiService coreUi) {
+	@Autowired
+	public PublishFeesView(CoreUiService coreUi, AdmissionResponseService responseService) {
 		super();
 		this.coreUi = coreUi;
 		this.courses = this.coreUi.getCoursesList();
@@ -65,6 +73,7 @@ public class PublishFeesView extends VerticalLayout implements View {
 		this.completeVerification = new Button();
 		this.upload = new Upload();
 		this.cancelApplication = new Button();
+		this.responseService = responseService;
 	}
 
 	/**
@@ -87,22 +96,35 @@ public class PublishFeesView extends VerticalLayout implements View {
 		this.cancelApplication.setCaption("Cancel Admission");
 		this.cancelApplication.setStyleName(ValoTheme.BUTTON_DANGER);
 		Label admissionStatus = this.coreUi.getLabel("Admission Status: Confirmation after fees payment verification");
-		this.contactInformation = VaadinWrapper.builder().caption("Contact Information").build().richTextArea();
+		this.contactInformation = VaadinWrapper.builder().caption("Fees details").build().richTextArea();
 		Label payOnline = this.coreUi.getLabel("<b>Pay Online</b>");
-
-		Label payOffline = this.coreUi.getLabel("<b>Pay offline and upload receipt <br/>for verification</b>");
-
+		payOnline.setVisible(false);
+		Label payOffline = this.coreUi.getLabel(
+				"<b>Pay offline and upload receipt in my documents <br/>for verification</b>. <br/> Paste direct link <br/> to file in information");
+		cancelApplication.setVisible(false);
 		setBtnMandatoryFields(redirectToPay, "Redirect To Pay");
 		setBtnMandatoryFields(seeWaysToPayOffline, "see ways to pay offline");
 		setBtnMandatoryFields(completeVerification, "Complete Verification");
+		seeWaysToPayOffline.setVisible(false);
 		upload.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		seeWaysToPayOffline.setStyleName(ValoTheme.BUTTON_LINK);
 		completeVerification.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		redirectToPay.setStyleName(ValoTheme.BUTTON_LINK);
+		redirectToPay.setVisible(false);
+		upload.setVisible(false);
 		this.courses.setSizeFull();
 		this.semester.setSizeFull();
 		this.fees.setSizeFull();
-
+		completeVerification.addClickListener(click -> {
+			String courseName = courses.getSelectedItem().get();
+			String semesterName = semester.getSelectedItem().get();
+			String feesVal = fees.getOptionalValue().get();
+			String details = contactInformation.getOptionalValue().get();
+			FactoryResponse fr = responseService.saveUpdate(FeesModel.builder().courseName(courseName)
+					.semester(semesterName).fees(feesVal).contactInformation(details).build());
+			Notification notifi = Utils.showFactoryResponseMsg(fr);
+			notifi.addCloseListener(close -> getUI().getNavigator().navigateTo(ViewConstants.MY_DOCUMENTS));
+		});
 		VerticalLayout leftSplit = new VerticalLayout(courses, semester, admissionStatus, fees, contactInformation);
 		VerticalLayout rightSplit = new VerticalLayout(payOnline, redirectToPay, payOffline, seeWaysToPayOffline,
 				upload);

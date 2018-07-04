@@ -130,7 +130,7 @@ public class ExamResponseService {
 				data.add(model.getActionBy());
 				data.add(model.getTotalMarks());
 				data.add(model.getMarks());
-				data.add(String.valueOf(model.isResult()?"Pass":"Fail"));
+				data.add(String.valueOf(model.isResult() ? "Pass" : "Fail"));
 				progressListener.accept(currentProgress + 0.1f);
 			}
 			progressListener.accept(currentProgress + 5.0f);
@@ -597,6 +597,30 @@ public class ExamResponseService {
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response("Unable to update marks.")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse findAllTimeTable() {
+		FactoryResponse fr = null;
+		try {
+			List<TimeTableModel> results = this.timeTableDbService.findAll();
+			if (CollectionUtils.isEmpty(results)) {
+				results = new ArrayList<>();
+			}
+			fr = FactoryResponse.builder().response(results).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (ValidationException | AuthenticationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Unable to fetch timetable.")
 					.summaryMessage(SummaryMessageEnum.FAILURE).build();
 		}
 		return fr;
