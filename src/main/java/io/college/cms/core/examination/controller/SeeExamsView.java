@@ -11,14 +11,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.vaadin.data.HasValue;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -26,6 +30,8 @@ import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.service.ExamResponseService;
+import io.college.cms.core.ui.builder.VaadinWrapper;
+import io.college.cms.core.upload.model.UploadModel;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -40,6 +46,9 @@ public class SeeExamsView extends VerticalLayout implements View {
 	@Autowired
 	private ApplicationContext app;
 	private ExamResponseService examResponseService;
+	private Grid<ExaminationModel> grid;
+	private TextField filterByName;
+	private TextField filterByTag;
 
 	@Autowired
 	public SeeExamsView(ExamResponseService service) {
@@ -49,6 +58,11 @@ public class SeeExamsView extends VerticalLayout implements View {
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void paint() {
+		this.filterByName = VaadinWrapper.builder().caption("Filter by course name").placeholder("type course name")
+				.icon(VaadinIcons.SEARCH).build().textField();
+		this.filterByTag = VaadinWrapper.builder().caption("Filter by exam").placeholder("type exam")
+				.icon(VaadinIcons.SEARCH).build().textField();
+
 		Panel panel = new Panel();
 		Grid<ExaminationModel> grid = new Grid<>();
 		VerticalLayout layout = new VerticalLayout();
@@ -87,9 +101,19 @@ public class SeeExamsView extends VerticalLayout implements View {
 				getUI().addWindow(window);
 			}
 		});
-		layout.addComponent(grid);
-		panel.setContent(layout);
-		addComponent(panel);
+		VerticalLayout rootLayout = new VerticalLayout();
+		Panel rootPanel = new Panel();
+		rootPanel.setContent(this.grid);
+		HorizontalLayout searchLayout = new HorizontalLayout(this.filterByName, this.filterByTag);
+		searchLayout.setSizeFull();
+		rootLayout.addComponents(new Panel(new VerticalLayout(searchLayout, rootPanel)));
+
+		Panel designPanel = new Panel();
+		designPanel.setContent(rootLayout);
+		addComponent(rootLayout);
+		this.grid.setSizeFull();
+		rootLayout.setSizeFull();
+		rootPanel.setSizeFull();
 	}
 
 	@Override
@@ -113,4 +137,18 @@ public class SeeExamsView extends VerticalLayout implements View {
 		View.super.beforeLeave(event);
 	}
 
+	private void onCourseNameFilterTextChange(HasValue.ValueChangeEvent<String> event) {
+		ListDataProvider<ExaminationModel> dataProvider = (ListDataProvider<ExaminationModel>) grid.getDataProvider();
+		dataProvider.setFilter(ExaminationModel::getCourseName, s -> caseInsensitiveContains(s, event.getValue()));
+	}
+
+	private void onExamNameFilterTextChange(HasValue.ValueChangeEvent<String> event) {
+		ListDataProvider<ExaminationModel> dataProvider = (ListDataProvider<ExaminationModel>) grid.getDataProvider();
+		dataProvider.setFilter(ExaminationModel::getExamName, s -> caseInsensitiveContains(s, event.getValue()));
+	}
+
+	private Boolean caseInsensitiveContains(String where, String what) {
+		return new StringBuilder().append("").append(where).toString().toLowerCase()
+				.contains(new StringBuilder().append("").append(what).toString().toLowerCase());
+	}
 }
