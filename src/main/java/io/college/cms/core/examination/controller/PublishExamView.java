@@ -315,11 +315,15 @@ public class PublishExamView extends VerticalLayout implements View {
 			FactoryResponse fr = examResponseService.saveExamMetadata(builder.build());
 			Notification notifi = Utils.showFactoryResponseMsg(fr);
 			notifi.setCaption("Message ");
-			notifi.addCloseListener(click -> getUI().getNavigator().navigateTo(ViewConstants.EXAM_SUBJECT_SCHEDULE_TIME_TABLE));
-/*			MessagePopupView message = new MessagePopupView("Message!",
-					"Exam is scheduled, please configure for subjects");
-			message.addClickListener(click -> getUI().getNavigator().navigateTo(ViewConstants.SUBJECT_VIEW_TIME_TABLE));
-*/
+			notifi.addCloseListener(
+					click -> getUI().getNavigator().navigateTo(ViewConstants.EXAM_SUBJECT_SCHEDULE_TIME_TABLE));
+			/*
+			 * MessagePopupView message = new MessagePopupView("Message!",
+			 * "Exam is scheduled, please configure for subjects");
+			 * message.addClickListener(click ->
+			 * getUI().getNavigator().navigateTo(ViewConstants.
+			 * SUBJECT_VIEW_TIME_TABLE));
+			 */
 		});
 
 		addTab.setSizeFull();
@@ -345,9 +349,9 @@ public class PublishExamView extends VerticalLayout implements View {
 				if (StringUtils.isNotEmpty(model.getSemester())) {
 					selectSem.setSelectedItem(model.getSemester());
 				}
+			} else {
+				uiService.setItemsCourseNames(selectCourse);
 			}
-
-			uiService.setItemsCourseNames(selectCourse);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

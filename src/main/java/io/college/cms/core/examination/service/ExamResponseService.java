@@ -14,6 +14,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.amazonaws.services.dynamodbv2.model.ConditionalOperator;
 import com.vaadin.server.FileResource;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
+import io.college.cms.core.application.excel.services.ExcelService;
+import io.college.cms.core.attendance.model.AttendanceModel;
 import io.college.cms.core.courses.controller.constants.SubjectType;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
@@ -55,12 +59,13 @@ public class ExamResponseService {
 	private SecurityService securityService;
 	private DynamoGenericService<ResultModel, String> resultDbService;
 	private DynamoGenericService<TimeTableModel, String> timeTableDbService;
+	private ApplicationContext app;
 
 	@Autowired
 	public ExamResponseService(IExamDbService examDbService, ExamQrService examQrService,
 			ICourseDbService courseDbService, SecurityService securityService,
 			DynamoGenericService<ResultModel, String> resultDbService,
-			DynamoGenericService<TimeTableModel, String> timeTableDbService) {
+			DynamoGenericService<TimeTableModel, String> timeTableDbService, ApplicationContext app) {
 		super();
 		this.examDbService = examDbService;
 		this.examQrService = examQrService;
@@ -68,8 +73,73 @@ public class ExamResponseService {
 		this.securityService = securityService;
 		this.resultDbService = resultDbService;
 		this.timeTableDbService = timeTableDbService;
+		this.app = app;
 		this.timeTableDbService.setClass(TimeTableModel.class);
 		this.resultDbService.setClass(ResultModel.class);
+	}
+
+	@Async
+	public void download(Consumer<File> downloadFileListener, Consumer<Float> progressListener,
+			Consumer<String> errorListener, Runnable successListener, ResultModel attendance) {
+		try {
+			ExcelService excelService = app.getBean(ExcelService.class);
+			excelService.setHeaderTitle("Sr.no", "Course", "Semester", "Subject", "Subject type", "Student",
+					"Updated by", "Total Marks", "Marks", "Result");
+			List<ResultModel> records = new ArrayList<>();
+			progressListener.accept(5.0f);
+			if (StringUtils.isNotEmpty(attendance.getUsername())) {
+				DynamoDBScanExpression scan = new DynamoDBScanExpression();
+				Condition condition = new Condition();
+				condition.setComparisonOperator(ComparisonOperator.EQ);
+				condition.withAttributeValueList(new AttributeValue().withS(attendance.getUsername()));
+				scan.addFilterCondition("username", condition);
+				progressListener.accept(15.0f);
+				records = resultDbService.findBy(scan);
+			} else {
+				DynamoDBScanExpression scan = new DynamoDBScanExpression();
+				scan.withFilterConditionEntry("courseName",
+						new Condition().withComparisonOperator(ComparisonOperator.EQ)
+								.withAttributeValueList(new AttributeValue().withS(attendance.getCourseName())))
+						.withConditionalOperator(ConditionalOperator.AND)
+						.withFilterConditionEntry("subjectName",
+								new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(
+										new AttributeValue().withS(attendance.getSubjectName())))
+						.withConditionalOperator(ConditionalOperator.AND).withFilterConditionEntry("semester",
+								new Condition().withComparisonOperator(ComparisonOperator.EQ)
+										.withAttributeValueList(new AttributeValue().withS(attendance.getSemester())));
+				progressListener.accept(15.0f);
+				records = resultDbService.findBy(scan);
+
+			}
+			progressListener.accept(25.0f);
+			if (CollectionUtils.isEmpty(records)) {
+				errorListener.accept("<p>No records found</p>");
+				return;
+			}
+			progressListener.accept(29.0f);
+			float currentProgress = 29.0f;
+			List<String> data = new ArrayList<>();
+			int count = 0;
+			for (ResultModel model : records) {
+				data.add(String.valueOf(++count));
+				data.add(model.getCourseName());
+				data.add(model.getSemester());
+				data.add(model.getSubjectName());
+				data.add(String.valueOf(model.getSubjectType()));
+				data.add(model.getUsername());
+				data.add(model.getActionBy());
+				data.add(model.getTotalMarks());
+				data.add(model.getMarks());
+				data.add(String.valueOf(model.isResult()));
+				progressListener.accept(currentProgress + 0.1f);
+			}
+			progressListener.accept(currentProgress + 5.0f);
+			excelService.write(data, downloadFileListener, errorListener, progressListener, successListener);
+
+		} catch (Exception e) {
+			LOGGER.error(e.getLocalizedMessage());
+			errorListener.accept("Unable to process file.");
+		}
 	}
 
 	public FactoryResponse findTimeTable(String examName) {

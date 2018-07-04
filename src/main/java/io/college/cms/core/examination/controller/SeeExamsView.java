@@ -77,11 +77,12 @@ public class SeeExamsView extends VerticalLayout implements View {
 				LOGGER.debug("course name : {}", examinationModel.getCourseName());
 				Window window = new Window();
 				window.setClosable(true);
+				VerticalLayout verticalLayout = new VerticalLayout();
 
 				PublishExamView view = app.getBean(PublishExamView.class);
 				view.setModel(examinationModel);
-				view.enter(null);
-				window.setContent(view);
+				verticalLayout.addComponent(view);
+				window.setContent(verticalLayout);
 				window.setSizeFull();
 				getUI().addWindow(window);
 			}

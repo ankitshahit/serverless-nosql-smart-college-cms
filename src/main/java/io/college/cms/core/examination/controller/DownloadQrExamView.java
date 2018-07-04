@@ -174,12 +174,21 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 						this::progressListener, this::successListener);
 			}
 		});
+
+		selectByStudent.addValueChangeListener(value -> {
+			allStudents.setValue(!selectByStudent.getOptionalValue().isPresent());
+			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()
+					|| (selectExam.getOptionalValue().isPresent() && selectSubject.getOptionalValue().isPresent()
+							&& examType.getOptionalValue().isPresent()));
+		});
 		EmptyFieldListener<String> exam = getEmptyFieldListener();
 		EmptyFieldListener<String> subject = getEmptyFieldListener();
-		EmptyFieldListener<String> examType = getEmptyFieldListener();
-		this.selectExam.addValueChangeListener(exam);
-		this.selectSubject.addValueChangeListener(subject);
-		this.examType.addValueChangeListener(examType);
+		// EmptyFieldListener<String> examType = getEmptyFieldListener();
+		/*
+		 * this.selectExam.addValueChangeListener(exam);
+		 * this.selectSubject.addValueChangeListener(subject);
+		 * this.examType.addValueChangeListener(examType);
+		 */
 		this.downloadQr.setEnabled(false);
 		this.allStudents.setValue(true);
 		this.allStudents.addValueChangeListener(value -> {
@@ -188,12 +197,25 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 					&& this.selectSubject.getOptionalValue().isPresent()
 					&& this.examType.getOptionalValue().isPresent());
 		});
-		
+
 		this.selectExam.addSelectionListener(select -> {
 			if (!select.getFirstSelectedItem().isPresent()) {
 				return;
 			}
 			uiService.setExamSubjects(selectExam, this.selectExam.getOptionalValue().get());
+			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()
+					|| (selectExam.getOptionalValue().isPresent() && selectSubject.getOptionalValue().isPresent()
+							&& examType.getOptionalValue().isPresent()));
+		});
+		this.selectSubject.addSelectionListener(select -> {
+			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()
+					|| (selectExam.getOptionalValue().isPresent() && selectSubject.getOptionalValue().isPresent()
+							&& examType.getOptionalValue().isPresent()));
+		});
+		this.examType.addSelectionListener(select -> {
+			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()
+					|| (selectExam.getOptionalValue().isPresent() && selectSubject.getOptionalValue().isPresent()
+							&& examType.getOptionalValue().isPresent()));
 		});
 	}
 

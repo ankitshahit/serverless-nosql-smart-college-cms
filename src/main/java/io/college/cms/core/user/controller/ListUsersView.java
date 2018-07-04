@@ -81,6 +81,8 @@ public class ListUsersView extends VerticalLayout implements View {
 		this.grid.addColumn(UserModel::getLastName).setCaption("Lastname");
 		this.grid.addColumn(UserModel::getUsername).setCaption("username");
 		this.grid.addColumn(UserModel::getEmail).setCaption("email");
+		this.grid.addColumn(UserModel::getUserStatus).setCaption("status");
+		this.grid.addColumn(UserModel::getGroup).setCaption("Group");
 		this.grid.addColumn(UserModel::getGender).setCaption("gender");
 
 		this.filterByUsername = VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
@@ -120,11 +122,18 @@ public class ListUsersView extends VerticalLayout implements View {
 			phoneLb.setValue(String.valueOf(select.getFirstSelectedItem().get().getPhone()));
 			Label groupLb = VaadinWrapper.builder().caption("Group").build().label();
 			groupLb.setValue(String.valueOf(select.getFirstSelectedItem().get().getGroup()));
-			layout.addComponents(usernameLb, userStatusLb, emailLb, genderLb, dateOfBirthLb, phoneLb, groupLb);
+			Label profileLb = VaadinWrapper.builder().caption("Profile link").build().label();
+			profileLb.setValue(String.valueOf("<a href=" + select.getFirstSelectedItem().get().getProfileLink()
+					+ " target=_blank>View profile</a>"));
+			layout.addComponents(usernameLb, userStatusLb, emailLb, genderLb, dateOfBirthLb, phoneLb, groupLb,
+					profileLb);
+			usernameLb.setSizeFull();
+			/*
+			 * layout.setSizeFull(); window.setSizeFull();
+			 * windowRPanel.setSizeFull();
+			 */ windowRPanel.setSizeFull();
 			layout.setSizeFull();
-			window.setSizeFull();
-			windowRPanel.setSizeFull();
-			window.setContent(windowRPanel);
+			window.setContent(new Panel(new VerticalLayout(windowRPanel)));
 			getUI().addWindow(window);
 		});
 		VerticalLayout rootLayout = new VerticalLayout();

@@ -54,7 +54,6 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 	private ComboBox<String> selectSem;
 	private ProgressBar progress;
 	private Window mainWindow;
-	private Label errorLblMainWindow;
 	private Button publish;
 	private ComboBox<String> users;
 	private ApplicationContext app;
@@ -115,12 +114,7 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 
 	@PostConstruct
 	public void paint() {
-		errorLblMainWindow = new Label();
-		this.errorLblMainWindow.setCaption(new StringBuilder().append("<p><b>")
-				.append(StringUtils.capitalize("<h2><p style=color:red>Error occurred</h2>")).append("</b> </p>")
-				.toString());
-		this.errorLblMainWindow.setCaptionAsHtml(true);
-		this.errorLblMainWindow.setContentMode(ContentMode.HTML);
+	
 		progress = new ProgressBar();
 		progress.setCaption("<b>Processing</b>");
 		progress.setCaptionAsHtml(true);
@@ -128,21 +122,19 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 		mainWindow.center();
 		mainWindow.setSizeFull();
 		mainWindow.setResizable(false);
-		errorLblMainWindow.setSizeFull();
 
 		mainWindow.addCloseListener(close -> {
 			progress.setCaption("<b>Processing</b>");
 			progress.setValue(0.0f);
-			errorLblMainWindow.setValue("");
-			progress.setVisible(false);
-			errorLblMainWindow.setVisible(false);
+		
+			progress.setVisible(false);			
 		});
 
 		users = (ComboBox<String>) VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
 				.build().comboBox();
 		VerticalLayout mainWindowLayout = new VerticalLayout();
-		mainWindowLayout.addComponents(errorLblMainWindow, progress);
-		mainWindowLayout.setComponentAlignment(errorLblMainWindow, Alignment.MIDDLE_RIGHT);
+		mainWindowLayout.addComponents( progress);
+		
 		mainWindowLayout.setComponentAlignment(progress, Alignment.MIDDLE_CENTER);
 		mainWindowLayout.setSizeFull();
 		Panel mainWindowPanel = new Panel();
