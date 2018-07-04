@@ -36,11 +36,9 @@ public class CourseResponseService {
 					"No course name provided", ExceptionType.VALIDATION_EXCEPTION);
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(course.getDescription()),
 					"Course description is required", ExceptionType.VALIDATION_EXCEPTION);
-			CourseModel data = dbService.findByCourseName(course.getCourseName());
-			ValidationHandler.throwExceptionIfTrue(data != null, "Course already exists. Use update option.",
-					ExceptionType.VALIDATION_EXCEPTION);
 			dbService.saveCourse(course);
-			fr = FactoryResponse.builder().response(course).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+			fr = FactoryResponse.builder().response("Successfully updated").summaryMessage(SummaryMessageEnum.SUCCESS)
+					.build();
 		} catch (ValidationException e) {
 			LOGGER.error(e.getMessage());
 			fr = FactoryResponse.builder().response(e.getMessage()).summaryMessage(SummaryMessageEnum.VALIDATION_ERROR)

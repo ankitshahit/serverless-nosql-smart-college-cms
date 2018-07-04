@@ -1,6 +1,5 @@
 package io.college.cms.core.admission.controller;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.admission.model.ApplyAdmissionModel;
-import io.college.cms.core.admission.model.ApplyFeesModel;
 import io.college.cms.core.admission.services.AdmissionResponseService;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
@@ -85,7 +83,19 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
-		coreUi.setItemsCourseNames(this.courseNamesCb);
+		// coreUi.setItemsCourseNames(this.courseNamesCb);
+		try {
+			FactoryResponse fr = admissionResponseService.findAllAdmissions();
+			if (Utils.isError(fr)) {
+				Utils.showFactoryResponseMsg(fr);
+				return;
+			}
+			List<ApplyAdmissionModel> records = (List<ApplyAdmissionModel>) fr.getResponse();
+			gridAdmissionModel.setItems(records);
+
+		} catch (Exception ex) {
+
+		}
 	}
 
 	@Override
@@ -101,9 +111,7 @@ public class ApproveRejectAdmissionView extends VerticalLayout implements View {
 				.icon(VaadinIcons.SEARCH).build().textField();
 		this.filterByCourseFld = VaadinWrapper.builder().caption("Filter by coursename").placeholder("type coursename")
 				.icon(VaadinIcons.SEARCH).build().textField();
-		this.gridAdmissionModel.setItems(ApplyAdmissionModel.builder().courseName("Sample course")
-				.username("Ankit shah it").withRoleMember("Ankit").rejected(false)
-				.feesVerificationReceiptRequired(false).appliedOn(LocalDate.now()).build());
+
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getUsername).setCaption("Student username");
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getCourseName).setCaption("Course name");
 		this.gridAdmissionModel.addColumn(ApplyAdmissionModel::getAppliedOn).setCaption("Applied on");

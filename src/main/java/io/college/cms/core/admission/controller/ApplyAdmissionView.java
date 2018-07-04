@@ -120,9 +120,13 @@ public class ApplyAdmissionView extends VerticalLayout implements View {
 			}
 			AdmissionMetaModel admissionMetaModel = (AdmissionMetaModel) fr.getResponse();
 			this.applyAdmissionService.dto.fees.setValue(admissionMetaModel.getFees());
-			this.applyAdmissionService.dto.semester.setValue(admissionMetaModel.getSemester());
+			this.applyAdmissionService.dto.semester.setCaption("");
+			this.applyAdmissionService.dto.semester.setValue("" + admissionMetaModel.getSemester());
 			this.applyAdmissionService.dto.verifyFeesReceipt.setValue(admissionMetaModel.isRequireFeesVerification()
 					? "Verification of fees required!" : "No fees receipt verification required.");
+
+			this.applyAdmissionService.dto.additionalDetails.setCaption("<b>Additional information</b>");
+			this.applyAdmissionService.dto.additionalDetails.setValue(admissionMetaModel.getAdditionalInformation());
 			fr = courseResponseService.findByCourseName(null, courseName);
 			Utils.showFactoryResponseOnlyError(fr);
 			if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
@@ -130,8 +134,10 @@ public class ApplyAdmissionView extends VerticalLayout implements View {
 			}
 			CourseModel courseModel = (CourseModel) fr.getResponse();
 			if (admissionMetaModel.isShowEnrolledOutOf()) {
+				this.applyAdmissionService.dto.maxStudents.setCaption("Max students");
 				this.applyAdmissionService.dto.maxStudents
 						.setValue(String.valueOf(courseModel.getMaxStudentsAllowed()));
+				this.applyAdmissionService.dto.totalEnrolled.setCaption("Enrolled students");
 				this.applyAdmissionService.dto.totalEnrolled
 						.setValue(String.valueOf(courseModel.getEnrolledStudents()));
 			}
@@ -146,7 +152,7 @@ public class ApplyAdmissionView extends VerticalLayout implements View {
 			});
 			this.applyAdmissionService.dto.subjects.setItems(subjectNames);
 
-			this.applyAdmissionService.dto.subjects.setItemEnabledProvider(item -> !requiredSubjects.contains(item));
+			this.applyAdmissionService.dto.subjects.setItemEnabledProvider(item -> requiredSubjects.contains(item));
 
 		});
 		this.applyAdmissionService.dto.apply.addClickListener(click -> {

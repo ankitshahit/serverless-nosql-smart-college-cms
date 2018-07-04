@@ -19,8 +19,8 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
@@ -31,7 +31,6 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
-import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
@@ -102,7 +101,7 @@ public class SeeCoursesView extends VerticalLayout implements View {
 
 				});
 				getUI().addWindow(window);
-				view.enter(null);
+				//view.enter(null);
 			}
 		});
 		VerticalLayout rootLayout = new VerticalLayout();

@@ -302,8 +302,8 @@ public class PublishExamView extends VerticalLayout implements View {
 		secondStep2ListLayout.setComponentAlignment(saveExams, Alignment.BOTTOM_RIGHT);
 
 		rootLayoutStep2.addComponents(secondStep2ListLayout);
-		accord.addTab(rootLayoutStep2, "Exam (2/2)");
-		accord.getTab(1).setEnabled(false);
+		//accord.addTab(rootLayoutStep2, "Exam (2/2)");
+	//	accord.getTab(1).setEnabled(false);
 		rootLayoutStep2.setSizeFull();
 		publish.addClickListener(list -> {
 			builder = ExaminationModel.builder().courseName(ElementHelper.value(selectCourse.getSelectedItem()))
@@ -335,19 +335,30 @@ public class PublishExamView extends VerticalLayout implements View {
 		View.super.enter(event);
 		try {
 			LOGGER.debug("request received view : {}", event);
-			if (model != null) {
-				examName.setValue(model.getExamName());
-				if (model.getExamStartDate() != null) {
-					startExamDate.setValue(LocalDate.from(model.getExamStartDate()));
+			if (StringUtils.isNotEmpty(event.getParameters())) {
+				String examName = event.getParameters().split("/")[0];
+
+				FactoryResponse fr = examResponseService.getExamByExamId(null, examName);
+				if (Utils.isError(fr)) {
+					Utils.showFactoryResponseOnlyError(fr);
+					return;
 				}
-				if (model.getExamEndDate() != null) {
-					endExamDate.setValue(LocalDate.from(model.getExamEndDate()));
-				}
-				if (StringUtils.isNotEmpty(model.getCourseName())) {
-					selectCourse.setSelectedItem(model.getCourseName());
-				}
-				if (StringUtils.isNotEmpty(model.getSemester())) {
-					selectSem.setSelectedItem(model.getSemester());
+				model = (ExaminationModel) fr.getResponse();
+				selectCourse.setValue(model.getCourseName());
+				if (model != null) {
+					this.examName.setValue(model.getExamName());
+					if (model.getExamStartDate() != null) {
+						startExamDate.setValue(LocalDate.from(model.getExamStartDate()));
+					}
+					if (model.getExamEndDate() != null) {
+						endExamDate.setValue(LocalDate.from(model.getExamEndDate()));
+					}
+					if (StringUtils.isNotEmpty(model.getCourseName())) {
+						selectCourse.setSelectedItem(model.getCourseName());
+					}
+					if (StringUtils.isNotEmpty(model.getSemester())) {
+						selectSem.setSelectedItem(model.getSemester());
+					}
 				}
 			} else {
 				uiService.setItemsCourseNames(selectCourse);
