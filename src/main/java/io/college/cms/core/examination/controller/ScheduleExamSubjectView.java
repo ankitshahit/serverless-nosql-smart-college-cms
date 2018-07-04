@@ -205,8 +205,8 @@ public class ScheduleExamSubjectView extends VerticalLayout implements View {
 				SubjectType.OTHER.toString(), SubjectType.INTERNAL.toString());
 
 		binder.bind(examsCb, TimeTableModel::getExamName, TimeTableModel::setExamName);
-		binder.bind(subjectsCb, TimeTableModel::getExamName, TimeTableModel::setExamName);
-		binder.bind(subjectTypeCb, TimeTableModel::getExamName, TimeTableModel::setExamName);
+		binder.bind(subjectsCb, TimeTableModel::getSubject, TimeTableModel::setSubject);
+		binder.bind(subjectTypeCb, TimeTableModel::getSubjectType, TimeTableModel::setSubjectType);
 		binder.bind(examStartDateTimeDf, TimeTableModel::getStartTime, TimeTableModel::setStartTime);
 		binder.bind(examEndDateTimeDf, TimeTableModel::getEndTime, TimeTableModel::setEndTime);
 		binder.bind(additionalInformation, TimeTableModel::getAdditionalInformation,
@@ -243,7 +243,7 @@ public class ScheduleExamSubjectView extends VerticalLayout implements View {
 			semesterLb.setValue(examModel.getSemester());
 			examStartDateTimeLbl.setValue(String.valueOf(examModel.getExamStartDate()));
 			examEndDateTimeLbl.setValue(String.valueOf(examModel.getExamEndDate()));
-			
+
 		});
 	}
 
