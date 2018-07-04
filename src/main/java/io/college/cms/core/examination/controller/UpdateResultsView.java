@@ -20,6 +20,7 @@ import com.vaadin.ui.AbstractSingleSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
@@ -86,8 +87,11 @@ public class UpdateResultsView extends VerticalLayout implements View {
 			binder.readBean(model);
 			binder.setReadOnly(true);
 			marksFld.setEnabled(true);
+			uiService.setItemsUser(usernamesCb);
+			usernamesCb.setEnabled(true);
 		} else {
 			uiService.setExamsName(examsCb);
+			uiService.setItemsUser(usernamesCb);
 		}
 	}
 
@@ -125,7 +129,8 @@ public class UpdateResultsView extends VerticalLayout implements View {
 
 		this.updateBtn.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		VerticalLayout rootLayout = new VerticalLayout(this.examsCb, this.subjectsCb, this.subjectTypeCb,
-				this.usernamesCb, this.totalMarks, this.marksFld, this.resultLbl, this.updateBtn);
+				this.usernamesCb, new HorizontalLayout(this.totalMarks, requiredLbl), this.marksFld, this.resultLbl,
+				this.updateBtn);
 
 		rootLayout.setComponentAlignment(this.updateBtn, Alignment.BOTTOM_RIGHT);
 		Panel rootPanel = new Panel();
@@ -207,8 +212,10 @@ public class UpdateResultsView extends VerticalLayout implements View {
 			if (Double.parseDouble(requiredLbl.getValue()) <= marks
 					&& (Double.parseDouble(totalMarks.getValue()) >= marks)) {
 				resultLbl.setValue("<b><p style=background-color:green;color:white>Pass</p></b>");
-			} else {
+			} else if (Double.parseDouble(totalMarks.getValue()) >= marks && marks >= 0) {
 				resultLbl.setValue("<b><p style=background-color:red;color:white>Fail</p></b>");
+			} else {
+				resultLbl.setValue("<b><p style=background-color:red;color:white>Not acceptable input.</p></b>");
 			}
 		});
 
