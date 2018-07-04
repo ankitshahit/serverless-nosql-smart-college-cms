@@ -260,7 +260,8 @@ public class SeeResultsView extends VerticalLayout implements View {
 		View.super.enter(event);
 		try {
 			LOGGER.debug("request received view : {}", event);
-			this.uiService.setItemsCourseNames(this.selectCourse);
+			uiService.setItemsCourseNames(selectCourse);
+			uiService.setItemsUser(users);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

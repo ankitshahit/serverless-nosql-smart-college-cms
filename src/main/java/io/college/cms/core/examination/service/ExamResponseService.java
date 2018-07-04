@@ -130,7 +130,7 @@ public class ExamResponseService {
 				data.add(model.getActionBy());
 				data.add(model.getTotalMarks());
 				data.add(model.getMarks());
-				data.add(String.valueOf(model.isResult()));
+				data.add(String.valueOf(model.isResult()?"Pass":"Fail"));
 				progressListener.accept(currentProgress + 0.1f);
 			}
 			progressListener.accept(currentProgress + 5.0f);
