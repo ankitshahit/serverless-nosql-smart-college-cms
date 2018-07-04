@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -64,7 +65,7 @@ public class UpdateResultsView extends VerticalLayout implements View {
 	private ExamResponseService examResponseService;
 	private CourseResponseService courseResponseService;
 	private Label requiredLbl;
-
+	private boolean result;
 	@Autowired
 	public UpdateResultsView(SecurityService securityService, CoreUiService uiService, ApplicationContext app) {
 		super();
@@ -194,9 +195,21 @@ public class UpdateResultsView extends VerticalLayout implements View {
 			ResultModel model = ResultModel.builder().build();
 			try {
 				binder.writeBean(model);
-				FactoryResponse fr = examResponseService.updateMarks(model);
-				Utils.showFactoryResponseMsg(fr);
-				getUI().getNavigator().navigateTo(ViewConstants.SEE_RESULTS);
+				FactoryResponse fr = examResponseService.getExamByExamId(null, examsCb.getOptionalValue().get());
+				if (Utils.isError(fr)) {
+					Utils.showFactoryResponseOnlyError(fr);
+					return;
+				}
+				ExaminationModel examDataModel = (ExaminationModel) fr.getResponse();
+				model.setCourseName(examDataModel.getCourseName());
+				model.setSemester(examDataModel.getSemester());
+				model.setTotalMarks(totalMarks.getValue());
+				model.setResult(result);
+				fr = examResponseService.updateMarks(model);
+				Notification notifi = Utils.showFactoryResponseMsg(fr);
+				notifi.setCaption("Message");
+				notifi.addCloseListener(close -> getUI().getNavigator().navigateTo(ViewConstants.SEE_RESULTS));
+
 			} catch (ValidationException e) {
 				Utils.showErrorNotification("Error unable to update marks");
 				return;
@@ -211,6 +224,7 @@ public class UpdateResultsView extends VerticalLayout implements View {
 			Double marks = Double.parseDouble(marksFld.getValue());
 			if (Double.parseDouble(requiredLbl.getValue()) <= marks
 					&& (Double.parseDouble(totalMarks.getValue()) >= marks)) {
+				result = true;
 				resultLbl.setValue("<b><p style=background-color:green;color:white>Pass</p></b>");
 			} else if (Double.parseDouble(totalMarks.getValue()) >= marks && marks >= 0) {
 				resultLbl.setValue("<b><p style=background-color:red;color:white>Fail</p></b>");
