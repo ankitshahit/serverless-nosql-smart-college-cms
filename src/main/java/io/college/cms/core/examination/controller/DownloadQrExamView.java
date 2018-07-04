@@ -15,8 +15,8 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.FileDownloader;
 import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -39,9 +39,11 @@ import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.controller.constants.SubjectType;
 import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.model.TimeTableModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.services.CoreUiService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -64,32 +66,21 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 	private ProgressBar progressBar;
 	private ExamResponseService examResponseService;
 	private Window progressWindow;
+	private CoreUiService uiService;
 
 	@Autowired
-	public DownloadQrExamView(ExamResponseService examResponseService) {
+	public DownloadQrExamView(ExamResponseService examResponseService, CoreUiService uiService) {
 		super();
 		this.examResponseService = examResponseService;
+		this.uiService = uiService;
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		View.super.enter(event);
 		try {
-			FactoryResponse fr = examResponseService.findAllExams();
-			if (Utils.isError(fr)) {
-				return;
-			}
-			List<ExaminationModel> examModels = (List<ExaminationModel>) fr.getResponse();
-			if (CollectionUtils.isEmpty(examModels)) {
-				return;
-			}
-			List<String> examNames = new ArrayList<>();
-
-			examModels.forEach(exam -> {
-				examNames.add(exam.getExamName());
-			});
-			this.selectExam.setItems(examNames);
-
+			uiService.setExamsName(selectExam);
+			uiService.setItemsUser(selectByStudent);
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
@@ -128,9 +119,10 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 		downloadQrExam.setValue("<h1><center>Download Exam Qr</center></h1>");
 		downloadQrExam.setContentMode(ContentMode.HTML);
 		downloadQrExam.setCaptionAsHtml(true);
-
-		setCbMandatoryField(selectExam, "Select Exam", "exam..");
-		setCbMandatoryField(selectSubject, "Select Subject", "subject..");
+		selectExam = (ComboBox<String>) VaadinWrapper.builder().caption("Select Exam").placeholder("type exam name")
+				.build().comboBox();
+		selectSubject = (ComboBox<String>) VaadinWrapper.builder().caption("Select subject")
+				.placeholder("type subject name").build().comboBox();
 		Panel panel2 = new Panel();
 		examType.setCaption("Exam Type");
 		examType.setItems(SubjectType.THEORY.toString(), SubjectType.PRACTICAL.toString(),
@@ -142,8 +134,8 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 		or.setValue("<i><center>OR</center></i>");
 		or.setContentMode(ContentMode.HTML);
 		or.setCaptionAsHtml(true);
-
-		setCbMandatoryField(selectByStudent, "Select Student", "student..");
+		selectByStudent = (ComboBox<String>) VaadinWrapper.builder().caption("Select student")
+				.placeholder("type student name").build().comboBox();
 
 		VerticalLayout rightSplit = new VerticalLayout(allStudents, or, selectByStudent);
 
@@ -196,33 +188,24 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 					&& this.selectSubject.getOptionalValue().isPresent()
 					&& this.examType.getOptionalValue().isPresent());
 		});
+		
 		this.selectExam.addSelectionListener(select -> {
 			if (!select.getFirstSelectedItem().isPresent()) {
 				return;
 			}
-			List<ExaminationModel.ExamSubject> examSubjectsModel = new ArrayList<>();
-			FactoryResponse fr = examResponseService.getExamByExamId(null, this.selectExam.getOptionalValue().get());
-			Utils.showFactoryResponseOnlyError(fr);
-			if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-				return;
-			}
-			ExaminationModel model = (ExaminationModel) fr.getResponse();
-			examSubjectsModel = model.getExamSubjects();
-			if (CollectionUtils.isEmpty(examSubjectsModel)) {
-				return;
-			}
-			List<String> subjectNames = new ArrayList<>();
-			examSubjectsModel.forEach(subjectModel -> {
-				subjectNames.add(subjectModel.getSubjectName());
-			});
-			this.selectSubject.setItems(subjectNames);
+			uiService.setExamSubjects(selectExam, this.selectExam.getOptionalValue().get());
 		});
 	}
 
 	private void fileDownloadBtn(FileResource fileResource) {
 		getUI().access(() -> {
-			FileDownloader fileDownloader = new FileDownloader(fileResource);
-			fileDownloader.extend(downloadQr);
+
+			Page.getCurrent().open(fileResource, "_blank", true);
+
+			/*
+			 * FileDownloader fileDownloader = new FileDownloader(fileResource);
+			 * fileDownloader.extend(downloadQr);
+			 */
 		});
 	}
 
@@ -244,10 +227,6 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 		});
 		// seems this will break due to being accessed from different thread.
 
-	}
-
-	public void setCbMandatoryField(ComboBox<String> cb, String caption, String placeholder) {
-		cb = (ComboBox<String>) VaadinWrapper.builder().caption(caption).placeholder(placeholder).build().comboBox();
 	}
 
 	private EmptyFieldListener<String> getEmptyFieldListener() {

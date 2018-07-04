@@ -52,6 +52,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.15</version>
+		</dependency>
+		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-push</artifactId>
 		</dependency>
@@ -235,10 +240,44 @@
 
 	<build>
 		<pluginManagement>
-
+			<!-- Set a compiler level -->
 			<!-- lock down plugins versions to avoid using Maven defaults (may be 
 				moved to parent pom) -->
 			<plugins>
+				<!-- Set a compiler level -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.3</version>
+					<executions>
+						<!-- Run shade goal on package phase -->
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>shade</goal>
+							</goals>
+							<configuration>
+								<transformers>
+									<!-- add Main-Class to manifest file -->
+									<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+										<mainClass>io.college.cms.core.application.Application</mainClass>
+									</transformer>
+								</transformers>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
 				<plugin>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
@@ -253,7 +292,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				
+
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>3.0.0</version>

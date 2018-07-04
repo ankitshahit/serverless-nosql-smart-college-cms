@@ -18,7 +18,7 @@ import io.college.cms.core.attendance.controller.SeeAttendanceView;
 import io.college.cms.core.courses.controller.SeeCoursesView;
 import io.college.cms.core.examination.controller.DownloadQrExamView;
 import io.college.cms.core.examination.controller.PublishExamView;
-import io.college.cms.core.examination.controller.ScheduleExamSubjectDateView;
+import io.college.cms.core.examination.controller.ScheduleExamSubjectView;
 import io.college.cms.core.job.controller.PublishJobView;
 import io.college.cms.core.ui.controller.PublishCourseView;
 import io.college.cms.core.ui.controller.ViewAllCoursesUI;
@@ -59,7 +59,7 @@ public class SecurityListener implements ViewChangeListener {
 				|| event.getNewView() instanceof ListUsersView || event.getNewView() instanceof TagAttendanceView
 				|| event.getNewView() instanceof SeeAttendanceView
 				|| event.getNewView() instanceof ApproveRejectAdmissionView
-				|| event.getNewView() instanceof ScheduleExamSubjectDateView
+				|| event.getNewView() instanceof ScheduleExamSubjectView
 				|| event.getNewView() instanceof AddToGroupsView || event.getNewView() instanceof ConfigureFeesView
 				|| event.getNewView() instanceof DownloadQrExamView
 				|| event.getNewView() instanceof ConfigureAdmissionView || event.getNewView() instanceof PublishExamView

@@ -29,6 +29,7 @@ import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.model.TimeTableModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.job.model.JobModel;
 import io.college.cms.core.job.services.JobResponseService;
@@ -91,6 +92,23 @@ public class CoreUiService {
 			}
 		});
 		return courses;
+	}
+
+	public void setExamSubjects(ComboBox<String> subjectsCb, String examName) {
+		FactoryResponse fr = examResponseService.findTimeTable(examName);
+		if (Utils.isError(fr)) {
+			return;
+		}
+		List<TimeTableModel> examModels = (List<TimeTableModel>) fr.getResponse();
+		if (CollectionUtils.isEmpty(examModels)) {
+			return;
+		}
+		List<String> subjectNames = new ArrayList<>();
+
+		examModels.forEach(exam -> {
+			subjectNames.add(exam.getSubject());
+		});
+		subjectsCb.setItems(subjectNames);
 	}
 
 	public void setExamsName(ComboBox<String> examsName) {
@@ -219,6 +237,7 @@ public class CoreUiService {
 			}
 			subjects.add(subjectModel.getSubjectName());
 		}
+		subjectCb.setItems(subjects);
 	}
 
 	public List<CourseModel.SubjectModel> getSubjectsModel(String courseName, String semester) {

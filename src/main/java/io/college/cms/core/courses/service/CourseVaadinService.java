@@ -17,6 +17,7 @@ import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import io.college.cms.core.courses.controller.constants.SubjectType;
 import io.college.cms.core.ui.builder.ButtonWrapper;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
@@ -27,13 +28,14 @@ import io.college.cms.core.ui.model.CourseDTO;
 public class CourseVaadinService {
 	public CourseDTO courseMetaDataStep1() {
 		CourseDTO courseDTO = CourseDTO.builder()
-				.courseName(VaadinWrapper.builder().caption("Course")
+				.courseName(VaadinWrapper.builder().caption("Course").placeholder("Provide unique course name")
 						.description("Provide unique coursename that represents to actual available streams")
 						.icon(VaadinIcons.DIPLOMA).build().textField())
 				.build();
 		courseDTO.getCourseName().setResponsive(true);
 		courseDTO.getCourseName().focus();
 		courseDTO.setMaxStudents(VaadinWrapper.builder().caption("Max number of seats")
+				.placeholder("Count of max students that can be enrolled in")
 				.description("Provide total number of students that can be enrolled into.").build().textField());
 		courseDTO.getMaxStudents().setResponsive(true);
 		CheckBox archive = new CheckBox();
@@ -43,6 +45,7 @@ public class CourseVaadinService {
 		archive.setResponsive(true);
 		RichTextArea area = new RichTextArea();
 		area.setCaption("Course Description");
+		area.setSizeFull();
 		area.setIcon(VaadinIcons.INFO);
 		area.setRequiredIndicatorVisible(true);
 		area.setResponsive(true);
@@ -52,13 +55,15 @@ public class CourseVaadinService {
 		courseDTO.setAttributesSeperator(label);
 		courseDTO.getAttributesSeperator().setResponsive(true);
 		courseDTO.setSaveCourse(ButtonWrapper.builder().caption("Save & Next").build().button());
+		courseDTO.getSaveCourse().setStyleName(ValoTheme.BUTTON_PRIMARY);
 		courseDTO.getSaveCourse().setResponsive(true);
 		courseDTO.setReset(ButtonWrapper.builder().caption("Delete").build().button());
 		courseDTO.getReset().setResponsive(true);
 		courseDTO.getReset().setStyleName(ValoTheme.BUTTON_DANGER);
-		courseDTO.getSaveCourse().setStyleName(ValoTheme.BUTTON_QUIET);
+		courseDTO.getSaveCourse().setStyleName(ValoTheme.BUTTON_PRIMARY);
 		courseDTO.getSaveCourse().setResponsive(true);
-		courseDTO.setTotalSem(VaadinWrapper.builder().caption("Total semesters").required(true).build().textField());
+		courseDTO.setTotalSem(VaadinWrapper.builder().caption("Total semesters")
+				.placeholder("Provide total semesters in course").required(true).build().textField());
 		return courseDTO;
 	}
 
@@ -101,44 +106,52 @@ public class CourseVaadinService {
 
 	public CourseDTO courseMetadataStep2() {
 		CourseDTO dto = CourseDTO.builder()
-				.subjectName(VaadinWrapper.builder().caption("Subject name")
+				.subjectName(VaadinWrapper.builder().caption("Subject name").placeholder("Provide unique subject name")
 						.description("Provide unique subject that represents to actual available subjects")
 						.icon(VaadinIcons.DIPLOMA).build().textField())
 				.build();
 		dto.getSubjectName().setResponsive(true);
-		dto.setCurrentSemester(VaadinWrapper.builder().caption("For semester").build().textField());
+		dto.setCurrentSemester(
+				VaadinWrapper.builder().caption("For semester").placeholder("Sem 1").build().textField());
 
 		CheckBoxGroup<String> cbg = new CheckBoxGroup<String>();
 		cbg.setCaption("Attributes: ");
-		cbg.setItems("Theory", "Practical", "Internal", "Others");
+		cbg.setItems(SubjectType.THEORY.toString(), SubjectType.PRACTICAL.toString(), SubjectType.INTERNAL.toString(),
+				SubjectType.OTHER.toString());
 		dto.setSubjectAttributes(cbg);
-		dto.setTheoryMarks(VaadinWrapper.builder().caption("Total available marks ~ Theory").required(false)
-				.visible(false).icon(VaadinIcons.ADJUST).build().textField());
+		dto.setTheoryMarks(VaadinWrapper.builder().caption("Total available marks ~ Theory").placeholder("Total marks")
+				.required(false).visible(false).placeholder("Total marks").icon(VaadinIcons.ADJUST).build()
+				.textField());
 
 		cbg.setResponsive(true);
-		dto.setPracticalMarks(VaadinWrapper.builder().caption("Total available marks ~ Practical").required(false)
-				.visible(false).icon(VaadinIcons.ADJUST).style(ValoTheme.TEXTFIELD_TINY).build().textField());
+		dto.setPracticalMarks(VaadinWrapper.builder().caption("Total available marks ~ Practical")
+				.placeholder("Total marks").required(false).visible(false).icon(VaadinIcons.ADJUST)
+				.style(ValoTheme.TEXTFIELD_TINY).build().textField());
 		dto.getPracticalMarks().setResponsive(true);
-		dto.setInternalMarks(VaadinWrapper.builder().caption("Total available marks ~ Internal").required(false)
-				.visible(false).build().textField());
+		dto.setInternalMarks(
+				VaadinWrapper.builder().caption("Total available marks ~ Internal").placeholder("Total marks")
+						.icon(VaadinIcons.ADJUST).required(false).visible(false).build().textField());
 		dto.getInternalMarks().setResponsive(true);
-		dto.setOtherMarks(VaadinWrapper.builder().caption("Total available marks ~ Others").required(false)
-				.visible(false).build().textField());
+		dto.setOtherMarks(VaadinWrapper.builder().caption("Total available marks ~ Others").placeholder("Total marks")
+				.icon(VaadinIcons.ADJUST).required(false).visible(false).build().textField());
 		dto.getOtherMarks().setResponsive(true);
-		dto.setTheoryPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Theory").required(false)
-				.visible(false).icon(VaadinIcons.ADJUST).build().textField());
+		dto.setTheoryPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Theory")
+				.placeholder("Pass marks").placeholder("Pass marks").required(false).visible(false)
+				.icon(VaadinIcons.ADJUST).build().textField());
 		dto.getTheoryPassMarks().setResponsive(true);
 		dto.setPracticalPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Practical")
-				.required(false).visible(false).icon(VaadinIcons.ADJUST).build().textField());
+				.placeholder("Pass marks").required(false).visible(false).icon(VaadinIcons.ADJUST).build().textField());
 		dto.getPracticalPassMarks().setResponsive(true);
-		dto.setInternalPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Internal").required(false)
-				.visible(false).build().textField());
+		dto.setInternalPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Internal")
+				.placeholder("Pass marks").required(false).visible(false).build().textField());
 		dto.getInternalPassMarks().setResponsive(true);
-		dto.setOtherPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Others").required(false)
-				.visible(false).build().textField());
+		dto.setOtherPassMarks(VaadinWrapper.builder().caption("Required passing marks ~ Others")
+				.placeholder("Pass marks").required(false).visible(false).build().textField());
 		dto.getOtherPassMarks().setResponsive(true);
+		dto.getOtherMarks().setWidthUndefined();
 		ListSelect<String> subjects = new ListSelect<>();
 		subjects.setResponsive(true);
+		subjects.setSizeFull();
 		subjects.setCaption("Subjects added: ");
 		dto.setAddedSubjects(subjects);
 		dto.getAddedSubjects().setResponsive(true);
@@ -177,16 +190,16 @@ public class CourseVaadinService {
 
 		VerticalLayout firstPanelLayout = new VerticalLayout();
 		firstPanelLayout.setResponsive(true);
-		HorizontalLayout theoryLayout = new HorizontalLayout();
+		VerticalLayout theoryLayout = new VerticalLayout();
 		theoryLayout.setResponsive(true);
 		theoryLayout.addComponents(dto.getTheoryMarks(), dto.getTheoryPassMarks());
-		HorizontalLayout pLayout = new HorizontalLayout();
+		VerticalLayout pLayout = new VerticalLayout();
 		pLayout.setResponsive(true);
 		pLayout.addComponents(dto.getPracticalMarks(), dto.getPracticalPassMarks());
-		HorizontalLayout iLayout = new HorizontalLayout();
+		VerticalLayout iLayout = new VerticalLayout();
 		iLayout.setResponsive(true);
 		iLayout.addComponents(dto.getInternalMarks(), dto.getInternalPassMarks());
-		HorizontalLayout oLayout = new HorizontalLayout();
+		VerticalLayout oLayout = new VerticalLayout();
 		oLayout.setResponsive(true);
 		oLayout.addComponents(dto.getOtherMarks(), dto.getOtherPassMarks());
 
@@ -196,7 +209,7 @@ public class CourseVaadinService {
 		buttonLayout.addComponent(dto.getReset());
 		buttonLayout.addComponent(dto.getSaveCourse());
 
-		firstPanelLayout.addComponents(dto.getSubjectName(), dto.getCurrentSemester(), dto.getSubjectAttributes(),
+		firstPanelLayout.addComponents(dto.getSubjectName(), dto.getSemestersCb(), dto.getSubjectAttributes(),
 				theoryLayout, pLayout, iLayout, oLayout, dto.getOptional(), buttonLayout);
 		firstPanelLayout.setResponsive(true);
 		firstPart.setContent(firstPanelLayout);
@@ -205,12 +218,14 @@ public class CourseVaadinService {
 		VerticalLayout subjectAttributes = new VerticalLayout();
 		subjectAttributes.setResponsive(true);
 		subjectAttributes.addComponents(dto.getAddedSubjects(), dto.getRemoveSubject(), dto.getCompleteDialog());
-
+		subjectAttributes.setSizeFull();
 		secondPart.setContent(subjectAttributes);
 		secondPart.setSizeFull();
 
 		mainLayout.addComponents(firstPart, secondPart);
+		mainLayout.setSizeFull();
 		VerticalLayout courseLayout = new VerticalLayout();
+		courseLayout.setSizeFull();
 		courseLayout.addComponents(mainLayout);
 		courseLayout.setResponsive(true);
 		return courseLayout;

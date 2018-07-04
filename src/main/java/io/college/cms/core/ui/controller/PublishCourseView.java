@@ -28,6 +28,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
+import io.college.cms.core.courses.controller.constants.SubjectType;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.db.CourseModel.SubjectModel;
 import io.college.cms.core.courses.service.CourseResponseService;
@@ -164,7 +165,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 
 	private void courseStepOne(Accordion accordin, Component step2) {
 
-		accordin.addTab(courseUIService.buildCoursePageOne(courseStepOne), "Create course			(1/3)");
+		accordin.addTab(courseUIService.buildCoursePageOne(courseStepOne), "Create course			(1/2)");
 		courseStepOne.getSaveCourse().setEnabled(false);
 		courseUIService.attachEmptyValueListenerCourseStep1(courseStepOne);
 		courseStepOne.getReset().addClickListener(click -> {
@@ -195,7 +196,8 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 			this.courseModel = CourseModel.builder().courseName(courseStepOne.getCourseName().getOptionalValue().get())
 					.description(courseStepOne.getCourseDescription().getOptionalValue().get())
 					.isArchive(courseStepOne.getIsArchive().getValue())
-					.maxStudentsAllowed(Long.valueOf(courseStepOne.getMaxStudents().getOptionalValue().get())).build();
+					.maxStudentsAllowed(Long.valueOf(courseStepOne.getMaxStudents().getOptionalValue().get()))
+					.totalSemestersInNumber(Long.valueOf(Utils.val(courseStepOne.getTotalSem()))).build();
 			FactoryResponse data = courseResponseService.saveCourseMetadata(this.courseModel);
 
 			boolean result = io.college.cms.core.application.SummaryMessageEnum.SUCCESS != data.getSummaryMessage()
@@ -212,7 +214,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 				notifi.setDescription(
 						"A course has been created with metadata of coursename, description, max seats available and archive?\n Click here to dismiss and move to <b>step2</b>");
 				notifi.addCloseListener(close -> {
-					accordin.setSelectedTab(step2);
+					accordin.setSelectedTab(1);
 				});
 			}
 
@@ -227,10 +229,10 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 			boolean practical = false;
 			boolean others = false;
 			if (CollectionUtils.isNotEmpty(change.getValue())) {
-				internal = change.getValue().contains("Internal");
-				theory = change.getValue().contains("Theory");
-				practical = change.getValue().contains("Practical");
-				others = change.getValue().contains("Others");
+				internal = change.getValue().contains(SubjectType.INTERNAL.toString());
+				theory = change.getValue().contains(SubjectType.THEORY.toString());
+				practical = change.getValue().contains(SubjectType.PRACTICAL.toString());
+				others = change.getValue().contains(SubjectType.OTHER.toString());
 			}
 
 			courseStepTwo.getTheoryMarks().setVisible(theory);
@@ -321,9 +323,9 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 			Utils.showFactoryResponseMsg(fr);
 		});
 		VerticalLayout layout = courseUIService.buildCoursePageTwo(courseStepTwo);
-		//layout.setSizeFull();
-		accord.addTab(layout, "Create course			(2/3)");
-		//accord.setSizeFull();
+		// layout.setSizeFull();
+		accord.addTab(layout, "Create course			(2/2)");
+		// accord.setSizeFull();
 	}
 
 	@Override

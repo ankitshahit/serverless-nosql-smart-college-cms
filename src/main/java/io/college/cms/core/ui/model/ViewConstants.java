@@ -53,4 +53,5 @@ public class ViewConstants {
 	public static final String USER_PROFILE_VIEW = "userProfileView";
 	public static final String FORGOT_PASSWORD = "forgotPassword";
 	public static final String CONFIRM_FORGOT_PASSWORD = "confirmForgotPassword";
+	public static final String SUBJECT_VIEW_TIME_TABLE = "subjectTimeTable";
 }

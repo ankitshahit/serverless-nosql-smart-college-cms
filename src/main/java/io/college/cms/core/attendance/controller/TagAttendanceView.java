@@ -32,6 +32,8 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
@@ -46,6 +48,7 @@ import io.college.cms.core.attendance.model.AttendanceModel;
 import io.college.cms.core.attendance.services.AttendanceResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
 import io.college.cms.core.user.service.SecurityService;
@@ -158,9 +161,10 @@ public class TagAttendanceView extends VerticalLayout implements View, Upload.Re
 		this.upload = new Upload();
 		this.studentsUsernameList = new ListSelect<>("Added students");
 		this.studentsUsernameList.setSizeFull();
-		this.studentsUsernameList.setItems("user 1");
+		this.studentsUsernameList.setItems("");
 		progress.setVisible(false);
-
+		progress.setCaption("<b>Processing</b>");
+		progress.setCaptionAsHtml(true);
 		this.courseNamesCb = (ComboBox<String>) VaadinWrapper.builder().caption("Course name")
 				.placeholder("search by course").required(true).visible(true).enabled(true).build().comboBox();
 		this.semesterCb = (ComboBox<String>) VaadinWrapper.builder().caption("Semester")
@@ -243,7 +247,7 @@ public class TagAttendanceView extends VerticalLayout implements View, Upload.Re
 		semesterCbListener.setMandatoryDateFields(attendance);
 		semesterCbListener.setMandatoryListFields(courseNamesCb, semesterCb, subjectNamesCb);
 		semesterCb.addValueChangeListener(semesterCbListener);
-	
+
 		EmptyFieldListener<LocalDate> attendanceListener = new EmptyFieldListener<LocalDate>();
 		attendanceListener.setSourceDateField(attendance);
 		attendanceListener.setTargetBtn(saveBtn);
@@ -265,12 +269,26 @@ public class TagAttendanceView extends VerticalLayout implements View, Upload.Re
 				model.setUsers(users);
 				model.setActionBy(securityService.getPrincipal());
 				FactoryResponse fr = attendanceResponseService.saveAttendance(model);
-				Utils.showFactoryResponseMsg(fr);
+				Notification notifi = Utils.showFactoryResponseMsg(fr);
+				notifi.addCloseListener(close -> getUI().getNavigator().navigateTo(ViewConstants.VIEW_ATTENDANCE));
 			} catch (ValidationException e) {
 				Utils.showErrorNotification("Unable to save");
 			}
 		});
-
+		this.usersCb.addSelectionListener(select -> {
+			if (!this.usersCb.getOptionalValue().isPresent()) {
+				return;
+			}
+			ListDataProvider<String> dataProvider = (ListDataProvider<String>) studentsUsernameList.getDataProvider();
+			Collection<String> users = dataProvider.getItems();
+			if (CollectionUtils.isNotEmpty(users) && users.contains(usersCb.getOptionalValue().get())) {
+				Notification.show("Student already tagged.", Type.WARNING_MESSAGE);
+				return;
+			}
+			users.add(usersCb.getOptionalValue().get());
+			studentsUsernameList.setItems(users);
+			totalStudentLbl.setValue(String.valueOf(CollectionUtils.size(users)));
+		});
 		this.courseNamesCb.addSelectionListener(select -> {
 			if (!courseNamesCb.getSelectedItem().isPresent()) {
 				return;

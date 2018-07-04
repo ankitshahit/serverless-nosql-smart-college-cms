@@ -21,6 +21,7 @@ import io.college.cms.core.configuration.AppParams;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.model.StudentResultModel;
+import io.college.cms.core.examination.model.TimeTableModel;
 import io.college.cms.core.job.model.JobModel;
 import io.college.cms.core.notification.model.ConfigureNotificationModel;
 import io.college.cms.core.notification.model.NotificationModel;
@@ -65,6 +66,7 @@ public class GenerateTablesService {
 			create(AdmissionMetaModel.class);
 			create(AttendanceModel.class);
 			create(FaceModel.class);
+			create(TimeTableModel.class);
 			LOGGER.debug("Successfully created table.");
 		} catch (InterruptedException e) {
 			LOGGER.error("Unable to create table {}", e.getMessage());

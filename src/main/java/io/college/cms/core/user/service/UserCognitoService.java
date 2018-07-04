@@ -143,31 +143,6 @@ public class UserCognitoService implements IUserService {
 	}
 
 	@Override
-	// @Cacheable
-	public UserModel findByUsername(@NonNull String username)
-			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
-		UserModel model = null;
-		try {
-			AdminGetUserRequest request = app.getBean(AdminGetUserRequest.class);
-			request.setUsername(username);
-			AdminGetUserResult result = identityProvider.adminGetUser(request);
-			model = copyAttributes(valueOf(result.getUserAttributes()));
-			model.setUsername(username);
-			model.setActive(result.getEnabled());
-			model.setUserStatus(result.getUserStatus());
-			model.setGroup(UserGroups.valueOf(getGroupName(username)));
-
-		} catch (com.amazonaws.services.cognitoidp.model.UserNotFoundException ex) {
-			LOGGER.error("User not found{}", username);
-			throw new ValidationException(ex.getMessage());
-		} catch (Exception e) {
-			LOGGER.error("{} " + e.getMessage(), username);
-			throw new ApplicationException(e);
-		}
-		return model;
-	}
-
-	@Override
 	public void confirmSignup(String username, String confirmation)
 			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
 		try {
@@ -220,9 +195,14 @@ public class UserCognitoService implements IUserService {
 			ListUsersResult result = identityProvider.listUsers(request);
 
 			result.getUsers().forEach(user -> {
-				UserModel data = valueOf(user);
-				data.setPaginationToken(result.getPaginationToken());
-				users.add(data);
+				UserModel userModel = valueOf(user);
+				userModel = copyAttributes(valueOf(user.getAttributes()));
+				userModel.setUsername(user.getUsername());
+				userModel.setActive(user.getEnabled());
+				userModel.setUserStatus(user.getUserStatus());
+				userModel.setGroup(UserGroups.valueOf(getGroupName(user.getUsername())));
+				userModel.setPaginationToken(result.getPaginationToken());
+				users.add(userModel);
 			});
 			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(users), "No users available",
 					ExceptionType.VALIDATION_EXCEPTION);
@@ -234,6 +214,31 @@ public class UserCognitoService implements IUserService {
 			throw new ApplicationException(e);
 		}
 		return users;
+	}
+
+	@Override
+	// @Cacheable
+	public UserModel findByUsername(@NonNull String username)
+			throws IllegalArgumentException, ValidationException, ApplicationException, ResourceDeniedException {
+		UserModel model = null;
+		try {
+			AdminGetUserRequest request = app.getBean(AdminGetUserRequest.class);
+			request.setUsername(username);
+			AdminGetUserResult result = identityProvider.adminGetUser(request);
+			model = copyAttributes(valueOf(result.getUserAttributes()));
+			model.setUsername(username);
+			model.setActive(result.getEnabled());
+			model.setUserStatus(result.getUserStatus());
+			model.setGroup(UserGroups.valueOf(getGroupName(username)));
+
+		} catch (com.amazonaws.services.cognitoidp.model.UserNotFoundException ex) {
+			LOGGER.error("User not found{}", username);
+			throw new ValidationException(ex.getMessage());
+		} catch (Exception e) {
+			LOGGER.error("{} " + e.getMessage(), username);
+			throw new ApplicationException(e);
+		}
+		return model;
 	}
 
 	@Override
@@ -330,7 +335,7 @@ public class UserCognitoService implements IUserService {
 			request.setPassword(model.getToken());
 			identityProvider.signUp(request);
 			app.getBean(GroupService.class).addUserToGroup(model.getUsername(), UserGroups.STUDENT);
-			
+
 		} catch (com.amazonaws.services.cognitoidp.model.InvalidParameterException ex) {
 			LOGGER.error(ex.getMessage());
 			throw new ValidationException(ex.getMessage());

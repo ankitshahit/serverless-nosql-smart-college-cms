@@ -18,6 +18,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.vaadin.server.FileResource;
 
 import io.college.cms.core.application.FactoryResponse;
@@ -30,6 +34,7 @@ import io.college.cms.core.courses.service.ICourseDbService;
 import io.college.cms.core.dynamodb.service.DynamoGenericService;
 import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.model.ResultModel;
+import io.college.cms.core.examination.model.TimeTableModel;
 import io.college.cms.core.exception.ApplicationException;
 import io.college.cms.core.exception.ExceptionHandler;
 import io.college.cms.core.exception.ExceptionType;
@@ -49,18 +54,75 @@ public class ExamResponseService {
 	private ICourseDbService courseDbService;
 	private SecurityService securityService;
 	private DynamoGenericService<ResultModel, String> resultDbService;
+	private DynamoGenericService<TimeTableModel, String> timeTableDbService;
 
 	@Autowired
 	public ExamResponseService(IExamDbService examDbService, ExamQrService examQrService,
 			ICourseDbService courseDbService, SecurityService securityService,
-			DynamoGenericService<ResultModel, String> resultDbService) {
+			DynamoGenericService<ResultModel, String> resultDbService,
+			DynamoGenericService<TimeTableModel, String> timeTableDbService) {
 		super();
 		this.examDbService = examDbService;
 		this.examQrService = examQrService;
 		this.courseDbService = courseDbService;
 		this.securityService = securityService;
 		this.resultDbService = resultDbService;
+		this.timeTableDbService = timeTableDbService;
+		this.timeTableDbService.setClass(TimeTableModel.class);
 		this.resultDbService.setClass(ResultModel.class);
+	}
+
+	public FactoryResponse findTimeTable(String examName) {
+		FactoryResponse fr = null;
+		try {
+
+			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examName), "Exam name is not provided.",
+					ExceptionType.VALIDATION_EXCEPTION);
+			DynamoDBScanExpression scan = new DynamoDBScanExpression();
+			scan.withFilterConditionEntry("examName",
+					new Condition().withAttributeValueList(new AttributeValue().withS(examName))
+							.withComparisonOperator(ComparisonOperator.EQ));
+			List<TimeTableModel> timeTableRecords = timeTableDbService.findBy(scan);
+			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(timeTableRecords), "No subjects found",
+					ExceptionType.VALIDATION_EXCEPTION);
+			fr = FactoryResponse.builder().response(timeTableRecords).summaryMessage(SummaryMessageEnum.SUCCESS)
+					.build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Unable to load subjects for exam.")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
+	}
+
+	public FactoryResponse saveTimeTable(TimeTableModel model) {
+		FactoryResponse fr = null;
+		try {
+
+			timeTableDbService.save(model);
+			fr = FactoryResponse.builder().response("Saved!").summaryMessage(SummaryMessageEnum.SUCCESS).build();
+		} catch (ValidationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.VALIDATION_ERROR).build();
+		} catch (ApplicationException ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+			fr = FactoryResponse.builder().response("Unable to load subjects for exam.")
+					.summaryMessage(SummaryMessageEnum.FAILURE).build();
+		}
+		return fr;
 	}
 
 	public FactoryResponse deleteByExamName(String examName) {
@@ -109,7 +171,8 @@ public class ExamResponseService {
 			ValidationHandler.throwExceptionIfTrue(model.getExamStartDate().compareTo(model.getExamEndDate()) > 1,
 					"Exam Start date cannot be greater than exam end date.", ExceptionType.VALIDATION_EXCEPTION);
 			examDbService.saveUpdateExam(model);
-			fr = FactoryResponse.builder().response(model).summaryMessage(SummaryMessageEnum.SUCCESS).build();
+			fr = FactoryResponse.builder().response("Exam is successfully scheduled!")
+					.summaryMessage(SummaryMessageEnum.SUCCESS).build();
 		} catch (ValidationException ex) {
 			LOGGER.error(ex.getMessage());
 			fr = FactoryResponse.builder().response(ExceptionHandler.beautifyStackTrace(ex))
@@ -345,8 +408,11 @@ public class ExamResponseService {
 			ValidationHandler.throwExceptionIfTrue(StringUtils.isEmpty(examination.getExamName()),
 					"Exam name not provided ", ExceptionType.VALIDATION_EXCEPTION);
 
-			ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(examination.getExamSubjects()),
-					"No subjects provided", ExceptionType.VALIDATION_EXCEPTION);
+			/*
+			 * ValidationHandler.throwExceptionIfTrue(CollectionUtils.isEmpty(
+			 * examination.getExamSubjects()), "No subjects provided",
+			 * ExceptionType.VALIDATION_EXCEPTION);
+			 */
 
 			examDbService.saveUpdateExam(examination);
 			fr = FactoryResponse.builder().response("Successfully saved/updated")

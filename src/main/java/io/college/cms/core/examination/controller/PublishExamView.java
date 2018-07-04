@@ -1,7 +1,6 @@
 package io.college.cms.core.examination.controller;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -35,11 +34,16 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.application.SummaryMessageEnum;
+import io.college.cms.core.application.Utils;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.courses.service.CourseResponseService;
 import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.service.ExamResponseService;
+import io.college.cms.core.ui.builder.MessagePopupView;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
+import io.college.cms.core.ui.model.ViewConstants;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ElementHelper;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -72,13 +76,15 @@ public class PublishExamView extends VerticalLayout implements View {
 	private Button addTab = new Button();
 	private Button saveExams = new Button();
 	private ExaminationModel.ExaminationModelBuilder builder;
-
+	private CoreUiService uiService;
 	private List<CourseModel> courses;
 
 	@Autowired
-	public PublishExamView(ExamResponseService model, CourseResponseService courseResponseService) {
+	public PublishExamView(ExamResponseService model, CourseResponseService courseResponseService,
+			CoreUiService uiService) {
 		this.examResponseService = model;
 		this.courseResponseService = courseResponseService;
+		this.uiService = uiService;
 	}
 
 	public void setModel(ExaminationModel model) {
@@ -111,49 +117,13 @@ public class PublishExamView extends VerticalLayout implements View {
 		selectCourse.setVisible(true);
 		selectCourse.setEnabled(true);
 		selectCourse.setResponsive(true);
-
-		FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-		if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
-		this.courses = (List<CourseModel>) courseResponse.getResponse();
-		if (CollectionUtils.isEmpty(courses)) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
-
-		List<String> courseNames = new ArrayList<>();
-		courses.forEach(course -> {
-			courseNames.add(course.getCourseName());
-		});
-
-		selectCourse.setItems(courseNames);
 		selectCourse.addSelectionListener(select -> {
 			if (!ListenerUtility.isValidSourceEvent(select.getComponent(), this.selectCourse)) {
 				return;
 			}
 			this.selectSem.setVisible(CollectionUtils.isNotEmpty(select.getAllSelectedItems()));
 			String courseName = select.getFirstSelectedItem().get();
-			List<String> semesters = new ArrayList<>();
-			courses.forEach(course -> {
-				if (course.getCourseName().equalsIgnoreCase(courseName)) {
-					if (CollectionUtils.isEmpty(course.getSemesters())) {
-						semesters.add("Sem 1");
-					} else {
-						semesters.addAll(course.getSemesters());
-					}
-				}
-			});
-			selectSem.setItems(semesters);
+			uiService.setItemsSemester(selectSem, courseName);
 		});
 		rootLayout.addComponent(selectCourse);
 
@@ -278,12 +248,8 @@ public class PublishExamView extends VerticalLayout implements View {
 		panelStep2.setResponsive(true);
 		rootLayoutStep2.setResponsive(true);
 		rootLayoutStep2.addComponent(vRootLayoutStep2);
-		selectSubject.setResponsive(true);
-		selectSubject.setCaption("Subject Name");
-		selectSubject.setPlaceholder("Say, Subject 2018- ");
-		selectSubject.setRequiredIndicatorVisible(true);
-		selectSubject.setVisible(true);
-		selectSubject.setEnabled(true);
+		selectSubject = (ComboBox<String>) VaadinWrapper.builder().caption("Select Subject ").placeholder("subject")
+				.build().comboBox();
 		vRootLayoutStep2.addComponent(selectSubject);
 		startTimeSubject.setResponsive(true);
 		startTimeSubject.setCaption("Subject start time");
@@ -343,22 +309,17 @@ public class PublishExamView extends VerticalLayout implements View {
 			builder = ExaminationModel.builder().courseName(ElementHelper.value(selectCourse.getSelectedItem()))
 					.examName(ElementHelper.value(examName.getOptionalValue()))
 					.examStartDate(ElementHelper.value(startExamDate.getOptionalValue()))
-					.examEndDate(ElementHelper.value(endExamDate.getOptionalValue()));
+					.examEndDate(ElementHelper.value(endExamDate.getOptionalValue()))
+					.semester(Utils.val(selectSem.getOptionalValue()));
+
 			FactoryResponse fr = examResponseService.saveExamMetadata(builder.build());
-
-			if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				notifi.setCaption("Unable to save/update");
-				if (fr != null) {
-					notifi.setDescription((String) fr.getResponse());
-				} else {
-					notifi.setDescription("We couldn't save/update exam details.");
-				}
-
-			} else {
-				accord.getTab(1).setEnabled(true);
-			}
+			Notification notifi = Utils.showFactoryResponseMsg(fr);
+			notifi.setCaption("Message ");
+			notifi.addCloseListener(click -> getUI().getNavigator().navigateTo(ViewConstants.EXAM_SUBJECT_SCHEDULE_TIME_TABLE));
+/*			MessagePopupView message = new MessagePopupView("Message!",
+					"Exam is scheduled, please configure for subjects");
+			message.addClickListener(click -> getUI().getNavigator().navigateTo(ViewConstants.SUBJECT_VIEW_TIME_TABLE));
+*/
 		});
 
 		addTab.setSizeFull();
@@ -385,6 +346,8 @@ public class PublishExamView extends VerticalLayout implements View {
 					selectSem.setSelectedItem(model.getSemester());
 				}
 			}
+
+			uiService.setItemsCourseNames(selectCourse);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

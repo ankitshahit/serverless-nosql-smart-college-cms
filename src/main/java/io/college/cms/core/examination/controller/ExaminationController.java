@@ -1,7 +1,5 @@
 package io.college.cms.core.examination.controller;
 
-import java.time.LocalDate;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.college.cms.core.application.FactoryResponse;
 import io.college.cms.core.courses.controller.CourseController;
 import io.college.cms.core.examination.model.ExaminationModel;
-import io.college.cms.core.examination.model.ExaminationModel.ExamSubjectTimeTable;
-import io.college.cms.core.examination.model.StudentResultModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.user.controller.UserController;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +36,7 @@ public class ExaminationController {
 		this.examService = examService;
 	}
 
-	@RequestMapping(path = "/qr/feed", method = { RequestMethod.GET })
+/*	@RequestMapping(path = "/qr/feed", method = { RequestMethod.GET })
 	public FactoryResponse qrCodeUpdate(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(required = false, value = ExaminationController.EXAM_NAME) String examName,
 			@RequestParam(required = false, value = CourseController.SUBJECT_NAME) String subjectName,
@@ -56,7 +52,7 @@ public class ExaminationController {
 
 		return null;
 	}
-
+*/
 	@RequestMapping(path = "/qr/download", method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_PDF_VALUE })
 	public void download(HttpServletRequest request, HttpServletResponse response,

@@ -144,7 +144,7 @@ public class MenuManagerService {
 
 		treeData(treeData, null, USER);
 		treeData(treeData, USER, VIEW_ALL_USER);
-		treeData(treeData, USER, "Add user");
+	//	treeData(treeData, USER, "Add user");
 		treeData(treeData, USER, MY_PROFILE);
 
 		treeData(treeData, null, "Documents");

@@ -23,7 +23,7 @@ import io.college.cms.core.documents.controller.UploadDocumentsView;
 import io.college.cms.core.examination.controller.DownloadQrExamView;
 import io.college.cms.core.examination.controller.PublishExamView;
 import io.college.cms.core.examination.controller.PublishFeesView;
-import io.college.cms.core.examination.controller.ScheduleExamSubjectDateView;
+import io.college.cms.core.examination.controller.ScheduleExamSubjectView;
 import io.college.cms.core.examination.controller.SeeExamsView;
 import io.college.cms.core.examination.controller.SeeResultsView;
 import io.college.cms.core.examination.controller.UpdateResultsView;
@@ -103,7 +103,7 @@ public class ViewManagerService {
 	@Autowired
 	private AddToGroupsView addToGroup;
 	@Autowired
-	private ScheduleExamSubjectDateView scheduleExamSubject;
+	private ScheduleExamSubjectView scheduleExamSubject;
 	@Autowired
 	private TagAttendanceView tagAttendance;
 	@Autowired

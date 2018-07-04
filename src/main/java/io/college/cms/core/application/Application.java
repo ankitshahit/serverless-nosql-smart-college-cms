@@ -48,7 +48,8 @@ import lombok.extern.slf4j.Slf4j;
 		"io.college.cms.core.application.automation.*", "io.college.cms.core.ui.*",
 		"io.college.cms.core.dynamodbloader.*", "io.college.cms.core.dynamodbloader.service.*",
 		"io.college.cms.core.faq.*", "io.college.cms.core.admission.*", "io.college.cms.core.ui.services.*",
-		"io.college.cms.core.upload.*", "io.college.cms.core.job.*", "io.college.cms.core.attendance.*" })
+		"io.college.cms.core.upload.*", "io.college.cms.core.job.*", "io.college.cms.core.attendance.*",
+		"io.college.cms.core.application.excel.*" })
 @Slf4j
 @EnableCaching
 @EnableWebSecurity(debug = false)

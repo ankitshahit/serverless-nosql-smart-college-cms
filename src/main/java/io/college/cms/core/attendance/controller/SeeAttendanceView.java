@@ -1,13 +1,13 @@
 package io.college.cms.core.attendance.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,10 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -24,18 +28,19 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
-import io.college.cms.core.application.FactoryResponse;
-import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.application.Utils;
-import io.college.cms.core.courses.db.CourseModel;
-import io.college.cms.core.courses.service.CourseResponseService;
+import io.college.cms.core.attendance.model.AttendanceModel;
+import io.college.cms.core.attendance.services.AttendanceResponseService;
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import io.college.cms.core.ui.listener.ClearValuesListener;
 import io.college.cms.core.ui.listener.EmptyFieldListener;
 import io.college.cms.core.ui.listener.ShowHideListener;
+import io.college.cms.core.ui.services.CoreUiService;
 import io.college.cms.core.ui.util.ListenerUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,27 +52,111 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 	private ComboBox<String> selectCourse;
 	private ComboBox<String> selectSubject;
 	private ComboBox<String> selectSem;
-	private CourseResponseService courseResponseService;
-	private CourseModel courseModel;
+	private ProgressBar progress;
+	private Window mainWindow;
+	private Label errorLblMainWindow;
+	private Button publish;
+	private ComboBox<String> users;
+	private ApplicationContext app;
+	private CoreUiService uiService;
+	private AttendanceResponseService attendanceResponseService;
 
 	/**
 	 * @param courseResponseService
 	 */
 	@Autowired
-	public SeeAttendanceView(CourseResponseService courseResponseService) {
+	public SeeAttendanceView(ApplicationContext app) {
 		super();
-		this.courseResponseService = courseResponseService;
+		this.app = app;
+		this.uiService = app.getBean(CoreUiService.class);
+		this.attendanceResponseService = app.getBean(AttendanceResponseService.class);
+	}
+
+	private void successListener() {
+		getUI().access(() -> {
+			progress.setCaption(progress.getCaption() + " <br/>Download should be starting in few seconds.");
+			progress.setVisible(true);
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			mainWindow.close();
+		});
+	}
+
+	private void progressListener(Float value) {
+		getUI().access(() -> {
+			progress.setCaption("<b>Processing</b>: ( " + value + "/100)%");
+			progress.setValue(value);
+		});
+	}
+
+	private void errorMsgLbl(String msg) {
+		getUI().access(() -> {
+			Notification notifi = Notification.show(msg, Type.ERROR_MESSAGE);
+			notifi.setHtmlContentAllowed(true);
+			notifi.addCloseListener(close -> mainWindow.close());
+
+			/*
+			 * errorLblMainWindow.setValue(msg);
+			 * errorLblMainWindow.setVisible(true);
+			 */ progress.setCaption(progress.getCaption() + " <p style=color:red>Download stopped.</p>");
+		});
+	}
+
+	private void downloadFile(File file) {
+		getUI().access(() -> {
+
+			Page.getCurrent().open(new FileResource(file), "_blank", true);
+		});
 	}
 
 	@PostConstruct
 	public void paint() {
+		errorLblMainWindow = new Label();
+		this.errorLblMainWindow.setCaption(new StringBuilder().append("<p><b>")
+				.append(StringUtils.capitalize("<h2><p style=color:red>Error occurred</h2>")).append("</b> </p>")
+				.toString());
+		this.errorLblMainWindow.setCaptionAsHtml(true);
+		this.errorLblMainWindow.setContentMode(ContentMode.HTML);
+		progress = new ProgressBar();
+		progress.setCaption("<b>Processing</b>");
+		progress.setCaptionAsHtml(true);
+		mainWindow = new Window();
+		mainWindow.center();
+		mainWindow.setSizeFull();
+		mainWindow.setResizable(false);
+		errorLblMainWindow.setSizeFull();
+
+		mainWindow.addCloseListener(close -> {
+			progress.setCaption("<b>Processing</b>");
+			progress.setValue(0.0f);
+			errorLblMainWindow.setValue("");
+			progress.setVisible(false);
+			errorLblMainWindow.setVisible(false);
+		});
+
+		users = (ComboBox<String>) VaadinWrapper.builder().caption("Filter by username").placeholder("type username")
+				.build().comboBox();
+		VerticalLayout mainWindowLayout = new VerticalLayout();
+		mainWindowLayout.addComponents(errorLblMainWindow, progress);
+		mainWindowLayout.setComponentAlignment(errorLblMainWindow, Alignment.MIDDLE_RIGHT);
+		mainWindowLayout.setComponentAlignment(progress, Alignment.MIDDLE_CENTER);
+		mainWindowLayout.setSizeFull();
+		Panel mainWindowPanel = new Panel();
+		mainWindowPanel.setSizeFull();
+		mainWindowPanel.setContent(mainWindowLayout);
+		mainWindow.setContent(mainWindowPanel);
+
 		Panel panel = new Panel();
 		VerticalLayout rootLayout = new VerticalLayout();
-		TextField findStudent = new TextField();
+		// TextField findStudent = new TextField();
 		this.selectCourse = new ComboBox<String>();
 		this.selectSubject = new ComboBox<String>();
 		this.selectSem = new ComboBox<String>();
-		Button publish = new Button();
+		publish = new Button();
 		Button reset = new Button("Clear");
 		addComponent(panel);
 		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
@@ -81,15 +170,16 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 				"Filter & download report in PDF/Excel format, for additional configuration view documentation.");
 		label.setCaptionAsHtml(true);
 
-		findStudent.setPlaceholder("Email@Address.com");
-		findStudent.setRequiredIndicatorVisible(true);
-		findStudent.setVisible(true);
-		findStudent.setEnabled(true);
-		findStudent.setCaption("Find by email");
-		findStudent.setIcon(VaadinIcons.INSTITUTION);
-
-		welcomeLabel.addComponents(label, findStudent);
-		welcomeLabel.setComponentAlignment(findStudent, Alignment.TOP_RIGHT);
+		/*
+		 * findStudent.setPlaceholder("Email@Address.com");
+		 * findStudent.setRequiredIndicatorVisible(true);
+		 * findStudent.setVisible(true); findStudent.setEnabled(true);
+		 * findStudent.setCaption("Find by email");
+		 * findStudent.setIcon(VaadinIcons.INSTITUTION);
+		 * 
+		 * welcomeLabel.addComponents(label, findStudent);
+		 * welcomeLabel.setComponentAlignment(findStudent, Alignment.TOP_RIGHT);
+		 */
 		// rootLayout.addComponent(welcomeLabel);
 
 		this.selectCourse.setCaption("Select course to view results for: ");
@@ -116,7 +206,7 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 
 		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel(new VerticalLayout(new Label("Filter by subject"),
 				this.selectCourse, this.selectSem, this.selectSubject),
-				new VerticalLayout(new Label("Filter by student"), findStudent));
+				new VerticalLayout(new Label("Filter by student"), users));
 		splitPanel.setSplitPosition(62.0f);
 
 		rootLayout.addComponents(splitPanel);
@@ -137,27 +227,29 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 		panel.setWidth("80%");
 
 		ClearValuesListener<String> clearValues = new ClearValuesListener<>();
-		clearValues.setMandatoryFields(findStudent);
-		clearValues.setMandatoryListFields(selectCourse, selectSem, selectSubject);
+		clearValues.setMandatoryListFields(selectCourse, selectSem, selectSubject, users);
 		reset.addClickListener(clearValues);
 
 		ShowHideListener<String> showHideStudentListener = new ShowHideListener<>();
-		showHideStudentListener.setSourceField(findStudent);
+		showHideStudentListener.setSourceListField(users);
 		showHideStudentListener.setMandatoryListFields(selectCourse, selectSubject, selectSem);
-		findStudent.addValueChangeListener(showHideStudentListener);
+		users.addValueChangeListener(showHideStudentListener);
 
+		ShowHideListener<String> showHideCourseListener = new ShowHideListener<>();
+		showHideStudentListener.setSourceListField(selectCourse);
+		showHideStudentListener.setMandatoryListFields(users);
+		selectCourse.addValueChangeListener(showHideCourseListener);
 		EmptyFieldListener<String> findStudentListener = new EmptyFieldListener<String>();
-		findStudentListener.setSourceField(findStudent);
+		findStudentListener.setSourceListField(users);
 		findStudentListener.setTargetBtn(publish);
-		findStudentListener.setMandatoryFields(findStudent);
-		findStudentListener.setMandatoryListFields(selectCourse);
-		findStudent.addValueChangeListener(findStudentListener);
+		findStudentListener.setMandatoryListFields(users);
+		users.addValueChangeListener(findStudentListener);
 
 		EmptyFieldListener<String> selectCourseListener = new EmptyFieldListener<String>();
 		selectCourseListener.setSourceListField(selectCourse);
 		selectCourseListener.setTargetBtn(publish);
-		selectCourseListener.setMandatoryFields(findStudent);
 		selectCourseListener.setMandatoryListFields(selectCourse);
+		selectCourse.addValueChangeListener(selectCourseListener);
 
 		this.selectCourse.addValueChangeListener(selectCourseListener);
 		this.selectSem.setVisible(false);
@@ -167,28 +259,12 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 				return;
 			}
 			this.selectSem.setVisible(this.selectCourse.getOptionalValue().isPresent());
+			this.users.setVisible(!this.selectCourse.getOptionalValue().isPresent());
 			if (!this.selectCourse.getOptionalValue().isPresent()) {
 				return;
 			}
-			List<String> semesters = new ArrayList<>();
+			uiService.setItemsSemester(selectSem, Utils.val(selectCourse.getOptionalValue()));
 
-			String courseName = Utils.val(this.selectCourse.getOptionalValue());
-			FactoryResponse fr = courseResponseService.findByCourseName(null, courseName);
-			Utils.showFactoryResponseOnlyError(fr);
-			if (Utils.isError(fr)) {
-				return;
-			}
-			this.courseModel = (CourseModel) fr.getResponse();
-			if (Utils.isNull(courseModel)) {
-				return;
-			}
-
-			if (CollectionUtils.isEmpty(courseModel.getSemesters())) {
-				semesters.add("Sem 1");
-			} else {
-				semesters.addAll(courseModel.getSemesters());
-			}
-			this.selectSem.setItems(semesters);
 			// TODO: compare subjects against all semesters avaiable in cms. to
 			// show an option of subjects.
 
@@ -197,30 +273,26 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 			if (!ListenerUtility.isValidSourceEvent(value.getComponent(), this.selectSem)) {
 				return;
 			}
-			List<String> subjectNames = new ArrayList<>();
-			List<CourseModel.SubjectModel> subjects = null;
-			this.selectSubject.setVisible(this.selectSem.getOptionalValue().isPresent());
-			if (!this.selectSubject.isVisible() || Utils.isNull(this.courseModel)) {
-				return;
-			}
-			subjects = this.courseModel.getSubjects();
-			if (CollectionUtils.isEmpty(subjects)) {
-				Utils.showErrorNotification("No subjects are available for the sem. Contact admin for help!");
-				return;
-			}
-
-			subjects.forEach(subject -> {
-				if (this.selectSem.getValue().equalsIgnoreCase(subject.getSemester())) {
-					subjectNames.add(subject.getSubjectName());
-				}
-			});
-			if (CollectionUtils.isEmpty(subjectNames)) {
-				Utils.showErrorNotification("No subjects are available for the sem. Contact admin for help!");
-				this.selectSubject.setVisible(false);
-				return;
-			}
-			this.selectSubject.setItems(subjectNames);
+			uiService.setItemsSubject(selectSubject, Utils.val(selectCourse.getOptionalValue()),
+					Utils.val(selectSem.getOptionalValue()));
+			selectSubject.setVisible(this.selectSem.getOptionalValue().isPresent());
 		});
+
+		publish.addClickListener(click -> {
+			progress.setVisible(true);
+			getUI().addWindow(mainWindow);
+			AttendanceModel.AttendanceModelBuilder builder = AttendanceModel.builder();
+			if (users.getOptionalValue().isPresent()) {
+				builder.username(Utils.val(users.getOptionalValue()));
+			} else {
+				builder.courseName(Utils.val(selectCourse.getOptionalValue()))
+						.semester(Utils.val(selectSem.getOptionalValue()))
+						.subjectName(Utils.val(selectSubject.getOptionalValue()));
+			}
+			attendanceResponseService.download(this::downloadFile, this::progressListener, this::errorMsgLbl,
+					this::successListener, builder.build());
+		});
+		users.addValueChangeListener(value -> this.selectCourse.setVisible(!users.getOptionalValue().isPresent()));
 	}
 
 	@Override
@@ -228,30 +300,8 @@ public class SeeAttendanceView extends VerticalLayout implements View {
 		View.super.enter(event);
 		try {
 			LOGGER.debug("request received view : {}", event);
-			FactoryResponse courseResponse = courseResponseService.findAllCourses(null, 0L, 0L);
-
-			if (courseResponse == null || SummaryMessageEnum.SUCCESS != courseResponse.getSummaryMessage()) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<CourseModel> models = (List<CourseModel>) courseResponse.getResponse();
-			if (CollectionUtils.isEmpty(models)) {
-				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-				notifi.setIcon(VaadinIcons.STOP);
-				notifi.setCaption("Error");
-				notifi.setDescription("We couldn't load course data");
-				notifi.setDelayMsec(Notification.DELAY_FOREVER);
-				return;
-			}
-			List<String> courseNames = new ArrayList<>();
-			models.forEach(course -> {
-				courseNames.add(course.getCourseName());
-			});
-			this.selectCourse.setItems(courseNames);
+			uiService.setItemsCourseNames(selectCourse);
+			uiService.setItemsUser(users);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);

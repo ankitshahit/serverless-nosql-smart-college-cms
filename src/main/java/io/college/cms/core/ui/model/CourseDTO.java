@@ -3,6 +3,7 @@ package io.college.cms.core.ui.model;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CheckBoxGroup;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
@@ -10,6 +11,7 @@ import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
+import io.college.cms.core.ui.builder.VaadinWrapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,5 +48,8 @@ public class CourseDTO {
 	private TextField currentSemester;
 	private Button removeSubject;
 	private Button completeDialog;
+	@Builder.Default
+	private ComboBox<String> semestersCb = (ComboBox<String>) VaadinWrapper.builder().caption("Select Semester")
+			.placeholder("Semester").build().comboBox();
 
 }
