@@ -31,6 +31,7 @@ import io.college.cms.core.application.SummaryMessageEnum;
 import io.college.cms.core.examination.model.ExaminationModel;
 import io.college.cms.core.examination.service.ExamResponseService;
 import io.college.cms.core.ui.builder.VaadinWrapper;
+import io.college.cms.core.ui.model.ViewConstants;
 import io.college.cms.core.upload.model.UploadModel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,7 +86,9 @@ public class SeeExamsView extends VerticalLayout implements View {
 				verticalLayout.addComponent(view);
 				window.setContent(verticalLayout);
 				window.setSizeFull();
-				getUI().addWindow(window);
+
+				getUI().getNavigator().navigateTo(ViewConstants.EXAM_CREATE + "/" + examinationModel.getExamName());
+				// getUI().addWindow(window);
 			}
 		});
 		VerticalLayout rootLayout = new VerticalLayout();

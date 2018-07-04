@@ -159,7 +159,7 @@ public class MenuManagerService {
 
 		// treeData(treeData, USER, MY_DOCUMENTS);
 		treeData(treeData, USER, MY_NOTIFICATIONS);
-		treeData(treeData, USER, "Configure Notifications");
+	//	treeData(treeData, USER, "Configure Notifications");
 
 		treeData(treeData, null, USER_GROUP);
 		treeData(treeData, USER_GROUP, ADD_TO_GROUP);

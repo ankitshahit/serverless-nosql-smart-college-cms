@@ -66,7 +66,7 @@ public class SeeCoursesView extends VerticalLayout implements View {
 
 		FactoryResponse fr = courseResponseService.findAllCourses(null, 0L, 0L);
 		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-			//Utils.showFactoryResponseOnlyError(fr);
+			// Utils.showFactoryResponseOnlyError(fr);
 			return;
 		}
 		models = (List<CourseModel>) fr.getResponse();
@@ -75,8 +75,11 @@ public class SeeCoursesView extends VerticalLayout implements View {
 		}
 		grid.setItems(models);
 		grid.addColumn(CourseModel::getCourseName).setCaption("Course name");
+		grid.addColumn(CourseModel::getDescription).setCaption("Description");
 		grid.addColumn(CourseModel::getOutOf).setCaption("Enrolled/Out of");
 		grid.addColumn(CourseModel::isArchive).setCaption("Archived?");
+		grid.addColumn(CourseModel::getTotalSemestersInNumber).setCaption("Total semesters");
+
 		grid.setSizeFull();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		this.grid.addStyleNames(ValoTheme.TABLE_NO_STRIPES);
@@ -100,8 +103,8 @@ public class SeeCoursesView extends VerticalLayout implements View {
 				window.addCloseListener(close -> {
 
 				});
-				getUI().addWindow(window);
-				//view.enter(null);
+				// getUI().addWindow(window);
+				// view.enter(null);
 			}
 		});
 		VerticalLayout rootLayout = new VerticalLayout();

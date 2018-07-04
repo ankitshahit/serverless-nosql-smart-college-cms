@@ -136,7 +136,7 @@ public class PublishCourseView extends VerticalLayout implements View, ICoursesS
 		try {
 			LOGGER.debug("CreateCourseView is triggered");
 			courseStepTwo.getAddedSubjects().setSizeFull();
-			courseStepOne.getReset().setVisible(courseModel != null);
+			courseStepOne.getReset().setVisible(false);
 			if (courseModel != null) {
 				courseStepOne.getCourseName().setValue(courseModel.getCourseName());
 				courseStepOne.getCourseDescription().setValue(courseModel.getDescription());

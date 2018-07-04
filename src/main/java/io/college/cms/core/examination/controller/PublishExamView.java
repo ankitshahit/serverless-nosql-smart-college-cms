@@ -177,6 +177,8 @@ public class PublishExamView extends VerticalLayout implements View {
 						notifi.setDelayMsec(Notification.DELAY_FOREVER);
 						notifi.setCaption("Unable to delete");
 						notifi.setIcon(VaadinIcons.EDIT);
+						notifi.addCloseListener(
+								closeNotifi -> getUI().getNavigator().navigateTo(ViewConstants.EXAM_VIEW_ALL));
 
 					} else {
 						Notification notifi = Notification.show("", Type.HUMANIZED_MESSAGE);
@@ -185,6 +187,8 @@ public class PublishExamView extends VerticalLayout implements View {
 						notifi.setCaption("Exam deleted");
 						notifi.setDescription(
 								"Exam is now successfully deleted! Please refresh the page if content is still available or connect with web admin.");
+						notifi.addCloseListener(
+								closeNotifi -> getUI().getNavigator().navigateTo(ViewConstants.EXAM_VIEW_ALL));
 
 					}
 					clickDelete.getComponent().setVisible(false);
@@ -235,15 +239,15 @@ public class PublishExamView extends VerticalLayout implements View {
 		endExamDateListener.setMandatoryFields(startExamDate, endExamDate);
 		endExamDateListener.setMandatoryListFields(selectCourse, selectSem);
 		endExamDate.addValueChangeListener(endExamDateListener);
-		accord.addTab(panel, "Exam (1/2)");
+		accord.addTab(panel, "Exam");
 		accord.setResponsive(true);
 		accord.setWidth("50%");
 		addComponent(accord);
 
 		setComponentAlignment(accord, Alignment.MIDDLE_CENTER);
 
-		addComponent(panelStep2);
-		setComponentAlignment(panelStep2, Alignment.MIDDLE_CENTER);
+		// addComponent(panelStep2);
+		// setComponentAlignment(panelStep2, Alignment.MIDDLE_CENTER);
 		panelStep2.setContent(rootLayoutStep2);
 		panelStep2.setResponsive(true);
 		rootLayoutStep2.setResponsive(true);
@@ -302,8 +306,8 @@ public class PublishExamView extends VerticalLayout implements View {
 		secondStep2ListLayout.setComponentAlignment(saveExams, Alignment.BOTTOM_RIGHT);
 
 		rootLayoutStep2.addComponents(secondStep2ListLayout);
-		//accord.addTab(rootLayoutStep2, "Exam (2/2)");
-	//	accord.getTab(1).setEnabled(false);
+		// accord.addTab(rootLayoutStep2, "Exam (2/2)");
+		// accord.getTab(1).setEnabled(false);
 		rootLayoutStep2.setSizeFull();
 		publish.addClickListener(list -> {
 			builder = ExaminationModel.builder().courseName(ElementHelper.value(selectCourse.getSelectedItem()))
