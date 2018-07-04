@@ -48,12 +48,12 @@ public class SecurityListener implements ViewChangeListener {
 
 	@Override
 	public boolean beforeViewChange(ViewChangeListener.ViewChangeEvent event) {
-		
+
 		return true;
 	}
 
 	@Override
-	public void afterViewChange(ViewChangeEvent event) {		
+	public void afterViewChange(ViewChangeEvent event) {
 		UserGroups[] roles = null;
 		if (event.getNewView() instanceof PublishJobView || event.getNewView() instanceof PublishAnnouncementView
 				|| event.getNewView() instanceof ListUsersView || event.getNewView() instanceof TagAttendanceView
@@ -61,7 +61,6 @@ public class SecurityListener implements ViewChangeListener {
 				|| event.getNewView() instanceof ApproveRejectAdmissionView
 				|| event.getNewView() instanceof ScheduleExamSubjectView
 				|| event.getNewView() instanceof AddToGroupsView || event.getNewView() instanceof ConfigureFeesView
-				|| event.getNewView() instanceof DownloadQrExamView
 				|| event.getNewView() instanceof ConfigureAdmissionView || event.getNewView() instanceof PublishExamView
 				|| event.getNewView() instanceof SeeCoursesView || event.getNewView() instanceof PublishCourseView
 				|| event.getNewView() instanceof ViewAllCoursesUI) {

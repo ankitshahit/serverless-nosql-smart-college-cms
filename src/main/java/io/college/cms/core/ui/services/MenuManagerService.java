@@ -103,48 +103,53 @@ public class MenuManagerService {
 		return menu;
 	}
 
-	public Tree<String> buildTreeMenu() {
-		Tree<String> tree = new Tree<>();
-		tree.addStyleNames(ValoTheme.PANEL_SCROLL_INDICATOR);
-		TreeData<String> treeData = new TreeData<>();
-		treeData(treeData, null, ADMISSION);
+	public void onlyAdminTree(TreeData<String> treeData) {
 		treeData(treeData, ADMISSION, CONFIGURE_FEES);
 		treeData(treeData, ADMISSION, PUBLISH_FEES);
 		treeData(treeData, ADMISSION, FEES_QUEUE);
 		treeData(treeData, ADMISSION, "Open Admissions");
-		treeData(treeData, ADMISSION, "Apply Admissions");
 		treeData(treeData, ADMISSION, "Configure Admissions");
 		treeData(treeData, ADMISSION, ADMISSION_REQUEST_QUEUE);
-
 		treeData(treeData, null, ATTENDANCE);
 		treeData(treeData, ATTENDANCE, TAG_ATTENDANCE);
 		treeData(treeData, ATTENDANCE, VIEW_ATTENDANCE);
-
-		treeData(treeData, null, ANNOUNCEMENT);
 		treeData(treeData, ANNOUNCEMENT, "Publish Announcement");
-		treeData(treeData, ANNOUNCEMENT, "View All Announcements");
-		treeData(treeData, null, EXAMS);
 
 		treeData(treeData, null, COURSES);
 		treeData(treeData, COURSES, "View all courses");
 		treeData(treeData, COURSES, "New course");
-
-		treeData(treeData, EXAMS, "View all exams");
 		treeData(treeData, EXAMS, "Schedule Exam");
 		treeData(treeData, EXAMS, SCHEDULE_TIME_SUBJECTS);
+		treeData(treeData, JOB, PUBLISH_JOB);
+		treeData(treeData, RESULTS, UPDATE_RESULTS);
+		treeData(treeData, USER, VIEW_ALL_USER);
+	}
+
+	public Tree<String> buildTreeMenu() {
+		Tree<String> tree = new Tree<>();
+		tree.addStyleNames(ValoTheme.PANEL_SCROLL_INDICATOR);
+		TreeData<String> treeData = new TreeData<>();
+		
+		treeData(treeData, null, ADMISSION);
+		treeData(treeData, ADMISSION, "Apply Admissions");
+
+		treeData(treeData, null, ANNOUNCEMENT);
+
+		treeData(treeData, ANNOUNCEMENT, "View All Announcements");
+		treeData(treeData, null, EXAMS);
+
+		treeData(treeData, EXAMS, "View all exams");
+
 		treeData(treeData, EXAMS, "View exam timetable");
 		treeData(treeData, EXAMS, "Download qr for exams");
 
 		treeData(treeData, null, JOB);
-		treeData(treeData, JOB, PUBLISH_JOB);
 		treeData(treeData, JOB, VIEW_ALL_JOBS);
 		treeData(treeData, null, RESULTS);
 		treeData(treeData, RESULTS, VIEW_RESULTS);
-		treeData(treeData, RESULTS, UPDATE_RESULTS);
 
 		treeData(treeData, null, USER);
-		treeData(treeData, USER, VIEW_ALL_USER);
-	//	treeData(treeData, USER, "Add user");
+		// treeData(treeData, USER, "Add user");
 		treeData(treeData, USER, MY_PROFILE);
 
 		treeData(treeData, null, "Documents");
@@ -158,9 +163,11 @@ public class MenuManagerService {
 
 		treeData(treeData, null, USER_GROUP);
 		treeData(treeData, USER_GROUP, ADD_TO_GROUP);
-
+		onlyAdminTree(treeData);
 		treeData(treeData, null, "FAQ Bot");
+		
 		treeData(treeData, null, "Logout");
+
 		TreeDataProvider<String> dataProvider = new TreeDataProvider<String>(treeData);
 		tree.setDataProvider(dataProvider);
 		tree.addItemClickListener(manageItemClickListener());

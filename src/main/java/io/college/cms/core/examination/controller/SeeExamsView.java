@@ -63,21 +63,8 @@ public class SeeExamsView extends VerticalLayout implements View {
 		this.filterByTag = VaadinWrapper.builder().caption("Filter by exam").placeholder("type exam")
 				.icon(VaadinIcons.SEARCH).build().textField();
 
-		Panel panel = new Panel();
-		Grid<ExaminationModel> grid = new Grid<>();
-		VerticalLayout layout = new VerticalLayout();
-		List<ExaminationModel> models = new ArrayList<>();
-		FactoryResponse fr = examResponseService.getExamsScheduled(null);
-		if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
-			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
-			notifi.setIcon(VaadinIcons.STOP);
-			notifi.setCaption("Error");
-			notifi.setDescription("We couldn't load course data");
-			notifi.setDelayMsec(Notification.DELAY_FOREVER);
-			return;
-		}
-		models = (List<ExaminationModel>) fr.getResponse();
-		grid.setItems(models);
+		grid = new Grid<>();
+
 		grid.addColumn(ExaminationModel::getExamName).setCaption("Exam name");
 		grid.addColumn(ExaminationModel::getCourseName).setCaption("Course name");
 		grid.addColumn(ExaminationModel::getExamStartDate).setCaption("Exam Starts on");
@@ -114,12 +101,27 @@ public class SeeExamsView extends VerticalLayout implements View {
 		this.grid.setSizeFull();
 		rootLayout.setSizeFull();
 		rootPanel.setSizeFull();
+		filterByTag.addValueChangeListener(this::onExamNameFilterTextChange);
+		filterByName.addValueChangeListener(this::onCourseNameFilterTextChange);
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		try {
 			LOGGER.debug("request received view : {}", event);
+
+			List<ExaminationModel> models = new ArrayList<>();
+			FactoryResponse fr = examResponseService.getExamsScheduled(null);
+			if (fr == null || SummaryMessageEnum.SUCCESS != fr.getSummaryMessage()) {
+				Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
+				notifi.setIcon(VaadinIcons.STOP);
+				notifi.setCaption("Error");
+				notifi.setDescription("We couldn't load course data");
+				notifi.setDelayMsec(Notification.DELAY_FOREVER);
+				return;
+			}
+			models = (List<ExaminationModel>) fr.getResponse();
+			grid.setItems(models);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			Notification notifi = Notification.show("", Type.ERROR_MESSAGE);
