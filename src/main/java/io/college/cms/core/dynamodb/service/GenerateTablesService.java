@@ -15,11 +15,13 @@ import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 
 import io.college.cms.core.admission.model.AdmissionMetaModel;
 import io.college.cms.core.admission.model.ApplyAdmissionModel;
+import io.college.cms.core.admission.model.ApplyFeesModel;
 import io.college.cms.core.announcement.model.AnnouncementModel;
 import io.college.cms.core.attendance.model.AttendanceModel;
 import io.college.cms.core.configuration.AppParams;
 import io.college.cms.core.courses.db.CourseModel;
 import io.college.cms.core.examination.model.ExaminationModel;
+import io.college.cms.core.examination.model.FeesModel;
 import io.college.cms.core.examination.model.StudentResultModel;
 import io.college.cms.core.examination.model.TimeTableModel;
 import io.college.cms.core.job.model.JobModel;
@@ -67,6 +69,8 @@ public class GenerateTablesService {
 			create(AttendanceModel.class);
 			create(FaceModel.class);
 			create(TimeTableModel.class);
+			create(ApplyFeesModel.class);
+			create(FeesModel.class);
 			LOGGER.debug("Successfully created table.");
 		} catch (InterruptedException e) {
 			LOGGER.error("Unable to create table {}", e.getMessage());

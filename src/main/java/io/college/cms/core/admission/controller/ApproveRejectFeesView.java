@@ -156,7 +156,7 @@ public class ApproveRejectFeesView extends VerticalLayout implements View {
 				}
 
 				CourseModel course = (CourseModel) fr.getResponse();
-				if (course.getEnrolledStudents() + 1 > course.getMaxStudentsAllowed()) {
+				if (course == null || course.getEnrolledStudents() + 1 > course.getMaxStudentsAllowed()) {
 					Utils.showErrorNotification("Course cannot enroll more students, all seats are allocated!");
 					return;
 				} else {

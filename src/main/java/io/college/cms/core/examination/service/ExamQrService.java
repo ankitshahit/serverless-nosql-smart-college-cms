@@ -42,7 +42,7 @@ public class ExamQrService {
 	public File printForSubject(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType subjectType,
 			@NonNull List<String> usernames) throws IllegalArgumentException, ApplicationException {
 		File outputFile = new File(new StringBuilder().append(examName).append("_").append(subjectName).append("_")
-				.append(subjectType.toString()).append("_").append(CollectionUtils.size(usernames)).toString());
+				.append(subjectType.toString()).append("_").append(CollectionUtils.size(usernames)).append(".pdf").toString());
 		PdfFactory pdfFactory = new PdfFactory();
 		try {
 			IPdfEngine engine = null;
@@ -153,7 +153,7 @@ public class ExamQrService {
 	 */
 	public String createQrAPILink(@NonNull String examName, @NonNull String subjectName, @NonNull SubjectType type,
 			@NonNull String username) throws IllegalArgumentException {
-		return new StringBuilder().append(app.getHost()).append("/").append(ViewConstants.UPDATE_MARKS_RESULTS)
+		return new StringBuilder().append(app.getHost()).append("/homepage/").append(ViewConstants.UPDATE_MARKS_RESULTS)
 				.append("/").append(examName).append("/").append(subjectName).append("/").append(type.toString())
 				.append("/").append(username).toString();
 	}

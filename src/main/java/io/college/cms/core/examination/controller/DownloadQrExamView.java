@@ -106,6 +106,7 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 		progressWindow.center();
 		progressWindow.setResizable(false);
 		progressWindow.setClosable(false);
+		progressWindow.setSizeFull();
 		VerticalLayout progressLayout = new VerticalLayout();
 		progressLayout.addComponent(progressBar);
 		progressWindow.setContent(progressLayout);
@@ -159,7 +160,7 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 		rootLayout.addComponents(splitPanel);
 		rootLayout.addComponent(btnLayout);
 		rootLayout.setComponentAlignment(btnLayout, Alignment.BOTTOM_RIGHT);
-
+		allStudents.addValueChangeListener(value -> selectByStudent.setEnabled(!allStudents.getValue()));
 		downloadQr.addClickListener(click -> {
 			getUI().addWindow(progressWindow);
 			if (this.selectByStudent.getOptionalValue().isPresent()) {
@@ -177,9 +178,7 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 
 		selectByStudent.addValueChangeListener(value -> {
 			allStudents.setValue(!selectByStudent.getOptionalValue().isPresent());
-			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()
-					|| (selectExam.getOptionalValue().isPresent() && selectSubject.getOptionalValue().isPresent()
-							&& examType.getOptionalValue().isPresent()));
+
 		});
 		EmptyFieldListener<String> exam = getEmptyFieldListener();
 		EmptyFieldListener<String> subject = getEmptyFieldListener();
@@ -191,21 +190,13 @@ public class DownloadQrExamView extends VerticalLayout implements View {
 		 */
 		this.downloadQr.setEnabled(false);
 		this.allStudents.setValue(true);
-		this.allStudents.addValueChangeListener(value -> {
-			this.downloadQr.setEnabled((value.getValue() || this.selectByStudent.getOptionalValue().isPresent())
-					&& this.selectExam.getOptionalValue().isPresent()
-					&& this.selectSubject.getOptionalValue().isPresent()
-					&& this.examType.getOptionalValue().isPresent());
-		});
 
 		this.selectExam.addSelectionListener(select -> {
 			if (!select.getFirstSelectedItem().isPresent()) {
 				return;
 			}
-			uiService.setExamSubjects(selectExam, this.selectExam.getOptionalValue().get());
-			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()
-					|| (selectExam.getOptionalValue().isPresent() && selectSubject.getOptionalValue().isPresent()
-							&& examType.getOptionalValue().isPresent()));
+			uiService.setExamSubjects(selectSubject, this.selectExam.getOptionalValue().get());
+
 		});
 		this.selectSubject.addSelectionListener(select -> {
 			downloadQr.setEnabled(selectByStudent.getOptionalValue().isPresent()

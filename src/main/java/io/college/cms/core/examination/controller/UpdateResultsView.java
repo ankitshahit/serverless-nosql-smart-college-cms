@@ -86,10 +86,15 @@ public class UpdateResultsView extends VerticalLayout implements View {
 			ResultModel model = ResultModel.builder().actionBy(securityService.getPrincipal()).examName(splitParams[0])
 					.subjectName(splitParams[1]).subjectType(splitParams[2]).username(splitParams[3]).build();
 			binder.readBean(model);
-			binder.setReadOnly(true);
+			binder.setReadOnly(false);
+			
 			marksFld.setEnabled(true);
-			uiService.setItemsUser(usernamesCb);
-			usernamesCb.setEnabled(true);
+			//uiService.setItemsUser(usernamesCb);
+			usernamesCb.setEnabled(false);
+			examsCb.setEnabled(false);
+			subjectsCb.setEnabled(false);
+			subjectTypeCb.setEnabled(false);
+			
 		} else {
 			uiService.setExamsName(examsCb);
 			uiService.setItemsUser(usernamesCb);
